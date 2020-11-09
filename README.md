@@ -5,7 +5,7 @@ This repo is the result of a collaboration between ETH Zurich and Swisscom to bu
 End-to-end Pipeline:
 ![End-to-end Pipeline](https://github.com/lsgier/BMP-Visualization/blob/main/docs/pipeline.png "End-to-end Pipeline")
 
-[src/](src/) contains the source code for the Node/Front end
+[src/](src/) contains the source code for the Node/Front end application
 
 [docs/](docs/) includes documents such as the thesis report and presentation slides
 
