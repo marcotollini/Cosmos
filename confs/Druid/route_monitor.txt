@@ -1,0 +1,57 @@
+{
+  "type": "kafka",
+  "spec": {
+    "ioConfig": {
+      "type": "kafka",
+      "consumerProperties": {
+        "bootstrap.servers": ":9092"
+      },
+      "topic": "route_monitor",
+      "inputFormat": {
+        "type": "json"
+      },
+      "useEarliestOffset": true
+    },
+    "tuningConfig": {
+      "type": "kafka"
+    },
+    "dataSchema": {
+      "dataSource": "route_monitor",
+      "granularitySpec": {
+        "type": "uniform",
+        "queryGranularity": "SECOND",
+        "segmentGranularity": "HOUR",
+        "rollup": true
+      },
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "iso"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "bgp_nexthop",
+          "bmp_msg_type",
+          "bmp_router",
+          "comms",
+          "ecomms",
+          "ip_prefix",
+          "log_type",
+          "peer_ip",
+          "rd",
+          {
+            "type": "string",
+            "name": "is_in"
+          },
+          {
+            "type": "string",
+            "name": "is_loc"
+          },
+          {
+            "type": "string",
+            "name": "is_post"
+          }
+        ]
+      }
+    }
+  }
+}
