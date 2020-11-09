@@ -1,0 +1,57 @@
+<br>
+<span class="a">Std. Community:</span>
+<select id="rm_ex_vpnid">
+  <option value="64497:1">64497:1</option>
+  <option value="64497:2">64497:2</option>
+  <option value="64497:3">64497:3</option>
+  <option value="64499:10">64499:10</option>
+  <option value="64499:20">64499:20</option>
+  <option value="64497:30">64499:30</option>
+  
+</select>
+<br>
+
+<span class="a">RIB Selection:</span>
+<select id="rm_ex_rib">
+  <option value="pre_in">Pre-policy Adj-RIB-In</option>
+  <option value="post_in">Post-policy Adj-RIB-In</option>
+  <option value="pre_out">Pre-policy Adj-RIB-Out</option>
+  <option value="post_out">Post-policy Adj-RIB-Out</option>
+  <option value="loc_rib">Loc-RIB</option>
+  <option value="all">All RIBs</option>
+</select>
+<br>
+<span class="a">Initialize:</span>
+<input type="text" id="rm_ex_init" value="2020-10-23T17:00:00.000Z">
+<br>
+<span class="a">Start:</span>
+<input type="text" id="rm_ex_from" value="2020-10-23T17:00:00.001Z">
+<br>
+<span class="a">End:</span>
+<input type="text" id="rm_ex_to" value="2020-10-24T18:00:00.000Z">
+
+<br>
+<span class="a"></span>
+<button onclick="rm_ex_confirm()">Confirm</button>
+<button id="rm_ex_forward" onclick="rm_ex_forward()" disabled>></button>
+<button id="rm_ex_fastForward" onclick="rm_ex_fastForward()" disabled>>></button>
+
+
+<div class="col">
+  <br>	      
+  <div class="row">
+    <!-- <span class="a">Current Message:</span> -->
+    Current Message:<br>
+  </div>
+  <div class="row">
+    <textarea id="rm_ex_cm" name="pf" rows="1" cols="50" placeholder=""></textarea>
+  </div>
+  <br>
+  <div class="row">
+    <!-- <span class="a">Prefixes (Peer IP -\-> BGP Nexthop):</span>	 -->
+    Prefixes (Peer IP → BGP Nexthop)
+  </div>		
+  <div class="row">
+    <textarea id="rm_ex_pf" name="rm_ex_pf" rows="1" cols="50" placeholder=""></textarea>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+
+body {font-family: Arial;}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.zoom {
+    cursor: move;
+    fill: none;
+    pointer-events: all;
+}
+
+.a { display: inline-block; width: 150px; }

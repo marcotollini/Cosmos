@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="Graph.js"></script>
+
+    <script src="visualizations/rm_real.js" defer></script>
+    <script src="visualizations/peer_real.js" defer></script>
+    <script src="visualizations/rpat_real.js" defer></script>
+    
+    <script src="visualizations/rm_ex.js" defer></script>
+    <script src="visualizations/peer_ex.js" defer></script>
+    <script src="visualizations/rpat_ex.js" defer></script>
+
+    <script src="UI.js" defer></script>
+    <script src="Util.js" defer></script>
+
+    <script src="data_plane.js" defer></script>
+    <script src="connector.js" defer></script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <ul class="nav nav-tabs">
+
+	<li class="nav-item dropdown">
+	  <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Peering  <br></a>
+	  <div class="dropdown-menu">
+	    <a class="dropdown-item" onclick="openVisual('peer_real')">Real Time</a>
+	    <a class="dropdown-item" onclick="openVisual('peer_ex')">Explore</a>
+	  </div>
+	</li>
+	
+	<li class="nav-item dropdown">
+	  <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Route Monitor <br></a>
+	  <div class="dropdown-menu">
+	    <a class="dropdown-item" onclick="openVisual('rm_real')">Real Time</a>
+	    <a class="dropdown-item" onclick="openVisual('rm_ex')">Explore</a>
+	  </div>
+	</li>
+	
+	<li class="nav-item dropdown">
+	  <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Route Policy &<br>Attr. Tracing</a>
+	  <div class="dropdown-menu">
+	    <a class="dropdown-item" onclick="openVisual('rpat_real')">Real Time</a>
+	    <a class="dropdown-item" onclick="openVisual('rpat_ex')">Explore</a>
+	  </div>
+	</li>
+      </ul>
+
+      <div class="row">
+	<div class="col">
+	  	  <br><br><br><br>
+	  <h1>Control Plane</h1>
+	  <div id="visual_content">
+
+	  </div>
+	</div>
+	<div class="col">
+	  <br><br><br><br>
+	  <h1>Data Plane</h1>
+	  <br>
+	  <span class="a">Std. Community</span>
+	  <select id="data_stdcomm">
+	    <option value="64497:1">64497:1</option>
+	    <option value="64497:2">64497:2</option>
+	    <option value="64497:3">64497:3</option>
+	    <option value="64499:10">64499:10</option>
+	    <option value="64499:20">64499:20</option>
+	    <option value="64499:30">64499:30</option>
+	  </select>
+	  <br>
+	  <span class="a">Peer Src IP</span>
+	  <select id="data_peer">
+	    <option value="all">All Peers</option>
+	    <option value="192.0.2.52">192.0.2.52</option>
+	    <option value="192.0.2.53" selected="selected">192.0.2.53</option>
+	    <option value="192.0.2.61">192.0.2.61</option>
+	    <option value="192.0.2.62">192.0.2.62</option>
+	    <option value="192.0.2.71">192.0.2.71</option>
+	    <option value="192.0.2.72">192.0.2.72</option>
+	    <option value="192.0.2.81">192.0.2.81</option>
+	    <option value="192.0.2.82">192.0.2.82</option>
+	  </select>
+	  <br>
+	  <span class="a">Start:</span>
+	  <input type="text" id="data_from" value="2020-10-25T10:00:00.000Z">
+	  <br>
+	  <span class="a">End:</span>
+	  <input type="text" id="data_to" value="2020-10-25T11:00:00.000Z">
+	  <br>
+
+	  <span class="a"></span>
+	  <button onclick="data_confirm()">Confirm</button>
+	  
+	</div>
+	<div class="col">
+	</div>
+
+      </div> <!-- row -->
+      <br>
+      <div class="row">
+	<div class="col">
+	  <div id="ctrl_svg"></div>
+	</div>
+	<div class="col">
+	  <div id="data_svg"></div>
+	</div>
+	<div class="col">
+	</div>
+      </div>
+      
+    </div>
+    <br><br>
+
+    <script>
+      var socket = io()
+      var nodes = []
+      var edges = []
+      openVisual("rm_ex")
+      function openVisual(visualName) {
+	  var i, tabcontent, items;
+	  var txtFile = new XMLHttpRequest();
+	  txtFile.open("GET", 'visualizations/'+visualName+".html", true);
+	  txtFile.onreadystatechange = function() {
+	      if (txtFile.readyState === 4 && txtFile.status === 200) {
+		  allText = txtFile.responseText; 
+		  var customTextElement = document.getElementById('visual_content');
+		  customTextElement.innerHTML = txtFile.responseText;
+	      }
+	  }
+	  txtFile.send();
+      }
+    </script>
+
+  </body>
+</html>
+
