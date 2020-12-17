@@ -10,5 +10,3 @@ docker exec -it broker bash
 # consume from topic
 /bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_ipfix
 /bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_bmp
-
-

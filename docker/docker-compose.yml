@@ -55,7 +55,7 @@ services:
     ports:
       - "9991:9991"
     volumes:
-      - "/home/taatomae/BMP-IPFIX-Visualization/docker/nfacctd.conf:/etc/pmacct/nfacctd.conf"
-      - "/home/taatomae/BMP-IPFIX-Visualization/:/home/taatomae/BMP-IPFIX-Visualization/"
+      - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct/"
+      - "~/logs/nfacctd/:/logs/"
 
   
