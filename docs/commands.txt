@@ -1,0 +1,14 @@
+# start docker compose
+docker-compose up
+
+# start nfacctd
+nfacctd -f nfacctd.conf 
+
+# connect to kafka
+docker exec -it broker bash
+
+# consume from topic
+/bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_ipfix
+/bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_bmp
+
+
