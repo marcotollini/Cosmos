@@ -39,11 +39,11 @@ services:
     depends_on:
       - kafka_broker
     ports:
-      - "8081:8081"
+      - "8084:8084"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka_broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8084
 
   nfacctd:
     image: pmacct/nfacctd
@@ -55,7 +55,105 @@ services:
     ports:
       - "9991:9991"
     volumes:
-      - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct/"
-      - "~/logs/nfacctd/:/logs/"
-
+      - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct"
+      - "~/logs/nfacctd:/logs"
   
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    volumes:
+      - metadata_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=FoolishPassword
+      - POSTGRES_USER=druid
+      - POSTGRES_DB=druid
+
+  druid_coordinator:
+    image: apache/druid:0.20.0
+    container_name: druid_coordinator
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_coordinator_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+    ports:
+      - "8081:8081"
+    command:
+      - coordinator
+    env_file:
+      - ../config/druid/environment
+
+  druid_broker:
+    image: apache/druid:0.20.0
+    container_name: druid_broker
+    volumes:
+      - druid_broker_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8082:8082"
+    command:
+      - broker
+    env_file:
+      - ../config/druid/environment
+
+  druid_historical:
+    image: apache/druid:0.20.0
+    container_name: druid_historical
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_historical_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8083:8083"
+    command:
+      - historical
+    env_file:
+      - ../config/druid/environment
+
+  druid_middlemanager:
+    image: apache/druid:0.20.0
+    container_name: druid_middlemanager
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_middle_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8091:8091"
+    command:
+      - middleManager
+    env_file:
+      - ../config/druid/environment
+
+  druid_router:
+    image: apache/druid:0.20.0
+    container_name: druid_router
+    volumes:
+      - druid_router_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8888:8888"
+    command:
+      - router
+    env_file:
+      - ../config/druid/environment
+
+volumes:
+  metadata_data: {}
+  druid_middle_var: {}
+  druid_historical_var: {}
+  druid_broker_var: {}
+  druid_coordinator_var: {}
+  druid_router_var: {}
