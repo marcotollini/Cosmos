@@ -50,10 +50,14 @@ services:
     hostname: nfacctd
     container_name: nfacctd
     network_mode: "host"
+    restart: always
     depends_on:
       - kafka_broker
+      - schema-registry
+      - zookeeper
     ports:
       - "9991:9991"
+      - "1790:1790"
     volumes:
       - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct"
       - "~/logs/nfacctd:/logs"
