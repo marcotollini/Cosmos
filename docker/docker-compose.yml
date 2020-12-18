@@ -86,6 +86,7 @@ services:
     command:
       - coordinator
     env_file:
+      - ../config/druid/coordinator-overlord/jvm.config
       - ../config/druid/environment
 
   druid_broker:
@@ -102,6 +103,7 @@ services:
     command:
       - broker
     env_file:
+      - ../config/druid/broker/jvm.config
       - ../config/druid/environment
 
   druid_historical:
@@ -119,6 +121,7 @@ services:
     command:
       - historical
     env_file:
+      - ../config/druid/historical/jvm.config
       - ../config/druid/environment
 
   druid_middlemanager:
@@ -136,6 +139,7 @@ services:
     command:
       - middleManager
     env_file:
+      - ../config/druid/middleManager/jvm.config
       - ../config/druid/environment
 
   druid_router:
@@ -152,6 +156,7 @@ services:
     command:
       - router
     env_file:
+      - ../config/druid/router/jvm.config
       - ../config/druid/environment
 
 volumes:
