@@ -5,8 +5,15 @@ docker-compose up
 nfacctd -f nfacctd.conf 
 
 # connect to kafka
-docker exec -it broker bash
+docker exec -it kafka_broker bash
 
-# consume from topic
+# consume from topic from kafka
 /bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_ipfix
 /bin/kafka-console-consumer --bootstrap-server :9092 --topic nfacctd_bmp
+
+# connect to schema-registry
+docker exec -it schema-registry bash
+
+# consume from kafka using schema-registry
+/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_ipfix --property schema.registry.url="http://schema-registry:8084"
+/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_bmp --property schema.registry.url="http://schema-registry:8084"
