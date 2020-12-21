@@ -1,0 +1,57 @@
+{
+    "type": "kafka",
+    "spec": {
+        "dataSchema": {
+            "dataSource": "nfacctd_bmp-rpat",
+            "timestampSpec": null,
+            "dimensionsSpec": null,
+            "granularitySpec": {
+                "type": "uniform",
+                "segmentGranularity": "HOUR",
+                "queryGranularity": "MINUTE",
+                "rollup": true,
+                "intervals": null
+            },
+            "transformSpec": {
+                "filter": null,
+                "transforms": []
+            },
+            "parser": {
+                "type": "avro_stream",
+                "avroBytesDecoder": {
+                    "type": "schema_registry",
+                    "url": "http://schema-registry:8084"
+                },
+                "parseSpec": {
+                    "format": "timeAndDims",
+                    "timestampSpec": {
+                        "column": "timestamp",
+                        "format": "iso"
+                    }
+                }
+            }
+        },
+        "ioConfig": {
+            "topic": "nfacctd_bmp",
+            "inputFormat": null,
+            "replicas": 1,
+            "taskCount": 1,
+            "taskDuration": "PT3600S",
+            "consumerProperties": {
+                "bootstrap.servers": "kafka_broker:29092"
+            },
+            "pollTimeout": 100,
+            "startDelay": "PT5S",
+            "period": "PT30S",
+            "useEarliestOffset": true,
+            "completionTimeout": "PT1800S",
+            "lateMessageRejectionPeriod": "PT86400S",
+            "earlyMessageRejectionPeriod": "PT86400S",
+            "lateMessageRejectionStartDateTime": null,
+            "stream": "nfacctd_bmp-bmp-rpat",
+            "useEarliestSequenceNumber": false
+        }
+    },
+    "context": null,
+    "suspended": false
+}
