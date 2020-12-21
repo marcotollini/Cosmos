@@ -13,7 +13,11 @@
                 "intervals": null
             },
             "transformSpec": {
-                "filter": null,
+                "filter":{
+                    "type": "selector",
+                    "dimension": "bmp_msg_type", 
+                    "value": "peer_up"
+                },
                 "transforms": []
             },
             "parser": {

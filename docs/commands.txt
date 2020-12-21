@@ -20,17 +20,13 @@ docker exec -it schema-registry bash
 
 # Druid upload schemas
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/init.json http://localhost:8081/druid/indexer/v1/supervisor
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/logclose.json http://localhost:8081/druid/indexer/v1/supervisor
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/loginit.json http://localhost:8081/druid/indexer/v1/supervisor
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/msglog_rm.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_down.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_up.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/rpat.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/stats.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/term.json http://localhost:8081/druid/indexer/v1/supervisor
+curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/route_monitor.json http://localhost:8081/druid/indexer/v1/supervisor
 
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/ipfix/close.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/ipfix/data.json http://localhost:8081/druid/indexer/v1/supervisor
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/ipfix/init.json http://localhost:8081/druid/indexer/v1/supervisor
 
 
