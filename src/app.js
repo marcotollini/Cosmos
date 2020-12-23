@@ -6,8 +6,11 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var request = require('request');
 
+var logger = require('morgan');
+app.use(logger('dev'));
+
 //Specify Druid endpoint, e.g., http://localhost:8888/druid/v2/?pretty
-var druidEndpoint
+var druidEndpoint = "http://10.212.226.67:8888/druid/v2/?pretty"
 
 //Specify config if desirable to query route policies directly from router
 var router = new netconf.Client({
@@ -109,11 +112,12 @@ var options = {
 };
 
 function queryData(socket,reqObj) {
-
     options.body = JSON.stringify(reqObj)
     var json
     var ret = []
+    console.log(options)
     request(options, function(error, response, body) {
+        console.log(body)
     	if (!error) {
     	    var json = JSON.parse(body)
 	    console.log(json)
