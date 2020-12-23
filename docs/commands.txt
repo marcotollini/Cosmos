@@ -20,6 +20,7 @@ docker exec -it schema-registry bash
 
 # Druid upload schemas
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/init.json http://localhost:8081/druid/indexer/v1/supervisor
+curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/log_init.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_down.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_up.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/rpat.json http://localhost:8081/druid/indexer/v1/supervisor
