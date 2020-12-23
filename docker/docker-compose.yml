@@ -10,10 +10,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  broker:
+  kafka_broker:
     image: confluentinc/cp-kafka:6.0.1
-    hostname: broker
-    container_name: broker
+    hostname: kafka_broker
+    container_name: kafka_broker
     depends_on:
       - zookeeper
     ports:
@@ -24,7 +24,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_broker:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -37,25 +37,132 @@ services:
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-      - broker
+      - kafka_broker
     ports:
-      - "8081:8081"
+      - "8084:8084"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka_broker:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8084
 
   nfacctd:
     image: pmacct/nfacctd
     hostname: nfacctd
     container_name: nfacctd
     network_mode: "host"
+    restart: always
     depends_on:
-      - broker
+      - kafka_broker
+      - schema-registry
+      - zookeeper
     ports:
       - "9991:9991"
+      - "1790:1790"
     volumes:
-      - "/home/taatomae/BMP-IPFIX-Visualization/docker/nfacctd.conf:/etc/pmacct/nfacctd.conf"
-      - "/home/taatomae/BMP-IPFIX-Visualization/:/home/taatomae/BMP-IPFIX-Visualization/"
-
+      - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct"
+      - "~/logs/nfacctd:/logs"
   
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    volumes:
+      - metadata_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=FoolishPassword
+      - POSTGRES_USER=druid
+      - POSTGRES_DB=druid
+
+  druid_coordinator:
+    image: apache/druid:0.20.0
+    container_name: druid_coordinator
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_coordinator_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+    ports:
+      - "8081:8081"
+    command:
+      - coordinator
+    env_file:
+      - ../config/druid/coordinator-overlord/jvm.config
+      - ../config/druid/environment
+
+  druid_broker:
+    image: apache/druid:0.20.0
+    container_name: druid_broker
+    volumes:
+      - druid_broker_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8082:8082"
+    command:
+      - broker
+    env_file:
+      - ../config/druid/broker/jvm.config
+      - ../config/druid/environment
+
+  druid_historical:
+    image: apache/druid:0.20.0
+    container_name: druid_historical
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_historical_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8083:8083"
+    command:
+      - historical
+    env_file:
+      - ../config/druid/historical/jvm.config
+      - ../config/druid/environment
+
+  druid_middlemanager:
+    image: apache/druid:0.20.0
+    container_name: druid_middlemanager
+    volumes:
+      - ~/storage/druid:/opt/data
+      - druid_middle_var:/opt/druid/var
+    depends_on: 
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8091:8091"
+    command:
+      - middleManager
+    env_file:
+      - ../config/druid/middleManager/jvm.config
+      - ../config/druid/environment
+
+  druid_router:
+    image: apache/druid:0.20.0
+    container_name: druid_router
+    volumes:
+      - druid_router_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - druid_coordinator
+    ports:
+      - "8888:8888"
+    command:
+      - router
+    env_file:
+      - ../config/druid/router/jvm.config
+      - ../config/druid/environment
+
+volumes:
+  metadata_data: {}
+  druid_middle_var: {}
+  druid_historical_var: {}
+  druid_broker_var: {}
+  druid_coordinator_var: {}
+  druid_router_var: {}

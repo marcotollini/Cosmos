@@ -1,0 +1,61 @@
+{
+    "type": "kafka",
+    "spec": {
+        "dataSchema": {
+            "dataSource": "nfacctd_bmp-route_monitor",
+            "timestampSpec": null,
+            "dimensionsSpec": null,
+            "granularitySpec": {
+                "type": "uniform",
+                "segmentGranularity": "HOUR",
+                "queryGranularity": "SECOND",
+                "rollup": true,
+                "intervals": null
+            },
+            "transformSpec": {
+                "filter":{
+                    "type": "selector",
+                    "dimension": "bmp_msg_type", 
+                    "value": "route_monitor"
+                },
+                "transforms": []
+            },
+            "parser": {
+                "type": "avro_stream",
+                "avroBytesDecoder": {
+                    "type": "schema_registry",
+                    "url": "http://schema-registry:8084"
+                },
+                "parseSpec": {
+                    "format": "timeAndDims",
+                    "timestampSpec": {
+                        "column": "timestamp",
+                        "format": "iso"
+                    }
+                }
+            }
+        },
+        "ioConfig": {
+            "topic": "nfacctd_bmp",
+            "inputFormat": null,
+            "replicas": 1,
+            "taskCount": 1,
+            "taskDuration": "PT3600S",
+            "consumerProperties": {
+                "bootstrap.servers": "kafka_broker:29092"
+            },
+            "pollTimeout": 100,
+            "startDelay": "PT5S",
+            "period": "PT30S",
+            "useEarliestOffset": true,
+            "completionTimeout": "PT1800S",
+            "lateMessageRejectionPeriod": "PT86400S",
+            "earlyMessageRejectionPeriod": "PT86400S",
+            "lateMessageRejectionStartDateTime": null,
+            "stream": "nfacctd_bmp-bmp-route_monitor",
+            "useEarliestSequenceNumber": false
+        }
+    },
+    "context": null,
+    "suspended": false
+}
