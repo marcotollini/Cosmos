@@ -1,0 +1,93 @@
+{
+    "type": "kafka",
+    "spec": {
+        "ioConfig": {
+            "type": "kafka",
+            "consumerProperties": {
+                "bootstrap.servers": "kafka_broker:29092"
+            },
+            "topic": "nfacctd_bmp",
+            "useEarliestOffset": true,
+            "inputFormat": {
+                "type": "json",
+                "flattenSpec": {
+                    "fields": [
+                        {
+                            "type": "jq",
+                            "name": "time",
+                            "expr": "if .timestamp != \"0000-00-00T00:00:00.000000Z\" then .timestamp else .timestamp_arrival end"
+                        }
+                    ]
+                }
+            }
+        },
+        "tuningConfig": {
+            "type": "kafka"
+        },
+        "dataSchema": {
+            "dataSource": "nfacctd_bmp-stats",
+            "granularitySpec": {
+                "type": "uniform",
+                "queryGranularity": "SECOND",
+                "segmentGranularity": "HOUR",
+                "rollup": true
+            },
+            "timestampSpec": {
+                "column": "time",
+                "format": "iso"
+            },
+            "dimensionsSpec": {
+                "dimensions": [
+                    "event_type",
+                    {
+                        "name": "seq",
+                        "type": "long"
+                    },
+                    "timestamp",
+                    "timestamp_arrival",
+                    "bmp_router",
+                    {
+                        "name": "bmp_router_port",
+                        "type": "long"
+                    },
+                    "bmp_msg_type",
+                    "peer_ip",
+                    {
+                        "name": "peer_asn",
+                        "type": "long"
+                    },
+                    {
+                        "name": "peer_type",
+                        "type": "long"
+                    },
+                    {
+                        "name": "is_post",
+                        "type": "long"
+                    },
+                    {
+                        "name": "is_in",
+                        "type": "long"
+                    },
+                    {
+                        "name": "counter_type",
+                        "type": "long"
+                    },
+                    "counter_type_str",
+                    {
+                        "name": "counter_value",
+                        "type": "long"
+                    },
+                    "writer_id"
+                ]
+            },
+            "metricsSpec": [],
+            "transformSpec": {
+                "filter": {
+                    "type": "selector",
+                    "dimension": "bmp_msg_type",
+                    "value": "stats"
+                }
+            }
+        }
+    }
+}
