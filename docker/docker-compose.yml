@@ -46,7 +46,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8084
 
   nfacctd:
-    image: pmacct/nfacctd
+    image: nfacctd/v1.7.6:latest
     hostname: nfacctd
     container_name: nfacctd
     network_mode: "host"

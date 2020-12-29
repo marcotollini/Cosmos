@@ -15,12 +15,11 @@ docker exec -it kafka_broker bash
 docker exec -it schema-registry bash
 
 # consume from kafka using schema-registry
-/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_ipfix --property schema.registry.url="http://schema-registry:8084"
-/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_bmp --property schema.registry.url="http://schema-registry:8084"
+/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_ipfix --property schema.registry.url="http://schema-registry:8084" --from-beginning
+/bin/kafka-avro-console-consumer --bootstrap-server kafka_broker:29092 --topic nfacctd_bmp --property schema.registry.url="http://schema-registry:8084" --from-beginning
 
 # Druid upload schemas
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/init.json http://localhost:8081/druid/indexer/v1/supervisor
-curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/log_init.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_down.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/peer_up.json http://localhost:8081/druid/indexer/v1/supervisor
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/rpat.json http://localhost:8081/druid/indexer/v1/supervisor
