@@ -88,12 +88,12 @@ function rm_real_confirm() {
 	
 	break;
     case "pre_out":
-	filters.push({"type": "selector", "dimension": "is_in", "value": ""})
+	filters.push({"type": "selector", "dimension": "is_in", "value": "0"})
 	filters.push({"type": "selector", "dimension": "is_post", "value": "0"})
 	break;
     case "post_out":
 
-	filters.push({"type": "selector", "dimension": "is_in", "value": ""})
+	filters.push({"type": "selector", "dimension": "is_in", "value": "0"})
 	filters.push({"type": "selector", "dimension": "is_post", "value": "1"})
 	break;
     case "loc_rib":
@@ -106,7 +106,7 @@ function rm_real_confirm() {
     var filter = { "type": "and", "fields": filters}
     druidReq = {
 	queryType: 'scan',
-	dataSource: 'rm',
+	dataSource: 'nfacctd_bmp-route_monitor',
 	columns: [
 	    "__time",
 	    "bmp_router",
