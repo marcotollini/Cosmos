@@ -31,6 +31,8 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_NUM_PARTITIONS: 6
+      # https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.0.1
@@ -62,5 +64,4 @@ services:
       - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct"
       - "~/logs/nfacctd:/logs"
 
-volumes:
-  metadata_data: {}
+

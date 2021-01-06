@@ -1,1 +1,10 @@
+avro-python3==1.10.0
+certifi==2020.12.5
+chardet==4.0.0
 confluent-kafka==1.5.0
+fastavro==1.2.3
+idna==2.10
+requests==2.25.1
+urllib3==1.26.2
+psycopg2==2.8.6
+PyPika==0.47.0
