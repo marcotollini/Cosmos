@@ -38,13 +38,11 @@ def dispatcher_bmp(msg_value):
 def dispatcher_ipfix(msg_value):
     return
 
-def dispatch(msg):
-    msg_topic = msg.topic()
-
+def dispatch(msg_topic, msg_value):
     if msg_topic == 'nfacctd_bmp':
-        return dispatcher_bmp(msg.value())
+        return dispatcher_bmp(msg_value)
     if msg_topic == 'nfacctd_ipfix':
-        return dispatcher_ipfix(msg.value())
+        return dispatcher_ipfix(msg_value)
 
     raise Exception(f'Dispatcher: topic unknown "{msg_topic}"')
 
