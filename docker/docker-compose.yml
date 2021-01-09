@@ -1,11 +1,12 @@
-version: '2'
+version: '3'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:6.0.1
     hostname: zookeeper
     container_name: zookeeper
-    ports:
-      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_data_log:/var/lib/zookeeper/log
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -17,9 +18,10 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "29092:29092"
       - "9092:9092"
-      - "9101:9101"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - kafka_data_log:/kafka/kafka-logs
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -32,7 +34,14 @@ services:
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
       KAFKA_NUM_PARTITIONS: 6
+      KAFKA_LOG_RETENTION_HOURS: 48
+      KAFKA_LOG_ROLL_HOURS: 1
       # https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 1s
+      timeout: 4s
+      retries: 40
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.0.1
@@ -54,14 +63,109 @@ services:
     network_mode: "host"
     restart: always
     depends_on:
-      - kafka_broker
-      - schema-registry
-      - zookeeper
+      kafka_broker:
+        condition: service_healthy
+      schema-registry:
+        condition: service_started
+      zookeeper:
+        condition: service_started
     ports:
       - "9991:9991"
       - "1790:1790"
     volumes:
-      - "~/BMP-IPFIX-Visualization/config/nfacctd:/etc/pmacct"
+      - "../config/nfacctd:/etc/pmacct"
       - "~/logs/nfacctd:/logs"
 
+  postgres:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: l3visualization
+      POSTGRES_PASSWORD: postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres:/docker-entrypoint-initdb.d/
 
+  adminer:
+    image: adminer
+    hostname: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  # This "container" is a workaround to pre-create topics
+  kafka-setup:
+    image: confluentinc/cp-kafka:6.0.1
+    hostname: kafka-setup
+    container_name: kafka-setup
+    depends_on:
+      kafka_broker:
+        condition: service_healthy
+      zookeeper:
+        condition: service_started
+    command: "bash -c 'kafka-topics --create --topic kafka-connect-offsets --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181 && \
+                       kafka-configs --zookeeper zookeeper:2181 --entity-type topics --alter --add-config cleanup.policy=compact --entity-name kafka-connect-offsets && \
+                       kafka-topics --create --topic kafka-connect-config --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181 && \
+                       kafka-configs --zookeeper zookeeper:2181 --entity-type topics --alter --add-config cleanup.policy=compact --entity-name kafka-connect-config && \
+                       kafka-topics --create --topic kafka-connect-status --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181 && \
+                       kafka-configs --zookeeper zookeeper:2181 --entity-type topics --alter --add-config cleanup.policy=compact --entity-name kafka-connect-status'"
+    environment:
+      # The following settings are listed here only to satisfy the image's requirements.
+      # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:latest
+    hostname: kafka-connect
+    container_name: kafka-connect
+    depends_on:
+      kafka_broker:
+        condition: service_healthy
+      zookeeper:
+        condition: service_started
+    restart: always
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka_broker:29092
+      CONNECT_REST_PORT: 28083
+      CONNECT_GROUP_ID: "kafka-connect"
+      CONNECT_CONFIG_STORAGE_TOPIC: "kafka-connect-config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "kafka-connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "kafka-connect-status"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8084"
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8084"
+      CONNECT_VALUE_CONVERTER_VALUE_SUBJECT_NAME_STRATEGY: "io.confluent.kafka.serializers.subject.NfacctdStrategy"
+      CONNECT_KEY_CONVERTER_KEY_SUBJECT_NAME_STRATEGY: "io.confluent.kafka.serializers.subject.NfacctdStrategy"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
+    volumes:
+      - ../kafka-connect/jar:/etc/kafka-connect/jars
+
+  kafka-connect-config:
+    image: curlimages/curl:latest
+    hostname: kafka-connect-config
+    container_name: kafka-connect-config
+    depends_on:
+      kafka-connect:
+        condition: service_healthy
+    command: "sh /setup.sh"
+    volumes:
+      - ./scripts/kafka-connect-config/setup.sh:/setup.sh
+
+volumes:
+  zookeeper_data:
+  zookeeper_data_log:
+  kafka_data:
+  kafka_data_log:
+  postgres_data:

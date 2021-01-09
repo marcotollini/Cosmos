@@ -1,3 +1,6 @@
+CREATE OR REPLACE FUNCTION varchar_to_timestamp (varchar) RETURNS timestamptz AS $$ SELECT to_timestamp($1, 'YYYY-MM-DDTHH24:MI:SS.USZ') $$ LANGUAGE SQL;
+CREATE CAST (varchar as timestamptz ) WITH FUNCTION varchar_to_timestamp (varchar) AS IMPLICIT;
+
 CREATE TABLE "public"."event_init" (
     "seq" bigint NOT NULL,
     "timestamp" timestamptz,
