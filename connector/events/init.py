@@ -1,16 +1,3 @@
-# [
-#     {"name":"seq","type":"long"},
-#     {"name":"timestamp","type":"string"},
-#     {"name":"event_type","type":"string"},
-#     {"name":"event_timestamp","type":["null","string"]},
-#     {"name":"bmp_router","type":"string"},
-#     {"name":"bmp_router_port","type":"int"},
-#     {"name":"bmp_msg_type","type":"string"},
-#     {"name":"writer_id","type":"string"},
-#     {"name":"bmp_init_info_string","type":["null","string"]},
-#     {"name":"bmp_init_info_sysdescr","type":["null","string"]},
-#     {"name":"bmp_init_info_sysname","type":["null","string"]}
-# ]
 #  {
 #     'seq': 233,
 #     'timestamp': '2021-01-05T15:38:33.475723Z',
@@ -24,6 +11,22 @@
 #     'bmp_init_info_sysdescr': 'Huawei Versatile Routing Platform Software VRP (R) software, Version 8.201 (NE40E V800R013C00SPC006T) Copyright (C) 2012-2020 Huawei Technologies Co., Ltd. HUAWEI NE40E-M2K-B',
 #     'bmp_init_info_sysname': 'ipf-zbl1843-r-daisy-81'
 # }
+
+# {
+#     "name":"seq","type":"long"},
+#     {"name":"timestamp","type":"string"},
+#     {"name":"timestamp_event","type":["null","string"]},
+#     {"name":"timestamp_arrival","type":["null","string"]},
+#     {"name":"event_type","type":"string"},
+#     {"name":"bmp_router","type":"string"},
+#     {"name":"bmp_router_port","type":["null","int"]},
+#     {"name":"bmp_msg_type","type":"string"},
+#     {"name":"writer_id","type":"string"},
+#     {"name":"bmp_init_info_string","type":["null","string"]},
+#     {"name":"bmp_init_info_sysdescr","type":["null","string"]},
+#     {"name":"bmp_init_info_sysname","type":["null","string"]
+# }
+
 def init(msg_value):
     table = 'event_init'
     time = lambda x: x['event_timestamp'] if 'event_timestamp' in x and x['event_timestamp'] is not None else x['timestamp']

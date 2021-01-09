@@ -11,7 +11,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - "~/storage/postgres:/var/lib/postgresql/data"
+      - "~/storage/postgres_connector:/var/lib/postgresql/data"
   adminer:
     image: adminer
     hostname: adminer
@@ -20,13 +20,13 @@ services:
     ports:
       - 8080:8080
 
-  connector:
-    build: ../connector
-    hostname: connector
-    network_mode: "host"
-    container_name: connector
-    restart: always
-    volumes:
-      - "~/BMP-IPFIX-Visualization/connector:/code"
-    depends_on:
-      - db
+  # connector:
+  #   build: ../connector
+  #   hostname: connector
+  #   network_mode: "host"
+  #   container_name: connector
+  #   restart: always
+  #   volumes:
+  #     - "~/BMP-IPFIX-Visualization/connector:/code"
+  #   depends_on:
+  #     - db
