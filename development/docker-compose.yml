@@ -1,10 +1,10 @@
 version: '3.1'
 
 services:
-  db:
-    image: postgres
-    hostname: postgres
-    container_name: postgres
+  timescale:
+    image: timescale/timescaledb:latest-pg12
+    hostname: timescale
+    container_name: timescale
     restart: always
     environment:
       POSTGRES_PASSWORD: example
@@ -12,13 +12,16 @@ services:
       - 5432:5432
     volumes:
       - "~/storage/postgres_connector:/var/lib/postgresql/data"
-  adminer:
+      - ../docker/scripts/postgres:/docker-entrypoint-initdb.d/
+    command: -cmax_locks_per_transaction=400
+
+  adminer_dev:
     image: adminer
-    hostname: adminer
-    container_name: adminer
+    hostname: adminer_dev
+    container_name: adminer_dev
     restart: always
     ports:
-      - 8080:8080
+      - 8081:8080
 
   # connector:
   #   build: ../connector

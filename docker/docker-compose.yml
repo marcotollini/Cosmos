@@ -76,17 +76,20 @@ services:
       - "../config/nfacctd:/etc/pmacct"
       - "~/logs/nfacctd:/logs"
 
-  postgres:
-    image: postgres
-    hostname: postgres
-    container_name: postgres
+  timescale:
+    image: timescale/timescaledb:latest-pg12
+    hostname: timescale
+    container_name: timescale
     restart: always
     environment:
       POSTGRES_USER: l3visualization
       POSTGRES_PASSWORD: postgres_password
+    ports:
+      - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - timescale_data:/var/lib/postgresql/data
       - ./scripts/postgres:/docker-entrypoint-initdb.d/
+    command: -cmax_locks_per_transaction=400
 
   adminer:
     image: adminer
@@ -159,7 +162,7 @@ services:
     depends_on:
       kafka-connect:
         condition: service_healthy
-    command: "sh /setup.sh"
+    command: "sh -c 'sleep 1000'"
     volumes:
       - ./scripts/kafka-connect-config/setup.sh:/setup.sh
 
@@ -168,4 +171,4 @@ volumes:
   zookeeper_data_log:
   kafka_data:
   kafka_data_log:
-  postgres_data:
+  timescale_data:

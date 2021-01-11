@@ -32,3 +32,7 @@ curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/bmp/
 curl -X 'POST' -H 'Content-Type:application/json' -d @../config/druid/specs/ipfix/data.json http://localhost:8081/druid/indexer/v1/supervisor
 
 
+SELECT pg_size_pretty( pg_total_relation_size('event_stats') );
+
+SELECT h.table_name, c.interval_length FROM _timescaledb_catalog.dimension c
+  JOIN _timescaledb_catalog.hypertable h ON h.id = c.hypertable_id;
