@@ -156,13 +156,14 @@ services:
       - ../kafka-connect/jar:/etc/kafka-connect/jars
 
   kafka-connect-config:
-    image: curlimages/curl:latest
+    build: .
     hostname: kafka-connect-config
     container_name: kafka-connect-config
     depends_on:
       kafka-connect:
         condition: service_healthy
-    command: "sh -c 'sleep 1000'"
+    command: "bash /setup.sh"
+    pid: "root"
     volumes:
       - ./scripts/kafka-connect-config/setup.sh:/setup.sh
 
