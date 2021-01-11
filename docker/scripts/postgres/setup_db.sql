@@ -1,9 +1,8 @@
 -- CREATE OR REPLACE FUNCTION varchar_to_timestamp (varchar) RETURNS timestamptz AS $$ SELECT to_timestamp($1, 'YYYY-MM-DD"T"HH24:MI:SS.USZ') $$ LANGUAGE SQL;
 -- CREATE CAST (varchar as timestamptz ) WITH FUNCTION varchar_to_timestamp (varchar) AS IMPLICIT;
 
-CREATE SEQUENCE "event_init_idEventInit_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_init" (
-    "idEventInit" bigint DEFAULT nextval('"event_init_idEventInit_seq"') NOT NULL,
+    "idEventInit" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "timestamp_event" double precision,
@@ -19,9 +18,8 @@ CREATE TABLE "public"."event_init" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-CREATE SEQUENCE "event_log_init_idEventLogInit_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_log_init" (
-    "idEventLogInit" bigint DEFAULT nextval('"event_log_init_idEventLogInit_seq"') NOT NULL,
+    "idEventLogInit" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "event_type" character varying(32) NOT NULL,
@@ -31,9 +29,8 @@ CREATE TABLE "public"."event_log_init" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-CREATE SEQUENCE "event_peer_down_idEventPeerDown_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_peer_down" (
-    "idEventPeerDown" bigint DEFAULT nextval('"event_peer_down_idEventPeerDown_seq"') NOT NULL,
+    "idEventPeerDown" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "timestamp_event" double precision,
@@ -54,9 +51,8 @@ CREATE TABLE "public"."event_peer_down" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-CREATE SEQUENCE "event_peer_up_idEventPeerUp_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_peer_up" (
-    "idEventPeerUp" bigint DEFAULT nextval('"event_peer_up_idEventPeerUp_seq"') NOT NULL,
+    "idEventPeerUp" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "timestamp_event" double precision,
@@ -84,9 +80,8 @@ CREATE TABLE "public"."event_peer_up" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-CREATE SEQUENCE "event_route_monitor_idEventRouteMonitor_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_route_monitor" (
-    "idEventRouteMonitor" bigint DEFAULT nextval('"event_route_monitor_idEventRouteMonitor_seq"') NOT NULL,
+    "idEventRouteMonitor" bigserial NOT NULL,
     "log_type" character varying(32) NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
@@ -123,9 +118,8 @@ CREATE TABLE "public"."event_route_monitor" (
 ) WITH (oids = false);
 
 
-CREATE SEQUENCE "event_stats_idEventStats_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_stats" (
-    "idEventStats" bigint DEFAULT nextval('"event_stats_idEventStats_seq"') NOT NULL,
+    "idEventStats" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "timestamp_event" double precision,
@@ -154,9 +148,8 @@ CREATE TABLE "public"."event_stats" (
 ) WITH (oids = false);
 
 
-CREATE SEQUENCE "event_log_close_idEventLogClose_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_log_close" (
-    "idEventLogClose" bigint DEFAULT nextval('"event_log_close_idEventLogClose_seq"') NOT NULL,
+    "idEventLogClose" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "event_type" character varying(32) NOT NULL,
@@ -167,9 +160,8 @@ CREATE TABLE "public"."event_log_close" (
 ) WITH (oids = false);
 
 
-CREATE SEQUENCE "event_term_idEventTerm_seq" AS BIGINT INCREMENT 1 START 1;
 CREATE TABLE "public"."event_term" (
-    "idEventTerm" bigint DEFAULT nextval('"event_term_idEventTerm_seq"') NOT NULL,
+    "idEventTerm" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" double precision,
     "timestamp_event" double precision,
