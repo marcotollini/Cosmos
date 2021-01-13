@@ -1,0 +1,14 @@
+version: '3'
+services:
+  timescale_test:
+    build: .
+    hostname: timescale_test
+    container_name: timescale_test
+    restart: always
+    environment:
+      POSTGRES_USER: l3visualization_test
+      POSTGRES_PASSWORD: postgres_password
+    volumes:
+      - ./script:/docker-entrypoint-initdb.d/
+      - ./query:/query/
+      - ./test:/test
