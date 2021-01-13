@@ -183,13 +183,14 @@ CREATE TABLE "public"."snapshot_peer_info" (
     "idSnapshotPeerInfo" serial NOT NULL,
     "timestamp_start" timestamptz NOT NULL,
     "timestamp_end" timestamptz NOT NULL,
-    "timestamp_analyzed" integer NOT NULL,
+    "timestamp_analyzed" timestamptz NOT NULL,
     "max_peer_up_id" bigint NOT NULL,
     "max_peer_down_id" bigint NOT NULL
 ) WITH (oids = false);
 
 CREATE TABLE "public"."snapshot_peer" (
     "idSnapshotPeer" serial NOT NULL,
+    "idSnapshotPeerInfo" integer NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
     "bgp_id" character varying(32) NOT NULL,
@@ -198,7 +199,9 @@ CREATE TABLE "public"."snapshot_peer" (
     "peer_ip" character varying(32) NOT NULL,
     "remote_port" integer NOT NULL,
     "peer_type" integer NOT NULL,
-    "rd" character varying(32)
+    "rd" character varying(32),
+    "max_timestamp" integer,
+    "min_timestamp_arrival" integer
 ) WITH (oids = false);
 
 
