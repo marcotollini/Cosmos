@@ -3,11 +3,11 @@
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE TABLE "public"."event_init" (
-    "idEventInit" bigserial NOT NULL,
+    "id_init" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -20,9 +20,9 @@ CREATE TABLE "public"."event_init" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_log_init" (
-    "idEventLogInit" bigserial NOT NULL,
+    "id_log_init" bigserial NOT NULL,
     "seq" bigint NOT NULL,
-    "timestamp" integer,
+    "timestamp" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "writer_id" character varying(128) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
@@ -31,11 +31,11 @@ CREATE TABLE "public"."event_log_init" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_peer_down" (
-    "idEventPeerDown" bigserial NOT NULL,
+    "id_peer_down" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -53,11 +53,11 @@ CREATE TABLE "public"."event_peer_down" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_peer_up" (
-    "idEventPeerUp" bigserial NOT NULL,
+    "id_peer_up" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -82,7 +82,7 @@ CREATE TABLE "public"."event_peer_up" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_route_monitor" (
-    "idEventRouteMonitor" bigserial NOT NULL,
+    "id_route_monitor" bigserial NOT NULL,
     "log_type" character varying(32) NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
@@ -106,7 +106,7 @@ CREATE TABLE "public"."event_route_monitor" (
     "label" character varying(32),
     "peer_ip" character varying(32) NOT NULL,
     "peer_tcp_port" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer NOT NULL,
     "bmp_msg_type" character varying(128) NOT NULL,
@@ -120,11 +120,11 @@ CREATE TABLE "public"."event_route_monitor" (
 
 
 CREATE TABLE "public"."event_stats" (
-    "idEventStats" bigserial NOT NULL,
+    "id_stats" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -150,9 +150,9 @@ CREATE TABLE "public"."event_stats" (
 
 
 CREATE TABLE "public"."event_log_close" (
-    "idEventLogClose" bigserial NOT NULL,
+    "id_log_close" bigserial NOT NULL,
     "seq" bigint NOT NULL,
-    "timestamp" integer,
+    "timestamp" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "writer_id" character varying(128) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
@@ -162,11 +162,11 @@ CREATE TABLE "public"."event_log_close" (
 
 
 CREATE TABLE "public"."event_term" (
-    "idEventTerm" bigserial NOT NULL,
+    "id_term" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -177,31 +177,43 @@ CREATE TABLE "public"."event_term" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
--- snapshot tables
-
-CREATE TABLE "public"."snapshot_peer_info" (
-    "idSnapshotPeerInfo" serial NOT NULL,
+-- snapshots
+CREATE TABLE "public"."snapshot_peering_info" (
+    "id_peering_info" serial NOT NULL,
     "timestamp_start" timestamptz NOT NULL,
-    "timestamp_end" timestamptz NOT NULL,
-    "timestamp_analyzed" timestamptz NOT NULL,
+    "timestamp_end" timestamptz,
+    "timestamp_analyzed" integer NOT NULL,
     "max_peer_up_id" bigint NOT NULL,
     "max_peer_down_id" bigint NOT NULL
 ) WITH (oids = false);
 
-CREATE TABLE "public"."snapshot_peer" (
-    "idSnapshotPeer" serial NOT NULL,
-    "idSnapshotPeerInfo" integer NOT NULL,
+CREATE TABLE "public"."snapshot_peering" (
+    "id_peering" serial NOT NULL,
+    "id_peering_info" integer NOT NULL,
+    "id_peer_up" bigserial NOT NULL,
+    "seq" bigint NOT NULL,
+    "timestamp" integer,
+    "timestamp_event" integer,
+    "timestamp_arrival" integer NOT NULL,
+    "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
-    "bgp_id" character varying(32) NOT NULL,
-    "local_ip" character varying(32) NOT NULL,
-    "local_port" integer NOT NULL,
+    "bmp_msg_type" character varying(128) NOT NULL,
+    "writer_id" character varying(128) NOT NULL,
     "peer_ip" character varying(32) NOT NULL,
-    "remote_port" integer NOT NULL,
+    "peer_asn" bigint NOT NULL,
     "peer_type" integer NOT NULL,
+    "peer_type_str" text,
+    "is_in" boolean,
+    "is_filtered" boolean,
+    "is_loc" boolean,
+    "is_post" boolean,
+    "is_out" boolean,
     "rd" character varying(32),
-    "max_timestamp" integer,
-    "min_timestamp_arrival" integer
+    "bgp_id" character varying(32) NOT NULL,
+    "local_port" integer NOT NULL,
+    "remote_port" integer NOT NULL,
+    "local_ip" character varying(32) NOT NULL,
+    "bmp_peer_up_info_string" text,
+    "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
-
-
