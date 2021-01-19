@@ -108,54 +108,48 @@ $$
 DECLARE
 BEGIN
     WITH
-    prev_up AS (
-        SELECT id_peer_up, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, timestamp_database
+    prev_status AS (
+        SELECT *
         FROM snapshot_peering
         WHERE id_peering_info = base_snapshot_info_id
     ),
-    new_up AS (
-        SELECT *
+    new_up_distinct AS (
+        SELECT DISTINCT ON (bmp_router, peer_ip, peer_asn, peer_type, rd, bgp_id, local_ip) *, CASE WHEN "timestamp" IS NULL THEN timestamp_arrival ELSE "timestamp" END AS timestamp_comparison
         FROM event_peer_up
         WHERE id_peer_up <= max_id_peer_up AND id_peer_up > min_id_peer_up
+        ORDER BY bmp_router, peer_ip, peer_asn, peer_type, rd, bgp_id, local_ip, timestamp_comparison DESC
     ),
-    merged_up AS (
-        SELECT *
-        FROM prev_up
-        UNION
-        SELECT *
-        FROM new_up
-    ),
-    merged_up_distinct AS (
-        SELECT DISTINCT ON (bmp_router, peer_ip, peer_asn, peer_type, rd, bgp_id, local_ip) *
-        FROM merged_up
-        ORDER BY bmp_router, peer_ip, peer_asn, peer_type, rd, bgp_id, local_ip, "timestamp", timestamp_arrival
-    ),
-    peer_down_distinct AS (
-        SELECT DISTINCT ON (bmp_router, peer_ip, peer_asn, peer_type, rd) bmp_router, peer_ip, peer_asn, peer_type, rd, "timestamp", timestamp_arrival
+    new_down_distinct AS (
+        SELECT DISTINCT ON (bmp_router, peer_ip, peer_asn, peer_type, rd) *, CASE WHEN "timestamp" IS NULL THEN timestamp_arrival ELSE "timestamp" END AS timestamp_comparison
         FROM event_peer_down
         WHERE id_peer_down <= max_id_peer_down AND id_peer_down > min_id_peer_down
-        ORDER BY bmp_router, peer_ip, peer_asn, peer_type, rd, "timestamp", timestamp_arrival
+        ORDER BY bmp_router, peer_ip, peer_asn, peer_type, rd, timestamp_comparison DESC
     ),
-    up_minus_down AS ( -- IS NOT DISTINCT FROM, to be null-safe.
-        SELECT *
-        FROM merged_up_distinct AS up
-        WHERE NOT EXISTS (
-            SELECT *
-            FROM peer_down_distinct AS down
-            WHERE up.bmp_router IS NOT DISTINCT FROM down.bmp_router AND up.peer_ip IS NOT DISTINCT FROM down.peer_ip AND up.peer_asn IS NOT DISTINCT FROM down.peer_asn AND
-            up.peer_type IS NOT DISTINCT FROM down.peer_type AND up.rd IS NOT DISTINCT FROM down.rd AND
-            ((up.timestamp IS NOT NULL AND down.timestamp IS NOT NULL AND up.timestamp <= down.timestamp) OR ((up.timestamp IS NULL OR down.timestamp IS NULL) AND up.timestamp_arrival <= down.timestamp_arrival))
-        )
+    merged AS (
+        SELECT id_peer_up, id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, timestamp_comparison, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, reason_type, reason_str, reason_loc_code, timestamp_database
+        FROM prev_status
+        UNION ALL
+        SELECT id_peer_up, NULL AS id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, timestamp_comparison, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, NULL AS reason_type, NULL AS reason_str, NULL AS reason_loc_code, timestamp_database
+        FROM new_up_distinct
+        UNION ALL
+        SELECT NULL AS id_peer_up, id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, timestamp_comparison, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, NULL AS is_in, NULL AS is_filtered, NULL AS is_loc, NULL AS is_post, NULL AS is_out, rd, NULL AS bgp_id, NULL AS local_port, NULL AS remote_port, NULL AS local_ip, NULL AS bmp_peer_up_info_string, reason_type, reason_str, reason_loc_code, timestamp_database
+        FROM new_down_distinct
+    ),
+    merged_distinct AS (
+        SELECT DISTINCT ON (bmp_router, peer_ip, peer_asn, peer_type, rd) *
+        FROM merged
+        ORDER BY bmp_router, peer_ip, peer_asn, peer_type, rd, timestamp_comparison DESC
     )
-    INSERT INTO snapshot_peering(id_peer_up, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, id_peering_info)
-    SELECT id_peer_up, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, curr_snapshot_info_id AS id_peering_info
-    FROM up_minus_down;
+    INSERT INTO snapshot_peering(id_peering_info, id_peer_up, id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, timestamp_comparison, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, reason_type, reason_str, reason_loc_code)
+    SELECT curr_snapshot_info_id AS id_peering_info, id_peer_up, id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, timestamp_comparison, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, reason_type, reason_str, reason_loc_code
+    FROM merged_distinct;
 END;
 $$;
 
 
-DROP FUNCTION IF EXISTS computer_latest_snapshot_peering();
-CREATE OR REPLACE FUNCTION computer_latest_snapshot_peering()
+
+DROP FUNCTION IF EXISTS compute_latest_snapshot_peering();
+CREATE OR REPLACE FUNCTION compute_latest_snapshot_peering()
 RETURNS void
 LANGUAGE plpgsql
 AS
@@ -167,9 +161,10 @@ DECLARE
     min_id_peer_up integer;
     max_id_peer_down integer;
     min_id_peer_down integer;
+    prev_snapshot_info_id integer;
     curr_snapshot_info_id integer;
 BEGIN
-    SELECT max_peer_up_id, max_peer_down_id FROM get_last_snapshot_info_peering() INTO min_id_peer_up, min_id_peer_down;
+    SELECT id_peering_info, max_peer_up_id, max_peer_down_id FROM get_last_snapshot_info_peering() INTO prev_snapshot_info_id, min_id_peer_up, min_id_peer_down;
 
     SELECT new_snapshot_timestamp() INTO max_timestamp;
 
@@ -186,7 +181,7 @@ BEGIN
 
     SELECT save_snapshot_peering_info(max_timestamp, max_id_peer_up, max_id_peer_down) INTO curr_snapshot_info_id;
 
-    PERFORM compute_snapshot_peering(max_id_peer_up, min_id_peer_up, max_id_peer_down, min_id_peer_down, curr_snapshot_info_id, curr_snapshot_info_id);
+    PERFORM compute_snapshot_peering(max_id_peer_up, min_id_peer_up, max_id_peer_down, min_id_peer_down, prev_snapshot_info_id, curr_snapshot_info_id);
 
     PERFORM update_snapshot_peering_info(curr_snapshot_info_id);
 END;
