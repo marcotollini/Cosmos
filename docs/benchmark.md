@@ -778,4 +778,4 @@ What if we use 5M?
  Execution Time: 64800.713 ms
 ```
 
-With 5M it is actually not that bad, with only a 3.5 factor, instead of 5.
+With 5M it is actually not that bad, with only a 3.5 factor, instead of 5. (the old state was keeping the same dimension)

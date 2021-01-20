@@ -1,6 +1,5 @@
 -- CREATE OR REPLACE FUNCTION varchar_to_timestamp (varchar) RETURNS timestamptz AS $$ SELECT to_timestamp($1, 'YYYY-MM-DD"T"HH24:MI:SS.USZ') $$ LANGUAGE SQL;
 -- CREATE CAST (varchar as timestamptz ) WITH FUNCTION varchar_to_timestamp (varchar) AS IMPLICIT;
-CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE TABLE "public"."event_init" (
     "id_init" bigserial NOT NULL,
@@ -174,51 +173,5 @@ CREATE TABLE "public"."event_term" (
     "writer_id" character varying(128) NOT NULL,
     "bmp_init_info_string" text,
     "bmp_term_info_reason" text,
-    "timestamp_database" timestamptz DEFAULT now() NOT NULL
-) WITH (oids = false);
-
--- snapshots
-CREATE TABLE "public"."snapshot_peering_info" (
-    "id_peering_info" serial NOT NULL,
-    "timestamp_start" timestamptz NOT NULL,
-    "timestamp_end" timestamptz,
-    "timestamp_analyzed" integer NOT NULL,
-    "max_peer_up_id" bigint NOT NULL,
-    "max_peer_down_id" bigint NOT NULL
-) WITH (oids = false);
-
-CREATE TABLE "public"."snapshot_peering" (
-    "id_peering" serial NOT NULL,
-    "id_peering_info" integer NOT NULL,
-    "id_peer_up" bigint,
-    "id_peer_down" bigint,
-    "seq" bigint NOT NULL,
-    "timestamp" integer,
-    "timestamp_event" integer,
-    "timestamp_arrival" integer NOT NULL,
-    "timestamp_comparison" integer NOT NULL,
-    "event_type" character varying(32) NOT NULL,
-    "bmp_router" character varying(32) NOT NULL,
-    "bmp_router_port" integer,
-    "bmp_msg_type" character varying(128) NOT NULL,
-    "writer_id" character varying(128) NOT NULL,
-    "peer_ip" character varying(32) NOT NULL,
-    "peer_asn" bigint NOT NULL,
-    "peer_type" integer NOT NULL,
-    "peer_type_str" text,
-    "is_in" boolean,
-    "is_filtered" boolean,
-    "is_loc" boolean,
-    "is_post" boolean,
-    "is_out" boolean,
-    "rd" character varying(32),
-    "bgp_id" character varying(32),
-    "local_port" integer,
-    "remote_port" integer,
-    "local_ip" character varying(32),
-    "bmp_peer_up_info_string" text,
-    "reason_type" integer,
-    "reason_str" text,
-    "reason_loc_code" character varying(32),
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);

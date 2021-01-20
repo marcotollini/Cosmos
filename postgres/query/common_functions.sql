@@ -1,11 +1,124 @@
-DROP FUNCTION IF EXISTS new_snapshot_timestamp();
+-- Used to get the max timestamp while creating a snapshot
+-- can be used to create older snapshot in case the data in the last minutes is very variable (NOW() - INTERVAL '10 minutes')
+-- DROP FUNCTION IF EXISTS new_snapshot_timestamp();
 CREATE OR REPLACE FUNCTION new_snapshot_timestamp()
 RETURNS integer AS $$ SELECT extract(epoch FROM NOW())::integer $$ LANGUAGE sql;
 
-DROP FUNCTION IF EXISTS avoid_stale_peering_up();
-CREATE OR REPLACE FUNCTION avoid_stale_peering_up()
-RETURNS integer AS $$ SELECT extract(epoch FROM NOW() - INTERVAL '30 days')::integer $$ LANGUAGE sql;
+-- List of events
+-- DROP FUNCTION IF EXISTS event_list_snapshot();
+CREATE OR REPLACE FUNCTION event_list_snapshot()
+RETURNS jsonb AS $$ SELECT '["event_init", "event_log_init", "event_peer_down", "event_peer_up", "event_route_monitor", "event_stats", "event_log_close", "event_term"]'::jsonb $$ LANGUAGE sql;
 
-DROP FUNCTION IF EXISTS avoid_stale_peering_down();
-CREATE OR REPLACE FUNCTION avoid_stale_peering_down()
-RETURNS integer AS $$ SELECT extract(epoch FROM NOW() - INTERVAL '1 days')::integer $$ LANGUAGE sql;
+-- event table name to id mapping
+-- DROP FUNCTION IF EXISTS name_original_id(_original_table_name text);
+CREATE OR REPLACE FUNCTION name_original_id(_original_table_name text)
+RETURNS text
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+BEGIN
+    IF _original_table_name = 'event_init' THEN RETURN 'id_init';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'id_log_init';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'id_peer_down';
+    ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'id_peer_up';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'id_route_monitor';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'id_stats';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'id_log_close';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'id_term';
+    END IF;
+END;
+$$;
+
+-- Strategy to distinguish two rows
+-- For example, if we define 'bmp_router, peer_ip' for an event, on snapshot creation
+-- all the rows with a common pair 'bmp_router, peer_ip' will be discarded but the one with
+-- max timestamp_arrival DESC (you can modify this parameter by using fn name_columns_distinct_timestamp)
+-- DROP FUNCTION IF EXISTS name_columns_distinct(_original_table_name text);
+CREATE OR REPLACE FUNCTION name_columns_distinct(_original_table_name text)
+RETURNS text
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+BEGIN
+    IF _original_table_name = 'event_init' THEN RETURN 'id_init';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'id_log_init';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'id_peer_down';
+    ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'bmp_router, peer_ip, peer_asn, peer_type, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_ip';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'id_route_monitor';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'id_stats';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'id_log_close';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'id_term';
+    END IF;
+END;
+$$;
+
+-- On snapshot, only the first row with a common set of values (see name_columns_distinct) is retained
+-- Here you can define the sorting strategy. The first row after sorting will be saved in the snapshot
+-- while the others will be discarded
+-- DROP FUNCTION IF EXISTS name_columns_distinct_timestamp(_original_table_name text);
+CREATE OR REPLACE FUNCTION name_columns_distinct_timestamp(_original_table_name text)
+RETURNS text
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+BEGIN
+    IF _original_table_name = 'event_init' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'timestamp_arrival DESC';
+    END IF;
+END;
+$$;
+
+-- The list of rows that should be retained in the snapshot. If the main table has NOT NULL, those columns
+-- need to be included here.
+-- DROP FUNCTION IF EXISTS name_columns_common_between_original_distinct(_original_table_name text);
+CREATE OR REPLACE FUNCTION name_columns_common_between_original_distinct(_original_table_name text)
+RETURNS text
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+BEGIN
+    IF _original_table_name = 'event_init' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'id_peer_up, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, timestamp_database';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'timestamp_arrival DESC';
+    END IF;
+END;
+$$;
+
+
+-- DROP FUNCTION IF EXISTS timescale_snapshot_setup(_original_table_name text);
+DROP TYPE IF EXISTS timescale_snapshot_setup_typ;
+CREATE TYPE timescale_snapshot_setup_typ AS (column_name text, chunk_time_interval integer, column_name_info text, chunk_time_interval_info integer);
+CREATE OR REPLACE FUNCTION timescale_snapshot_setup(_original_table_name text)
+RETURNS timescale_snapshot_setup_typ
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    s timescale_snapshot_setup_typ;
+BEGIN
+    IF _original_table_name = 'event_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_log_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_peer_down' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_peer_up' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_route_monitor' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_stats' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_log_close' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_term' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    END IF;
+END;
+$$;
