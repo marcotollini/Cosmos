@@ -102,7 +102,7 @@ $$;
 
 -- DROP FUNCTION IF EXISTS timescale_snapshot_setup(_original_table_name text);
 DROP TYPE IF EXISTS timescale_snapshot_setup_typ;
-CREATE TYPE timescale_snapshot_setup_typ AS (column_name text, chunk_time_interval integer, column_name_info text, chunk_time_interval_info integer);
+CREATE TYPE timescale_snapshot_setup_typ AS (column_name text, chunk_time_interval bigint, column_name_info text, chunk_time_interval_info bigint);
 CREATE OR REPLACE FUNCTION timescale_snapshot_setup(_original_table_name text)
 RETURNS timescale_snapshot_setup_typ
 LANGUAGE plpgsql
@@ -111,14 +111,14 @@ $$
 DECLARE
     s timescale_snapshot_setup_typ;
 BEGIN
-    IF _original_table_name = 'event_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_log_init' THEN s.column_name = '"timestamp"'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_peer_down' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_peer_up' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_route_monitor' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_stats' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_log_close' THEN s.column_name = '"timestamp"'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_term' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    IF _original_table_name = 'event_init' THEN SELECT 'timestamp_arrival', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_log_init' THEN SELECT 'timestamp', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_peer_down' THEN SELECT 'timestamp_arrival', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_peer_up' THEN SELECT 'timestamp_arrival', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_route_monitor' THEN SELECT 'timestamp_arrival', 3*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_stats' THEN SELECT 'timestamp_arrival', 1*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_log_close' THEN SELECT 'timestamp', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
+    ELSIF _original_table_name = 'event_term' THEN SELECT 'timestamp_arrival', 7*24*60*60 INTO s.column_name, s.chunk_time_interval; SELECT 'timestamp_start', 7*24*60*60*1000000::bigint INTO s.column_name_info, s.chunk_time_interval_info; RETURN s;
     END IF;
 END;
 $$;

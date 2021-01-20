@@ -202,5 +202,3 @@ BEGIN
     PERFORM save_snapshot_info(_original_table_name, _curr_snapshot_info_id, _timestamp_start, _timestamp_end, max_timestamp, _max_id);
 END;
 $$;
-
-SELECT compute_latest_snapshot('event_peer_up');

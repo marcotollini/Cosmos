@@ -22,8 +22,8 @@ BEGIN
 
         timescale_strategy := timescale_snapshot_setup(_original_table_name);
 
-        SELECT create_hypertable(_name_snapshot_table, timescale_strategy.column_name, timescale_strategy.chunk_time_interval);
-        SELECT create_hypertable(_name_snapshot_info_table, timescale_strategy.column_name_info, timescale_strategy.chunk_time_interval_info);
+        PERFORM create_hypertable(_name_snapshot_table, timescale_strategy.column_name, chunk_time_interval => timescale_strategy.chunk_time_interval, migrate_data => true);
+        PERFORM create_hypertable(_name_snapshot_info_table, timescale_strategy.column_name_info, chunk_time_interval => timescale_strategy.chunk_time_interval_info, migrate_data => true);
     END LOOP;
 END;
 $$;
