@@ -42,14 +42,14 @@ AS
 $$
 DECLARE
 BEGIN
-    IF _original_table_name = 'event_init' THEN RETURN 'id_init';
-    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'id_log_init';
-    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'id_peer_down';
+    IF _original_table_name = 'event_init' THEN RETURN 'bmp_router';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'bmp_router';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'bmp_router, peer_ip, peer_asn, peer_type, rd';
     ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'bmp_router, peer_ip, peer_asn, peer_type, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_ip';
-    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'id_route_monitor';
-    ELSIF _original_table_name = 'event_stats' THEN RETURN 'id_stats';
-    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'id_log_close';
-    ELSIF _original_table_name = 'event_term' THEN RETURN 'id_term';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'afi, safi, ip_prefix, rd, bgp_nexthop, peer_ip, bmp_router, is_in, is_filtered, is_loc, is_post, is_out';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'bmp_router, peer_ip, peer_asn, peer_type, is_in, is_filtered, is_loc, is_post, is_out, rd, counter_type, afi, safi';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'bmp_router';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'bmp_router';
     END IF;
 END;
 $$;
@@ -66,12 +66,12 @@ $$
 DECLARE
 BEGIN
     IF _original_table_name = 'event_init' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'timestamp DESC';
     ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'timestamp_arrival DESC';
     ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'timestamp_arrival DESC';
     ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'timestamp_arrival DESC';
     ELSIF _original_table_name = 'event_stats' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'timestamp DESC';
     ELSIF _original_table_name = 'event_term' THEN RETURN 'timestamp_arrival DESC';
     END IF;
 END;
@@ -87,14 +87,14 @@ AS
 $$
 DECLARE
 BEGIN
-    IF _original_table_name = 'event_init' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'timestamp_arrival DESC';
+    IF _original_table_name = 'event_init' THEN RETURN 'id_init, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, bmp_init_info_string, bmp_init_info_sysdescr, bmp_init_info_sysname, timestamp_database';
+    ELSIF _original_table_name = 'event_log_init' THEN RETURN 'id_log_init, seq, "timestamp", event_type, writer_id, bmp_router, bmp_router_port, timestamp_database';
+    ELSIF _original_table_name = 'event_peer_down' THEN RETURN 'id_peer_down, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, rd, reason_type, reason_str, reason_loc_code, timestamp_database';
     ELSIF _original_table_name = 'event_peer_up' THEN RETURN 'id_peer_up, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, bgp_id, local_port, remote_port, local_ip, bmp_peer_up_info_string, timestamp_database';
-    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_stats' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'timestamp_arrival DESC';
-    ELSIF _original_table_name = 'event_term' THEN RETURN 'timestamp_arrival DESC';
+    ELSIF _original_table_name = 'event_route_monitor' THEN RETURN 'id_route_monitor, log_type, seq, "timestamp", event_type, writer_id, afi, safi, ip_prefix, rd, bgp_nexthop, as_path, as_path_id, comms, ecomms, lcomms, origin, local_pref, med, aigp, psid_li, label, peer_ip, peer_tcp_port, timestamp_arrival, bmp_router, bmp_router_port, bmp_msg_type, is_in, is_filtered, is_loc, is_post, is_out, timestamp_database';
+    ELSIF _original_table_name = 'event_stats' THEN RETURN 'id_stats, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, peer_ip, peer_asn, peer_type, peer_type_str, is_in, is_filtered, is_loc, is_post, is_out, rd, counter_type, counter_type_str, counter_value, afi, safi, timestamp_database';
+    ELSIF _original_table_name = 'event_log_close' THEN RETURN 'id_log_close, seq, "timestamp", event_type, writer_id, bmp_router, bmp_router_port, timestamp_database';
+    ELSIF _original_table_name = 'event_term' THEN RETURN 'id_term, seq, "timestamp", timestamp_event, timestamp_arrival, event_type, bmp_router, bmp_router_port, bmp_msg_type, writer_id, bmp_init_info_string, bmp_term_info_reason, timestamp_database';
     END IF;
 END;
 $$;
@@ -111,14 +111,14 @@ $$
 DECLARE
     s timescale_snapshot_setup_typ;
 BEGIN
-    IF _original_table_name = 'event_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_log_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_peer_down' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_peer_up' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_route_monitor' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_stats' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_log_close' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
-    ELSIF _original_table_name = 'event_term' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 7*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    IF _original_table_name = 'event_init' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_log_init' THEN s.column_name = '"timestamp"'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_peer_down' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_peer_up' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_route_monitor' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_stats' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_log_close' THEN s.column_name = '"timestamp"'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
+    ELSIF _original_table_name = 'event_term' THEN s.column_name = 'timestamp_arrival'; s.chunk_time_interval = 3*24*60*60; s.column_name_info = 'timestamp_start'; s.chunk_time_interval_info = 7*24*60*60; RETURN s;
     END IF;
 END;
 $$;

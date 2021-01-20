@@ -96,7 +96,7 @@ CREATE TABLE "public"."event_route_monitor" (
     "as_path_id" integer,
     "comms" jsonb,
     "ecomms" jsonb,
-    "lcomms"jsonb,
+    "lcomms" jsonb,
     "origin" character varying(5),
     "local_pref" integer,
     "med" integer,
@@ -116,7 +116,6 @@ CREATE TABLE "public"."event_route_monitor" (
     "is_out" boolean,
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
-
 
 CREATE TABLE "public"."event_stats" (
     "id_stats" bigserial NOT NULL,
@@ -146,7 +145,6 @@ CREATE TABLE "public"."event_stats" (
     "safi" integer,
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
-
 
 CREATE TABLE "public"."event_log_close" (
     "id_log_close" bigserial NOT NULL,
