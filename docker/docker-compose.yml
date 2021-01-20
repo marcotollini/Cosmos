@@ -88,7 +88,8 @@ services:
       - 5432:5432
     volumes:
       - timescale_data:/var/lib/postgresql/data
-      - ./scripts/postgres:/docker-entrypoint-initdb.d/
+      - ../postgres/script:/docker-entrypoint-initdb.d/
+      - ../postgres/query:/query/
     command: -cmax_locks_per_transaction=400
 
   adminer:

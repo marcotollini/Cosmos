@@ -1,13 +1,12 @@
 -- CREATE OR REPLACE FUNCTION varchar_to_timestamp (varchar) RETURNS timestamptz AS $$ SELECT to_timestamp($1, 'YYYY-MM-DD"T"HH24:MI:SS.USZ') $$ LANGUAGE SQL;
 -- CREATE CAST (varchar as timestamptz ) WITH FUNCTION varchar_to_timestamp (varchar) AS IMPLICIT;
-CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE TABLE "public"."event_init" (
-    "idEventInit" bigserial NOT NULL,
+    "id_init" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -20,9 +19,9 @@ CREATE TABLE "public"."event_init" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_log_init" (
-    "idEventLogInit" bigserial NOT NULL,
+    "id_log_init" bigserial NOT NULL,
     "seq" bigint NOT NULL,
-    "timestamp" integer,
+    "timestamp" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "writer_id" character varying(128) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
@@ -31,11 +30,11 @@ CREATE TABLE "public"."event_log_init" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_peer_down" (
-    "idEventPeerDown" bigserial NOT NULL,
+    "id_peer_down" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -53,11 +52,11 @@ CREATE TABLE "public"."event_peer_down" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_peer_up" (
-    "idEventPeerUp" bigserial NOT NULL,
+    "id_peer_up" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -82,7 +81,7 @@ CREATE TABLE "public"."event_peer_up" (
 ) WITH (oids = false);
 
 CREATE TABLE "public"."event_route_monitor" (
-    "idEventRouteMonitor" bigserial NOT NULL,
+    "id_route_monitor" bigserial NOT NULL,
     "log_type" character varying(32) NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
@@ -97,7 +96,7 @@ CREATE TABLE "public"."event_route_monitor" (
     "as_path_id" integer,
     "comms" jsonb,
     "ecomms" jsonb,
-    "lcomms"jsonb,
+    "lcomms" jsonb,
     "origin" character varying(5),
     "local_pref" integer,
     "med" integer,
@@ -106,7 +105,7 @@ CREATE TABLE "public"."event_route_monitor" (
     "label" character varying(32),
     "peer_ip" character varying(32) NOT NULL,
     "peer_tcp_port" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer NOT NULL,
     "bmp_msg_type" character varying(128) NOT NULL,
@@ -118,13 +117,12 @@ CREATE TABLE "public"."event_route_monitor" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-
 CREATE TABLE "public"."event_stats" (
-    "idEventStats" bigserial NOT NULL,
+    "id_stats" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,
@@ -148,11 +146,10 @@ CREATE TABLE "public"."event_stats" (
     "timestamp_database" timestamptz DEFAULT now() NOT NULL
 ) WITH (oids = false);
 
-
 CREATE TABLE "public"."event_log_close" (
-    "idEventLogClose" bigserial NOT NULL,
+    "id_log_close" bigserial NOT NULL,
     "seq" bigint NOT NULL,
-    "timestamp" integer,
+    "timestamp" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "writer_id" character varying(128) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
@@ -162,11 +159,11 @@ CREATE TABLE "public"."event_log_close" (
 
 
 CREATE TABLE "public"."event_term" (
-    "idEventTerm" bigserial NOT NULL,
+    "id_term" bigserial NOT NULL,
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer NOT NULL,
     "event_type" character varying(32) NOT NULL,
     "bmp_router" character varying(32) NOT NULL,
     "bmp_router_port" integer,

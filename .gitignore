@@ -5,3 +5,5 @@ src/node_modules/
 local/
 
 temp/
+
+benchmark/
