@@ -12,6 +12,9 @@ services:
       - ./script:/docker-entrypoint-initdb.d/
       - ./query:/query/
       - ./test:/test
+    ports:
+      - 8098:5432
+
 
   adminer_test:
     image: adminer
