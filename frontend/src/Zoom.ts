@@ -1,66 +1,35 @@
-import {InteractionEvent} from './pixi';
+import {Point} from 'pixi.js';
 
-class Pan {
-  startCoordinates: {
-    x: number;
-    y: number;
-  } = {x: 0, y: 0};
-
+class Zoom {
+  toLocal!: Function;
+  toGlobal!: Function;
+  scale!: {x: number; y: number; set: Function};
   position!: {x: number; y: number; set: Function};
-  hitArea!: {x: number; y: number; width: number; height: number};
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: "Abstract methods can only appear within an abstract class"
-  abstract on(event: string, fn: Function, context?: unknown);
+  scroll(event: WheelEvent) {
+    if (event.deltaY === 0) return;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: "Abstract methods can only appear within an abstract class"
-  abstract off(event: string, fn: Function);
+    const scrolly = -event.deltaY;
 
-  savePanCoordinates(coord: {x: number; y: number}) {
-    this.startCoordinates.x = coord.x;
-    this.startCoordinates.y = coord.y;
-  }
+    const mouse = new Point(event.clientX, event.clientY);
+    const mouseloc = this.toLocal(mouse);
 
-  calculteMoved(event: InteractionEvent) {
-    const moved = {
-      x: this.startCoordinates.x - event.data.global.x,
-      y: this.startCoordinates.y - event.data.global.y,
-    };
+    const scalex = Math.max(this.scale.x + scrolly * 0.01, 0.2);
+    const scaley = Math.max(this.scale.y + scrolly * 0.01, 0.2);
 
-    this.savePanCoordinates(event.data.global);
+    if (scalex === this.scale.x) {
+      return;
+    }
 
-    return moved;
-  }
+    this.scale.set(scalex, scaley);
 
-  setNewPosition(event: InteractionEvent) {
-    const moved = this.calculteMoved(event);
+    const movedMouseglob = this.toGlobal(mouseloc);
 
-    this.position.set(this.position.x - moved.x, this.position.y - moved.y);
-
-    this.hitArea.x += moved.x;
-    this.hitArea.y += moved.y;
-  }
-
-  mouseDown(event: InteractionEvent) {
-    this.savePanCoordinates(event.data.global);
-
-    this.on('mousemove', this.mouseMove);
-    this.on('mouseup', this.mouseUp);
-    this.on('mouseout', this.mouseUp);
-  }
-
-  mouseMove(event: InteractionEvent) {
-    this.setNewPosition(event);
-  }
-
-  mouseUp(event: InteractionEvent) {
-    this.setNewPosition(event);
-
-    this.off('mousemove', this.mouseMove);
-    this.off('mouseup', this.mouseUp);
-    this.off('mouseout', this.mouseUp);
+    this.position.set(
+      this.position.x - (movedMouseglob.x - mouse.x),
+      this.position.y - (movedMouseglob.y - mouse.y)
+    );
   }
 }
 
-export default Pan;
+export default Zoom;

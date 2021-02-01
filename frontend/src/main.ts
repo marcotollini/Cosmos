@@ -43,6 +43,7 @@ viewport.addChild(circle2);
 app.stage.addChild(viewport);
 
 viewport.enablePan();
+viewport.enableScroll();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: No overload matches this call
