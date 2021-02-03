@@ -1,6 +1,10 @@
 import {Point} from 'pixi.js';
 
 class Zoom {
+  minZoom = 0.05;
+  maxZoom = 20;
+  numberLevels = 10;
+
   toLocal!: Function;
   toGlobal!: Function;
   scale!: {x: number; y: number; set: Function};
@@ -14,8 +18,14 @@ class Zoom {
     const mouse = new Point(event.clientX, event.clientY);
     const mouseloc = this.toLocal(mouse);
 
-    const scalex = Math.max(this.scale.x + scrolly * 0.01, 0.2);
-    const scaley = Math.max(this.scale.y + scrolly * 0.01, 0.2);
+    const scalex = Math.min(
+      Math.max(this.scale.x + scrolly * 0.01, this.minZoom),
+      this.maxZoom
+    );
+    const scaley = Math.min(
+      Math.max(this.scale.y + scrolly * 0.01, this.minZoom),
+      this.maxZoom
+    );
 
     if (scalex === this.scale.x) {
       return;
@@ -29,6 +39,11 @@ class Zoom {
       this.position.x - (movedMouseglob.x - mouse.x),
       this.position.y - (movedMouseglob.y - mouse.y)
     );
+  }
+
+  getZoomLevel() {
+    const scalex = this.scale.x;
+    return Math.floor((scalex - this.minZoom) / this.numberLevels);
   }
 }
 

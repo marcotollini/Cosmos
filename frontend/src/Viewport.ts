@@ -1,8 +1,8 @@
 import {Mixin} from 'ts-mixer';
 
-import {Container, Rectangle} from './pixi';
-import Pan from './Pan';
-import Zoom from './Zoom';
+import {Container, Rectangle} from './View/pixi';
+import Pan from './View/Pan';
+import Zoom from './View/Zoom';
 
 class Viewport extends Mixin(Container, Pan, Zoom) {
   name = 'viewport';
