@@ -19,6 +19,17 @@ class Viewport extends Mixin(Container, Pan, Zoom, Resize) {
     this.tickerManager = new TickerManager(app.ticker);
     this.renderer = app.renderer;
     this.view = app.view;
+
+    this.on('pan', this.calculateHitArea);
+    this.on('scrolling', this.calculateHitArea);
+  }
+
+  calculateHitArea() {
+    this.hitArea.x = -this.position.x / this.scale.x;
+    this.hitArea.y = -this.position.y / this.scale.y;
+    this.hitArea.width = window.innerWidth / this.scale.x;
+    this.hitArea.height = window.innerHeight / this.scale.y;
+    console.log(this.hitArea);
   }
 
   enablePan() {

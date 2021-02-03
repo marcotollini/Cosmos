@@ -11,6 +11,7 @@ class Zoom {
   scale!: {x: number; y: number; set: Function};
   position!: {x: number; y: number; set: Function};
   tickerManager!: TickerManager;
+  emit!: Function;
 
   scroll(event: WheelEvent) {
     if (event.deltaY === 0) return;
@@ -43,6 +44,8 @@ class Zoom {
       this.position.x - (movedMouseglob.x - mouse.x),
       this.position.y - (movedMouseglob.y - mouse.y)
     );
+
+    this.emit('scrolling');
   }
 
   getZoomLevel() {

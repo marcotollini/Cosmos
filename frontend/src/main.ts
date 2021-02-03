@@ -25,14 +25,10 @@ viewport.enableAutoFullScreen();
 app.view.addEventListener('mousewheel', (event: MouseEvent) => {
   event.preventDefault();
 
-  if (viewport.hitArea.contains(event.clientX, event.clientY)) {
-    viewport.emit('scroll', event);
-  }
+  // if (viewport.hitArea.contains(event.clientX, event.clientY)) {
+  viewport.emit('scroll', event);
+  // }
 });
-
-setTimeout(() => {
-  console.log('a', viewport.x, viewport.y, viewport.width, viewport.height);
-}, 5000);
 
 // const graph = new Graph(viewport, {
 //   allowSelfLoops: false,

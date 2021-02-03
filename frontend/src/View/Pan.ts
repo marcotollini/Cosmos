@@ -11,6 +11,7 @@ class Pan {
   hitArea!: {x: number; y: number; width: number; height: number};
   tickerManager!: TickerManager;
   panTickerSpeed = TickerSpeed.Fast;
+  emit!: Function;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: "Abstract methods can only appear within an abstract class"
@@ -41,8 +42,7 @@ class Pan {
 
     this.position.set(this.position.x - moved.x, this.position.y - moved.y);
 
-    this.hitArea.x += moved.x;
-    this.hitArea.y += moved.y;
+    this.emit('pan');
   }
 
   mouseDown(event: InteractionEvent) {
