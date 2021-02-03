@@ -1,13 +1,6 @@
-import {
-  Application,
-  Graphics,
-  InteractionEvent,
-  Rectangle,
-  Point,
-} from './View/pixi';
+import {Application} from './pixi';
 import Viewport from './Viewport';
 import Graph from './Graph';
-// import Graph from './Graph';
 
 const app = new Application({
   antialias: true,
@@ -16,40 +9,30 @@ const app = new Application({
   resolution: 1,
 });
 
-app.renderer.view.style.position = 'absolute';
-app.renderer.view.style.display = 'block';
-app.renderer.resize(window.innerWidth, window.innerHeight);
-
 document.body.appendChild(app.view);
-setTimeout(() => {
-  // app.ticker.maxFPS = 10;
-  // console.log('app ticker limited');
-}, 0);
 
-const viewport = new Viewport();
+const viewport = new Viewport(app);
 app.stage.addChild(viewport);
 
 viewport.enablePan();
 viewport.enableScroll();
 viewport.sortableChildren = true;
+viewport.setFullScreen();
+viewport.enableAutoFullScreen();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: No overload matches this call
 app.view.addEventListener('mousewheel', (event: MouseEvent) => {
   event.preventDefault();
 
-  const mousePosition = new Point(event.clientX, event.clientY);
-
-  // returns element directly under mouse
-  const found = app.renderer.plugins.interaction.hitTest(
-    mousePosition,
-    app.stage
-  );
-
-  if (found) {
-    found.emit('scroll', event);
+  if (viewport.hitArea.contains(event.clientX, event.clientY)) {
+    viewport.emit('scroll', event);
   }
 });
+
+setTimeout(() => {
+  console.log('a', viewport.x, viewport.y, viewport.width, viewport.height);
+}, 5000);
 
 // const graph = new Graph(viewport, {
 //   allowSelfLoops: false,
@@ -81,7 +64,7 @@ app.view.addEventListener('mousewheel', (event: MouseEvent) => {
 
 import {GraphOptions, Attributes} from 'graphology-types';
 import {clusters} from 'graphology-generators/random';
-const noverlap = require('graphology-layout-noverlap');
+import {circlepack} from 'graphology-layout';
 
 class GraphCompatible extends Graph {
   constructor(options?: GraphOptions<Attributes>) {
@@ -90,18 +73,17 @@ class GraphCompatible extends Graph {
 }
 
 const graph = clusters(GraphCompatible, {
-  order: 1000,
-  size: 5000,
+  order: 6000,
+  size: 1,
   clusters: 5,
 });
-const positions = noverlap(graph, 59);
+const positions = circlepack(graph);
 
 for (const key in positions) {
   graph.mergeNodeAttributes(key, {
-    x: positions[key].x * 20,
-    y: positions[key].y * 20,
+    x: positions[key].x * 50,
+    y: positions[key].y * 50,
     color: 0x00ff00,
   });
 }
-
-console.log('edges', graph.size, 'nodes', graph.order);
+viewport.tickerManager.update();

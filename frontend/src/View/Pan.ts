@@ -1,4 +1,5 @@
-import {InteractionEvent} from './pixi';
+import {InteractionEvent} from '../pixi';
+import {default as TickerManager, TickerSpeed} from '../TickerManager';
 
 class Pan {
   startCoordinates: {
@@ -8,6 +9,8 @@ class Pan {
 
   position!: {x: number; y: number; set: Function};
   hitArea!: {x: number; y: number; width: number; height: number};
+  tickerManager!: TickerManager;
+  panTickerSpeed = TickerSpeed.Fast;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: "Abstract methods can only appear within an abstract class"
@@ -43,6 +46,7 @@ class Pan {
   }
 
   mouseDown(event: InteractionEvent) {
+    this.tickerManager.set(this.panTickerSpeed);
     this.savePanCoordinates(event.data.global);
 
     this.on('mousemove', this.mouseMove);
@@ -57,6 +61,7 @@ class Pan {
   mouseUp(event: InteractionEvent) {
     this.setNewPosition(event);
 
+    this.tickerManager.end(this.panTickerSpeed);
     this.off('mousemove', this.mouseMove);
     this.off('mouseup', this.mouseUp);
     this.off('mouseout', this.mouseUp);

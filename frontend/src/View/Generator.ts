@@ -1,5 +1,6 @@
-import {Graphics} from './pixi';
+import {Graphics} from '../pixi';
 import {defaults} from 'underscore';
+import {InteractionEvent} from '../pixi';
 
 interface NodeProperties {
   color?: number;
@@ -74,6 +75,15 @@ class Generator {
     circle.y = properties.y;
     circle.name = key;
     circle.zIndex = properties.zindex;
+
+    circle.interactive = true;
+    circle.on('click', (event: InteractionEvent) => {
+      console.log('click on node', event.currentTarget.name);
+    });
+
+    circle.on('mouseover', (event: InteractionEvent) => {
+      console.log('mouseover on node', event.currentTarget.name);
+    });
 
     return circle;
   }

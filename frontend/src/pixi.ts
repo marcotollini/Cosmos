@@ -8,4 +8,6 @@ export {
   InteractionEvent,
   Rectangle,
   Point,
+  Ticker,
+  Renderer,
 } from 'pixi.js';

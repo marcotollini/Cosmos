@@ -1,4 +1,5 @@
 import {Point} from 'pixi.js';
+import {default as TickerManager} from '../TickerManager';
 
 class Zoom {
   minZoom = 0.05;
@@ -9,9 +10,12 @@ class Zoom {
   toGlobal!: Function;
   scale!: {x: number; y: number; set: Function};
   position!: {x: number; y: number; set: Function};
+  tickerManager!: TickerManager;
 
   scroll(event: WheelEvent) {
     if (event.deltaY === 0) return;
+
+    this.tickerManager.burst();
 
     const scrolly = -event.deltaY;
 

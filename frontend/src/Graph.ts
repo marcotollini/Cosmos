@@ -1,6 +1,6 @@
 import {UndirectedGraph} from 'graphology';
 import Viewport from './Viewport';
-import {Graphics} from './View/pixi';
+import {Graphics} from './pixi';
 import Generator from './View/Generator';
 
 import {GraphOptions, Attributes} from 'graphology-types';
