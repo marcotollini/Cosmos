@@ -1,66 +1,63 @@
-import {Mixin} from 'ts-mixer';
+import {Application, Container, Rectangle} from 'pixi.js';
 
-import {Container, Rectangle, Application, Renderer} from './pixi';
-import Pan from './View/Pan';
-import Zoom from './View/Zoom';
-import Resize from './View/Resize';
-import TickerManager from './TickerManager';
+import EventManager from './ViewportComponents/EventManager';
+import ZoomManager from './ViewportComponents/ZoomManager';
+import PanManager from './ViewportComponents/PanManager';
+import TickerManager from './ViewportComponents/TickerManager';
 
-class Viewport extends Mixin(Container, Pan, Zoom, Resize) {
+class Viewport extends Container {
   name = 'viewport';
+  application: Application;
+  eventManager: EventManager;
+  zoomManager: ZoomManager;
+  panManager: PanManager;
   tickerManager: TickerManager;
-  renderer: Renderer;
-  view: HTMLCanvasElement;
-  hitArea = new Rectangle(-100000 / 2, -100000 / 2, 100000, 100000);
+
+  hitArea: Rectangle;
 
   constructor(app: Application) {
     super();
 
-    this.tickerManager = new TickerManager(app.ticker);
-    this.renderer = app.renderer;
-    this.view = app.view;
+    this.application = app;
+    this.eventManager = new EventManager(this);
+    this.zoomManager = new ZoomManager(this);
+    this.panManager = new PanManager(this);
+    this.tickerManager = new TickerManager(this.application.ticker);
 
-    this.on('pan', this.calculateHitArea);
-    this.on('scrolling', this.calculateHitArea);
+    this.hitArea = new Rectangle(0, 0, 0, 0);
+    this.updateHitArea();
+
+    this.eventManager.enable();
+    this.eventManager.leftEnable();
+    this.eventManager.rightEnable();
+    this.eventManager.touchEnable();
+    this.eventManager.scrollEnable();
+
+    this.zoomManager.enable();
+    this.panManager.enable();
   }
 
-  calculateHitArea() {
-    this.hitArea.x = -this.position.x / this.scale.x;
-    this.hitArea.y = -this.position.y / this.scale.y;
-    this.hitArea.width = window.innerWidth / this.scale.x;
-    this.hitArea.height = window.innerHeight / this.scale.y;
-    console.log(this.hitArea);
+  setPosition(x: number, y: number) {
+    this.position.set(x, y);
+    this.updateHitArea();
+
+    this.tickerManager.burst();
   }
 
-  enablePan() {
-    this.interactive = true;
-    this.on('mousedown', this.mouseDown);
+  updateHitArea() {
+    this.hitArea.x = -this.position.x * (1 / this.scale.x);
+    this.hitArea.y = -this.position.y * (1 / this.scale.y);
+
+    const {width, height} = this.getCanvasDimension();
+    this.hitArea.width = width * (1 / this.scale.x);
+    this.hitArea.height = height * (1 / this.scale.y);
   }
 
-  disablePan() {
-    this.off('mousedown', this.mouseDown);
-    this.off('mouseup', this.mouseUp);
-    this.off('mousemove', this.mouseMove);
-  }
+  getCanvasDimension() {
+    const width = this.application.view.clientWidth;
+    const height = this.application.view.clientHeight;
 
-  enableScroll() {
-    this.on('scroll', this.scroll);
-  }
-
-  disableScroll() {
-    this.off('scroll', this.scroll);
-  }
-
-  setFullScreen() {
-    this._setFullScreen();
-  }
-
-  enableAutoFullScreen() {
-    window.onresize = this._setFullScreen.bind(this);
-  }
-
-  disableAutoFullScreen() {
-    window.onresize = null;
+    return {width, height};
   }
 }
 
