@@ -4,6 +4,7 @@ import EventManager from './ViewportComponents/EventManager';
 import ZoomManager from './ViewportComponents/ZoomManager';
 import PanManager from './ViewportComponents/PanManager';
 import TickerManager from './ViewportComponents/TickerManager';
+import ResizeManager from './ViewportComponents/ResizeManager';
 
 class Viewport extends Container {
   name = 'viewport';
@@ -12,6 +13,7 @@ class Viewport extends Container {
   zoomManager: ZoomManager;
   panManager: PanManager;
   tickerManager: TickerManager;
+  resizeManager: ResizeManager;
 
   hitArea: Rectangle;
 
@@ -23,6 +25,7 @@ class Viewport extends Container {
     this.zoomManager = new ZoomManager(this);
     this.panManager = new PanManager(this);
     this.tickerManager = new TickerManager(this.application.ticker);
+    this.resizeManager = new ResizeManager(this);
 
     this.hitArea = new Rectangle(0, 0, 0, 0);
     this.updateHitArea();
@@ -35,6 +38,10 @@ class Viewport extends Container {
 
     this.zoomManager.enable();
     this.panManager.enable();
+
+    this.resizeManager.enable();
+
+    this.sortableChildren = true;
   }
 
   setPosition(x: number, y: number) {
