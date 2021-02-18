@@ -8,6 +8,7 @@ class ResizeManager {
   }
 
   enable() {
+    this.resize();
     window.addEventListener('resize', this.resize.bind(this));
   }
 
@@ -20,7 +21,6 @@ class ResizeManager {
     this.viewport.application.renderer.resize(width, height);
     this.viewport.updateHitArea();
     this.viewport.tickerManager.burst();
-    console.log('resize');
   }
 }
 
