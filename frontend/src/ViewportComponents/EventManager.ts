@@ -12,7 +12,6 @@ class EventManager {
   leftEvent: Event;
   touchEvent: Event;
   rightEvent: Event;
-  // scrollEvent: Event;
 
   constructor(viewport: Viewport) {
     this.viewport = viewport;
@@ -193,10 +192,10 @@ class Event {
         window.clearTimeout(this.state.doubleclickTimer);
         this.state.doubleclickTimer = undefined;
 
-        this.viewport.emit(`viewport_${this.name}_doubleclick`, position);
+        this.viewport.emit(`viewport_${this.name}_doubleclick`, event);
       } else {
         this.state.doubleclickTimer = window.setTimeout(() => {
-          this.viewport.emit(`viewport_${this.name}_click`, position);
+          this.viewport.emit(`viewport_${this.name}_click`, event);
 
           this.state.doubleclickTimer = undefined;
         }, 300);

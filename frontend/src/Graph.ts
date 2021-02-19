@@ -13,8 +13,8 @@ import {
 
 class Graph extends UndirectedGraph {
   viewport: Viewport;
-  _graphicNodes: Record<string, Graphics>;
-  _graphicEdges: Record<string, Graphics>;
+  nodesStore: Record<string, Graphics>;
+  edgesStore: Record<string, Graphics>;
 
   constructor(viewport: Viewport, options?: GraphOptions<Attributes>) {
     if (options !== undefined) {
@@ -27,8 +27,8 @@ class Graph extends UndirectedGraph {
 
     this.viewport = viewport;
 
-    this._graphicNodes = {};
-    this._graphicEdges = {};
+    this.nodesStore = {};
+    this.edgesStore = {};
 
     const burstCB = _.partial(this.viewport.tickerManager.burst, 500).bind(
       this.viewport.tickerManager
@@ -53,12 +53,12 @@ class Graph extends UndirectedGraph {
     this.on('edgeAttributesUpdated', burstCB);
   }
 
-  getNodeGraphic(key: string) {
-    return this._graphicNodes[key];
+  getNode(key: string) {
+    return this.nodesStore[key];
   }
 
-  getEdgeGraphic(key: string) {
-    return this._graphicEdges[key];
+  getEdge(key: string) {
+    return this.edgesStore[key];
   }
 
   handlerNodeAdd(payload: {key: string; attributes: Attributes}) {
@@ -67,15 +67,15 @@ class Graph extends UndirectedGraph {
     const node = Factory.node();
     Factory.updateGraphic(node, options);
 
-    this._graphicNodes[payload.key] = node;
-    node.visible = true;
+    this.nodesStore[payload.key] = node;
+
     this.viewport.addChild(node);
   }
 
   handlerNodeDelete(payload: {key: string; attributes: Attributes}) {
-    const node = this._graphicNodes[payload.key];
+    const node = this.nodesStore[payload.key];
     this.viewport.removeChild(node);
-    delete this._graphicNodes[payload.key];
+    delete this.nodesStore[payload.key];
   }
 
   handlerEdgeAdd(payload: {
@@ -90,7 +90,6 @@ class Graph extends UndirectedGraph {
     const toAttr = this.getNodeAttributes(payload.target);
     const toPoint: Point = {x: toAttr.x, y: toAttr.y};
 
-    console.log(fromPoint, toPoint);
     payload.attributes.name = payload.key;
     payload.attributes.x = fromPoint.x;
     payload.attributes.y = fromPoint.y;
@@ -99,11 +98,10 @@ class Graph extends UndirectedGraph {
 
     const options = _.defaults(payload.attributes, DEFAULT_EDGE);
 
-    console.log(options);
-
     const edge = Factory.edge();
     Factory.updateGraphic(edge, options);
-    this._graphicEdges[payload.key] = edge;
+
+    this.edgesStore[payload.key] = edge;
     this.viewport.addChild(edge);
   }
 
@@ -114,9 +112,9 @@ class Graph extends UndirectedGraph {
     attributes: Attributes;
     undirected: boolean;
   }) {
-    const edge = this._graphicEdges[payload.key];
+    const edge = this.edgesStore[payload.key];
     this.viewport.removeChild(edge);
-    delete this._graphicEdges[payload.key];
+    delete this.edgesStore[payload.key];
   }
 
   handlerCleared() {
@@ -125,17 +123,15 @@ class Graph extends UndirectedGraph {
   }
 
   handlerNodesCleared() {
-    for (const node in this._graphicNodes) {
-      this.viewport.removeChild(this._graphicNodes[node]);
+    for (const node in this.nodesStore) {
+      this.dropNode(node);
     }
-    this._graphicNodes = {};
   }
 
   handlerEdgesCleared() {
-    for (const edge in this._graphicEdges) {
-      this.viewport.removeChild(this._graphicEdges[edge]);
+    for (const edge in this.edgesStore) {
+      this.dropEdge(edge);
     }
-    this._graphicEdges = {};
   }
 
   handlerNodeAttributesUpdated(payload: {
@@ -145,7 +141,7 @@ class Graph extends UndirectedGraph {
     name: string;
     data: Attributes;
   }) {
-    const node = this._graphicNodes[payload.key];
+    const node = this.nodesStore[payload.key];
     const oldPosition = payload.attributes;
 
     Factory.updateGraphic(node, payload.attributes);
@@ -176,7 +172,7 @@ class Graph extends UndirectedGraph {
     name: string;
     data: Attributes;
   }) {
-    const edge = this._graphicEdges[payload.key];
+    const edge = this.edgesStore[payload.key];
     Factory.updateGraphic(edge, payload.attributes);
   }
 }

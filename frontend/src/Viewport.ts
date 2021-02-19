@@ -32,7 +32,7 @@ class Viewport extends Container {
 
     this.eventManager.enable();
     this.eventManager.leftEnable();
-    this.eventManager.rightEnable();
+    // this.eventManager.rightEnable();
     this.eventManager.touchEnable();
     this.eventManager.scrollEnable();
 

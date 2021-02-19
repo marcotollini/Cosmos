@@ -11,6 +11,7 @@ const DEFAULT_GRAPHIC = {
   y: 0,
   tint: 0xffffff,
   interactive: true,
+  visible: true,
   name: 'unknown',
 };
 
