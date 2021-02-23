@@ -1,0 +1,24 @@
+version: '3'
+services:
+  timescale_data:
+    image: timescale/timescaledb:latest-pg12
+    hostname: timescale_data
+    container_name: timescale_data
+    restart: always
+    environment:
+      POSTGRES_USER: l3visualization_test
+      POSTGRES_PASSWORD: postgres_password
+    volumes:
+      - ./script:/docker-entrypoint-initdb.d/
+      - ./query:/query/
+    ports:
+      - 8099:5432
+
+
+  adminer_test:
+    image: adminer
+    hostname: adminer_test
+    container_name: adminer_test
+    restart: always
+    ports:
+      - 8083:8080

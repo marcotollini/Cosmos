@@ -779,3 +779,137 @@ What if we use 5M?
 ```
 
 With 5M it is actually not that bad, with only a 3.5 factor, instead of 5. (the old state was keeping the same dimension)
+
+
+## INsertion test 2
+
+```
+\copy (SELECT * FROM event_stats WHERE id_stats <= 10000000) to '/event_stats_10M.csv' with csv
+docker cp timescale:/event_stats_10M.csv .
+
+docker run --rm -v /home/taatomae/BMP-IPFIX-Visualization/benchmark/event_stats_10M.csv:/event_stats_10M.csv -it golang bash
+go get github.com/timescale/benchmark-postgres
+cd $GOPATH/src/github.com/timescale/benchmark-postgres/cmd/timescaledb-parallel-copy
+go get .
+go install
+```
+
+## With triggers
+
+```
+timescaledb-parallel-copy --connection "host=10.212.226.67 port=8098 user=l3visualization_test password=postgres_password sslmode=disable" --db-name=l3visualization_test --table=event_stats --verbose --reporting-period=10s --file=/event_stats_10M.csv --copy-options="NULL ''"
+```
+
+```
+at 10s, row rate 49999.072217/sec (period), row rate 49999.072217/sec (overall), 5.000000E+05 total rows
+at 20s, row rate 48495.500379/sec (period), row rate 49247.258398/sec (overall), 9.850000E+05 total rows
+at 30s, row rate 13001.270417/sec (period), row rate 37166.497863/sec (overall), 1.115000E+06 total rows
+at 40s, row rate 38999.828674/sec (period), row rate 37624.830514/sec (overall), 1.505000E+06 total rows
+at 50s, row rate 49999.920530/sec (period), row rate 40099.842745/sec (overall), 2.005000E+06 total rows
+at 1m0s, row rate 40000.162745/sec (period), row rate 40083.229522/sec (overall), 2.405000E+06 total rows
+at 1m10s, row rate 24000.080343/sec (period), row rate 37785.648476/sec (overall), 2.645000E+06 total rows
+at 1m20s, row rate 35499.898935/sec (period), row rate 37499.929507/sec (overall), 3.000000E+06 total rows
+at 1m30s, row rate 49999.941000/sec (period), row rate 38888.818809/sec (overall), 3.500000E+06 total rows
+at 1m40s, row rate 44000.326716/sec (period), row rate 39399.965354/sec (overall), 3.940000E+06 total rows
+at 1m50s, row rate 5999.960219/sec (period), row rate 36363.585377/sec (overall), 4.000000E+06 total rows
+at 2m0s, row rate 49999.535984/sec (period), row rate 37499.922800/sec (overall), 4.500000E+06 total rows
+at 2m10s, row rate 50000.480910/sec (period), row rate 38461.493829/sec (overall), 5.000000E+06 total rows
+at 2m20s, row rate 13000.068401/sec (period), row rate 36642.831430/sec (overall), 5.130000E+06 total rows
+at 2m30s, row rate 36999.704346/sec (period), row rate 36666.623119/sec (overall), 5.500000E+06 total rows
+at 2m40s, row rate 50000.064100/sec (period), row rate 37499.961251/sec (overall), 6.000000E+06 total rows
+at 2m50s, row rate 26500.149201/sec (period), row rate 36852.917541/sec (overall), 6.265000E+06 total rows
+at 3m0s, row rate 23499.393495/sec (period), row rate 36111.037460/sec (overall), 6.500000E+06 total rows
+at 3m10s, row rate 50000.907796/sec (period), row rate 36842.069281/sec (overall), 7.000000E+06 total rows
+at 3m20s, row rate 50000.172836/sec (period), row rate 37499.971688/sec (overall), 7.500000E+06 total rows
+at 3m30s, row rate 13000.037220/sec (period), row rate 36333.312162/sec (overall), 7.630000E+06 total rows
+at 3m40s, row rate 36999.758528/sec (period), row rate 36363.605350/sec (overall), 8.000000E+06 total rows
+at 3m50s, row rate 50000.033600/sec (period), row rate 36956.492670/sec (overall), 8.500000E+06 total rows
+at 4m0s, row rate 29500.166528/sec (period), row rate 36645.814329/sec (overall), 8.795000E+06 total rows
+at 4m10s, row rate 20499.919940/sec (period), row rate 35999.976454/sec (overall), 9.000000E+06 total rows
+at 4m20s, row rate 50000.018955/sec (period), row rate 36538.439092/sec (overall), 9.500000E+06 total rows
+at 4m30s, row rate 49999.977020/sec (period), row rate 37037.014497/sec (overall), 1.000000E+07 total rows
+COPY 10000000, took 4m37.954944182s with 1 worker(s) (mean rate 35977.053869/sec)
+```
+
+4 workers:
+
+```
+at 10s, row rate 177481.101795/sec (period), row rate 177481.101795/sec (overall), 1.775000E+06 total rows
+at 20s, row rate 72506.702636/sec (period), row rate 124999.122600/sec (overall), 2.500000E+06 total rows
+at 30s, row rate 50000.381943/sec (period), row rate 99999.786677/sec (overall), 3.000000E+06 total rows
+at 40s, row rate 58498.415401/sec (period), row rate 89624.249675/sec (overall), 3.585000E+06 total rows
+at 50s, row rate 41500.905604/sec (period), row rate 79999.813340/sec (overall), 4.000000E+06 total rows
+at 1m0s, row rate 46500.436597/sec (period), row rate 74416.638423/sec (overall), 4.465000E+06 total rows
+at 1m10s, row rate 60999.608395/sec (period), row rate 72499.909924/sec (overall), 5.075000E+06 total rows
+at 1m20s, row rate 49499.854025/sec (period), row rate 69624.898644/sec (overall), 5.570000E+06 total rows
+at 1m30s, row rate 43000.047425/sec (period), row rate 66666.588570/sec (overall), 6.000000E+06 total rows
+at 1m40s, row rate 30000.049410/sec (period), row rate 62999.943955/sec (overall), 6.300000E+06 total rows
+at 1m50s, row rate 66999.789681/sec (period), row rate 63363.567037/sec (overall), 6.970000E+06 total rows
+at 2m0s, row rate 53000.020967/sec (period), row rate 62499.939377/sec (overall), 7.500000E+06 total rows
+at 2m10s, row rate 50000.049140/sec (period), row rate 61538.411092/sec (overall), 8.000000E+06 total rows
+at 2m20s, row rate 8499.340597/sec (period), row rate 57749.636014/sec (overall), 8.085000E+06 total rows
+at 2m30s, row rate 64505.062177/sec (period), row rate 58199.962122/sec (overall), 8.730000E+06 total rows
+at 2m40s, row rate 73500.033376/sec (period), row rate 59156.215584/sec (overall), 9.465000E+06 total rows
+at 2m50s, row rate 53000.127730/sec (period), row rate 58794.093789/sec (overall), 9.995000E+06 total rows
+at 3m0s, row rate 499.997861/sec (period), row rate 55555.521058/sec (overall), 1.000000E+07 total rows
+at 3m10s, row rate 0.000000/sec (period), row rate 52631.538675/sec (overall), 1.000000E+07 total rows
+at 3m20s, row rate 0.000000/sec (period), row rate 49999.968980/sec (overall), 1.000000E+07 total rows
+```
+
+```
+ Modify	id_snapshot_event_stats_info	timestamp_start	timestamp_end	timestamp_analyzed	max_id_snapshot_event_stats_info
+ edit	1	2021-01-21 08:50:21.311946+00	2021-01-21 08:50:21.311946+00	1611219021	500000
+ edit	2	2021-01-21 08:50:38.011834+00	2021-01-21 08:50:38.011834+00	1611219038	1117974
+ edit	3	2021-01-21 08:50:54.595447+00	2021-01-21 08:50:54.595447+00	1611219055	1530584
+ edit	4	2021-01-21 08:51:09.311134+00	2021-01-21 08:51:09.311134+00	1611219069	2113081
+ edit	5	2021-01-21 08:51:25.905965+00	2021-01-21 08:51:25.905965+00	1611219086	2500000
+ edit	6	2021-01-21 08:51:40.36824+00	2021-01-21 08:51:40.36824+00	1611219100	3000000
+ edit	7	2021-01-21 08:51:56.234648+00	2021-01-21 08:51:56.234648+00	1611219116	3500000
+ edit	8	2021-01-21 08:52:12.723991+00	2021-01-21 08:52:12.723991+00	1611219133	4000000
+ edit	9	2021-01-21 08:52:28.469129+00	2021-01-21 08:52:28.469129+00	1611219148	4500000
+ edit	10	2021-01-21 08:52:44.190355+00	2021-01-21 08:52:44.190355+00	1611219164	5000000
+ edit	11	2021-01-21 08:52:59.87053+00	2021-01-21 08:52:59.87053+00	1611219180	5500000
+ edit	12	2021-01-21 08:53:15.633441+00	2021-01-21 08:53:15.633441+00	1611219196	6000000
+ edit	13	2021-01-21 08:53:31.301333+00	2021-01-21 08:53:31.301333+00	1611219211	6500000
+ edit	14	2021-01-21 08:53:47.146466+00	2021-01-21 08:53:47.146466+00	1611219227	7000000
+ edit	15	2021-01-21 08:54:02.925695+00	2021-01-21 08:54:02.925695+00	1611219243	7500000
+ edit	16	2021-01-21 08:54:18.876391+00	2021-01-21 08:54:18.876391+00	1611219259	8000000
+ edit	17	2021-01-21 08:54:34.716546+00	2021-01-21 08:54:34.716546+00	1611219275	8500000
+ edit	18	2021-01-21 08:54:50.275011+00	2021-01-21 08:54:50.275011+00	1611219290	9000000
+ edit	19	2021-01-21 08:55:06.729556+00	2021-01-21 08:55:06.729556+00	1611219307	9500000
+ edit	20	2021-01-21 08:55:22.451821+00	2021-01-21 08:55:22.451821+00	1611219322	10000000
+```
+
+## Without triggers
+
+```
+at 10s, row rate 97498.968237/sec (period), row rate 97498.968237/sec (overall), 9.750000E+05 total rows
+at 20s, row rate 100000.317371/sec (period), row rate 98749.634202/sec (overall), 1.975000E+06 total rows
+at 30s, row rate 81499.699886/sec (period), row rate 92999.656180/sec (overall), 2.790000E+06 total rows
+at 40s, row rate 87994.540564/sec (period), row rate 91748.322522/sec (overall), 3.670000E+06 total rows
+at 50s, row rate 99506.487574/sec (period), row rate 93299.851907/sec (overall), 4.665000E+06 total rows
+at 1m0s, row rate 81994.233911/sec (period), row rate 91415.474312/sec (overall), 5.485000E+06 total rows
+at 1m10s, row rate 93006.306367/sec (period), row rate 91642.720285/sec (overall), 6.415000E+06 total rows
+at 1m20s, row rate 95999.894621/sec (period), row rate 92187.366888/sec (overall), 7.375000E+06 total rows
+at 1m30s, row rate 83999.852009/sec (period), row rate 91277.642756/sec (overall), 8.215000E+06 total rows
+at 1m40s, row rate 91500.627877/sec (period), row rate 91299.941101/sec (overall), 9.130000E+06 total rows
+COPY 10000000, took 1m48.936239834s with 1 worker(s) (mean rate 91796.816333/sec)
+```
+
+4 workers
+
+```
+at 10s, row rate 236998.283919/sec (period), row rate 236998.283919/sec (overall), 2.370000E+06 total rows
+at 20s, row rate 228999.767290/sec (period), row rate 232999.038052/sec (overall), 4.660000E+06 total rows
+at 30s, row rate 217001.555771/sec (period), row rate 227666.584122/sec (overall), 6.830000E+06 total rows
+at 40s, row rate 211998.272193/sec (period), row rate 223749.483262/sec (overall), 8.950000E+06 total rows
+COPY 10000000, took 44.754160649s with 4 worker(s) (mean rate 223442.912457/sec)
+```
+
+Single server, 10M records compute_latest_snapshot('event_stats'): 203.589s
+
+=> do not use triggers, use cronjob that once every minute count the number of new rows and, if they are more than
+a specified amount, then calculate state. Advantage: no concurrent state computation.
+
+
+
