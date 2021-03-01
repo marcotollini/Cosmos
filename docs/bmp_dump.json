@@ -1,0 +1,1688 @@
+[
+    {
+        "seq": 46,
+        "timestamp": "1614609241.144104",
+        "event_type": "dump_init",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "dump_period": 60
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "0.000000"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "init",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_init_info_string": null,
+        "bmp_init_info_sysdescr": {
+            "string": " 6.6.3"
+        },
+        "bmp_init_info_sysname": {
+            "string": "ipf-zbll1312-r-daisy-44"
+        }
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366866"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:31::153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:75"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 61051,
+        "local_ip": "2001:db8:31::144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366871"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.31.153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:75"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 50812,
+        "local_ip": "192.0.31.144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366875"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:21::153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:45"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 57680,
+        "local_ip": "2001:db8:21::144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366879"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.21.153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:45"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 55966,
+        "local_ip": "192.0.21.144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366883"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:11::153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:15"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 53398,
+        "local_ip": "2001:db8:11::144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609319.366888"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.11.153",
+        "peer_asn": 65000,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:15"
+        },
+        "bgp_id": "192.0.2.53",
+        "local_port": 179,
+        "remote_port": 58360,
+        "local_ip": "192.0.11.144",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 47,
+        "timestamp": "1614609241.144104",
+        "event_type": "dump_close",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_router": "192.0.2.44",
+        "bmp_router_port": {
+            "int": 44216
+        },
+        "entries": null,
+        "tables": null
+    },
+    {
+        "seq": 48,
+        "timestamp": "1614609241.144104",
+        "event_type": "dump_init",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "dump_period": 60
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "0.000000"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "init",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_init_info_string": null,
+        "bmp_init_info_sysdescr": {
+            "string": " 7.2.1"
+        },
+        "bmp_init_info_sysname": {
+            "string": "ipf-zbl1843-r-daisy-55"
+        }
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160217"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:33::182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:94"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 179,
+        "remote_port": 63891,
+        "local_ip": "2001:db8:33::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160220"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:33::181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:94"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 61993,
+        "local_ip": "2001:db8:33::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160221"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.33.182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:94"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 45039,
+        "remote_port": 179,
+        "local_ip": "192.0.33.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160223"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.33.181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:94"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 59989,
+        "local_ip": "192.0.33.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160230"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:32::172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:84"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 50428,
+        "local_ip": "2001:db8:32::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160233"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:32::171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:84"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 56317,
+        "local_ip": "2001:db8:32::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160234"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.32.172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:84"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 58950,
+        "local_ip": "192.0.32.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160236"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.32.171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:84"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 60901,
+        "local_ip": "192.0.32.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160238"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:31::162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:74"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 179,
+        "remote_port": 53890,
+        "local_ip": "2001:db8:31::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160240"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:31::161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:74"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 54924,
+        "local_ip": "2001:db8:31::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160242"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.31.162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:74"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 179,
+        "remote_port": 61320,
+        "local_ip": "192.0.31.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160243"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.31.161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:74"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 59369,
+        "local_ip": "192.0.31.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160245"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:23::182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:64"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 179,
+        "remote_port": 51623,
+        "local_ip": "2001:db8:23::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160247"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:23::181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:64"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 55349,
+        "local_ip": "2001:db8:23::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160249"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.23.182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:64"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 179,
+        "remote_port": 59943,
+        "local_ip": "192.0.23.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160250"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.23.181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:64"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 63594,
+        "local_ip": "192.0.23.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160252"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:22::172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:54"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 61567,
+        "local_ip": "2001:db8:22::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160254"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:22::171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:54"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 59257,
+        "local_ip": "2001:db8:22::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160256"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.22.172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:54"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 52434,
+        "local_ip": "192.0.22.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160258"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.22.171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:54"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 53039,
+        "local_ip": "192.0.22.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160260"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:21::162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:44"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 179,
+        "remote_port": 56849,
+        "local_ip": "2001:db8:21::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160262"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:21::161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:44"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 58198,
+        "local_ip": "2001:db8:21::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160264"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.21.162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:44"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 179,
+        "remote_port": 55055,
+        "local_ip": "192.0.21.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160265"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.21.161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:44"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 62702,
+        "local_ip": "192.0.21.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160267"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:13::182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:34"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 23434,
+        "remote_port": 179,
+        "local_ip": "2001:db8:13::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160269"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:13::181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:34"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 61380,
+        "local_ip": "2001:db8:13::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160270"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.13.182",
+        "peer_asn": 65542,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:34"
+        },
+        "bgp_id": "192.0.2.82",
+        "local_port": 179,
+        "remote_port": 53144,
+        "local_ip": "192.0.13.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160273"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.13.181",
+        "peer_asn": 65541,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:34"
+        },
+        "bgp_id": "192.0.2.81",
+        "local_port": 179,
+        "remote_port": 53073,
+        "local_ip": "192.0.13.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160275"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:12::172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:24"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 55482,
+        "local_ip": "2001:db8:12::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160277"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:12::171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:24"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 57057,
+        "local_ip": "2001:db8:12::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160279"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.12.172",
+        "peer_asn": 65540,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:24"
+        },
+        "bgp_id": "192.0.2.72",
+        "local_port": 179,
+        "remote_port": 60129,
+        "local_ip": "192.0.12.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160281"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.12.171",
+        "peer_asn": 65539,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:24"
+        },
+        "bgp_id": "192.0.2.71",
+        "local_port": 179,
+        "remote_port": 58281,
+        "local_ip": "192.0.12.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160282"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:11::162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:14"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 24707,
+        "remote_port": 179,
+        "local_ip": "2001:db8:11::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160284"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "2001:db8:11::161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:14"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 49448,
+        "local_ip": "2001:db8:11::155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160285"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.11.162",
+        "peer_asn": 65538,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:14"
+        },
+        "bgp_id": "192.0.2.62",
+        "local_port": 179,
+        "remote_port": 60580,
+        "local_ip": "192.0.11.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609240",
+        "timestamp_event": {
+            "string": "1614609748.160287"
+        },
+        "timestamp_arrival": null,
+        "event_type": "dump",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "bmp_msg_type": "peer_up",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "peer_ip": "192.0.11.161",
+        "peer_asn": 65537,
+        "peer_type": 1,
+        "peer_type_str": {
+            "string": "RD Instance Peer"
+        },
+        "is_in": {
+            "int": 1
+        },
+        "is_filtered": null,
+        "is_loc": null,
+        "is_post": {
+            "int": 0
+        },
+        "is_out": null,
+        "rd": {
+            "string": "0:64499:14"
+        },
+        "bgp_id": "192.0.2.61",
+        "local_port": 179,
+        "remote_port": 63509,
+        "local_ip": "192.0.11.155",
+        "bmp_peer_up_info_string": null
+    },
+    {
+        "seq": 49,
+        "timestamp": "1614609241.144104",
+        "event_type": "dump_close",
+        "writer_id": "ietfint_nfacctd-bmp01_c/82",
+        "bmp_router": "192.0.2.55",
+        "bmp_router_port": {
+            "int": 26210
+        },
+        "entries": null,
+        "tables": null
+    }
+]
