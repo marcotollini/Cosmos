@@ -146,8 +146,6 @@ services:
       CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8084"
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8084"
-      CONNECT_VALUE_CONVERTER_VALUE_SUBJECT_NAME_STRATEGY: "io.confluent.kafka.serializers.subject.NfacctdStrategy"
-      CONNECT_KEY_CONVERTER_KEY_SUBJECT_NAME_STRATEGY: "io.confluent.kafka.serializers.subject.NfacctdStrategy"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
@@ -157,17 +155,29 @@ services:
       - ./kafka-connect/jar:/etc/kafka-connect/jars
 
   kafka-connect-config:
-    build: .
+    build: ./docker_curl/.
     hostname: kafka-connect-config
     container_name: kafka-connect-config
     depends_on:
       kafka-connect:
         condition: service_healthy
-    command: "bash /setup.sh"
+    command: "bash /connect/setup.sh"
     # command: "bash -c 'sleep 100000'"
     pid: "root"
     volumes:
-      - ./kafka-connect-config/setup.sh:/setup.sh
+      - ./kafka-connect-config/:/connect/
+
+  webapp:
+    image: node:lts
+    hostname: webapp
+    container_name: webapp
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ../../../webapp:/usr/app/
+    working_dir: /usr/app/
+    command: sleep 100000
 
 volumes:
   zookeeper_data:
