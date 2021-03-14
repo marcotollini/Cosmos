@@ -1,10 +1,10 @@
 <template>
   <div class="graph">
     <Fullscreen>
-      <Cytoscape />
+      <Cytoscape :graph="graph" />
     </Fullscreen>
     <Sidebar>
-      <Filter msg="ciaoooooooooo" />
+      <Filter msg="Change state" />
     </Sidebar>
   </div>
 </template>
@@ -26,5 +26,10 @@ export default defineComponent({
     Filter,
     Cytoscape
   },
+  computed:{
+    graph(){
+      return this.$store.state.graph;
+    }
+  }
 });
 </script>
