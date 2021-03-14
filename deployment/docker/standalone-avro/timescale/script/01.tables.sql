@@ -7,7 +7,7 @@ CREATE TABLE "public"."event" (
     "seq" bigint NOT NULL,
     "timestamp" integer,
     "timestamp_event" integer,
-    "timestamp_arrival" integer,
+    "timestamp_arrival" integer DEFAULT date_part('epoch', NOW())::integer,
     "timestamp_database" timestamptz DEFAULT NOW(),
     "event_type" character varying(32),
     "bmp_msg_type" character varying(128),
@@ -60,7 +60,8 @@ CREATE TABLE "public"."event" (
     "counter_type_str" text,
     "counter_value" bigint,
     -- term
-    "bmp_term_info_reason" text
+    "bmp_term_info_reason" text,
+    "bmp_term_info_string" text
 ) WITH (oids = false);
 
 CREATE TABLE "public"."dump" (
@@ -125,14 +126,12 @@ CREATE TABLE "public"."dump" (
     "counter_type_str" text,
     "counter_value" bigint,
     -- term
-    "bmp_term_info_reason" text
+    "bmp_term_info_reason" text,
+    "bmp_term_info_string" text
 ) WITH (oids = false);
 
 
--- https://www.postgresql.org/docs/9.4/datatype-json.html
-CREATE INDEX idx_dump_comms ON "dump" USING gin("comms" jsonb_path_ops);
+CREATE INDEX dump_comms_rm_idx ON "dump" USING gin(comms jsonb_path_ops) WHERE bmp_msg_type = 'route_monitor';
+CREATE INDEX event_comms_rm_idx ON "event" USING gin(comms jsonb_path_ops) WHERE bmp_msg_type = 'route_monitor';
 
--- select *
--- from event
--- where comms @> '"64496:1001"'::jsonb
--- limit 20
+CREATE INDEX dump_rd_timestamp_seq_rm_idx ON "dump" (rd, "timestamp", seq) WHERE bmp_msg_type = 'route_monitor';

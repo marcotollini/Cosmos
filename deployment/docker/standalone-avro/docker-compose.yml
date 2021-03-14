@@ -178,6 +178,22 @@ services:
       - ../../../webapp:/usr/app/
     working_dir: /usr/app/
     command: sleep 100000
+    environment:
+      PGHOST: "timescale"
+      PGDATABASE: "l3visualization"
+      PGUSER: "l3visualization"
+      PGPASSWORD: "password"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    hostname: pgadmin
+    container_name: pgadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "bmp@bmp.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
 
 volumes:
   zookeeper_data:

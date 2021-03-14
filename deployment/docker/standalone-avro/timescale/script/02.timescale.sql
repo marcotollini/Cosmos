@@ -1,4 +1,4 @@
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
-SELECT create_hypertable('event', 'timestamp_database', chunk_time_interval => INTERVAL '1 day');
-SELECT create_hypertable('dump', 'timestamp_database', chunk_time_interval => INTERVAL '1 day');
+SELECT create_hypertable('event', 'timestamp_arrival', chunk_time_interval => 24*60*60*1000);
+SELECT create_hypertable('dump', 'timestamp', chunk_time_interval => 24*60*60*1000);

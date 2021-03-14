@@ -11,3 +11,7 @@ benchmark/
 frontend/node_modules/
 
 frontend/dist/
+
+webapp/node_modules/
+
+webapp/build/

@@ -1,0 +1,140 @@
+EXPLAIN ANALYZE
+SELECT  DISTINCT ON (bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop) *
+FROM dump
+WHERE timestamp < 1615258800 AND timestamp >= 1615255500 AND bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"'
+ORDER BY bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop, timestamp
+
+Start point
+https://explain.depesz.com/s/ljjj - 2s
+
+CREATE INDEX sumpcommsidx ON dump USING gin(comms jsonb_path_ops);
+https://explain.depesz.com/s/9M3us - 66ms
+
+CREATE INDEX sumpallidx ON dump (timestamp, bmp_msg_type);
+https://explain.depesz.com/s/pfUJ - 40ms
+
+CREATE INDEX sumpallidx ON dump (timestamp);
+https://explain.depesz.com/s/pfUJ - 40ms
+
+REMOVE sumpallidx
+CREATE INDEX sumpallidx ON dump (timestamp) WHERE bmp_msg_type = 'route_monitor';
+https://explain.depesz.com/s/NcOU - 14ms
+
+CREATE INDEX dumpallidx ON dump (bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop, timestamp) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"';
+
+----------------
+
+EXPLAIN ANALYZE
+SELECT  DISTINCT ON (bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop) *
+FROM dump
+WHERE timestamp < 1615258800 AND timestamp >= 0 AND bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"'
+ORDER BY bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop, timestamp
+
+https://explain.depesz.com/s/GnQ8 - 429.807 ms
+
+
+
+EXPLAIN ANALYZE
+SELECT *
+FROM(
+    SELECT ROW_NUMBER() OVER (PARTITION BY bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop
+                       ORDER BY timestamp) rn
+    FROM test
+    WHERE timestamp < 1615258800 AND timestamp >= 1615255500 AND bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"'
+) sub WHERE rn = 1;
+
+
+https://explain.depesz.com/s/pcXBD - 2,432.905 ms
+
+CREATE INDEX testcommsidx ON test USING gin(comms jsonb_path_ops);
+https://explain.depesz.com/s/9di7 - 97 ms
+
+
+CREATE INDEX testallidx ON test(bmp_router, peer_ip, rd, ip_prefix, bgp_nexthop, timestamp) WHERE bmp_msg_type = 'route_monitor';
+https://explain.depesz.com/s/OaEv3 - 48 ms
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE INDEX dump_router_rd_timestamp_on_rm_vpn1 ON dump(bmp_router, rd, timestamp DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"';
+CREATE INDEX dump_router_rd_timestamp_on_rm_vpn2 ON dump(bmp_router, rd, timestamp DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:2"';
+CREATE INDEX dump_router_rd_timestamp_on_rm_vpn3 ON dump(bmp_router, rd, timestamp DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:3"';
+
+CREATE INDEX event_router_rd_timestamparrival_on_rm_vpn1 ON event(bmp_router, rd, timestamp_arrival DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:1"';
+CREATE INDEX event_router_rd_timestamparrival_on_rm_vpn2 ON event(bmp_router, rd, timestamp_arrival DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:2"';
+CREATE INDEX event_router_rd_timestamparrival_on_rm_vpn3 ON event(bmp_router, rd, timestamp_arrival DESC) WHERE bmp_msg_type = 'route_monitor' AND comms @> '"64497:3"';
+
+1a.
+http://10.212.226.67:8080/?pgsql=timescale&username=l3visualization&db=l3visualization&ns=public&sql=SELECT%20DISTINCT%20ON(bmp_router%2C%20rd)%20seq%2C%20bmp_router%2C%20rd%2C%20timestamp%0A%20%20FROM%20dump%0A%20%20WHERE%0A%20%20%20%20timestamp%20%3C%201615459177%20AND%20timestamp%20%3E%3D%201615456477%20AND%0A%20%20%20%20bmp_msg_type%20%3D%20%27route_monitor%27%20AND%0A%20%20%20%20comms%20%40%3E%20%27%2264497%3A1%22%27%0A%20%20ORDER%20BY%20bmp_router%2C%20rd%2C%20timestamp%20DESC%0A
+1b.
+http://10.212.226.67:8080/?pgsql=timescale&username=l3visualization&db=l3visualization&ns=public&sql=%0A%20%20SELECT%20DISTINCT%20ON(bmp_router%2C%20rd)%20bmp_router%2C%20rd%0A%20%20FROM%20event%0A%20%20WHERE%0A%20%20%20%20timestamp%20%3C%201615459177%20AND%20timestamp%20%3E%3D%201615456477%20AND%0A%20%20%20%20bmp_msg_type%20%3D%20%27route_monitor%27%20AND%0A%20%20%20%20comms%20%40%3E%20%27%2264497%3A1%22%27
+2a.
+http://10.212.226.67:8080/?pgsql=timescale&username=l3visualization&db=l3visualization&ns=public&sql=explain%20analyze%20%20%0ASELECT%20*%0A%20%20FROM%20dump%0A%20%20WHERE%0A%20%20%20%20timestamp%20%3C%201615459177%20AND%20timestamp%20%3E%3D%201615456477%20AND%0A%20%20%20%20bmp_msg_type%20%3D%20%27route_monitor%27%20AND%0A%20%20%20%20seq%20%3D%2017833235%20AND%0A%20%20%20%20bmp_router%20%3D%20%27192.0.2.82%27%20AND%0A%20%20%20%20rd%20%3D%20%270%3A64499%3A62%27%20AND%0A%20%20%20%20comms%20%40%3E%20%27%2264497%3A1%22%27%0A
+2b.
+http://10.212.226.67:8080/?pgsql=timescale&username=l3visualization&db=l3visualization&ns=public&sql=%20%20SELECT%20*%0A%20%20FROM%20event%0A%20%20WHERE%0A%20%20%20%20timestamp_arrival%20%3E%201615459177%20AND%20timestamp_arrival%20%3C%3D%201615456800%20AND%0A%20%20%20%20bmp_msg_type%20%3D%20%27route_monitor%27%20AND%0A%20%20%20%20bmp_router%20%3D%20%27192.0.2.53%27%20AND%0A%20%20%20%20comms%20%40%3E%20%27%2264497%3A1%22%27%0A%20%20%20AND%20rd%20IS%20NULL%0A
+
+
+
+
+
+
+
+
+
+
+
+dd if=/dev/zero of=/tmp/test1.img bs=1G count=1 oflag=dsync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 5.21075 s, 206 MB/s
+
+dd if=/dev/zero of=/tmp/test2.img bs=512 count=1000 oflag=dsync
+1000+0 records in
+1000+0 records out
+512000 bytes (512 kB, 500 KiB) copied, 0.325513 s, 1.6 MB/s
+
+sudo hdparm -Tt /dev/mapper/cl-root
+/dev/mapper/cl-root:
+ Timing cached reads:   13618 MB in  1.99 seconds = 6829.74 MB/sec
+ Timing buffered disk reads: 1114 MB in  3.01 seconds = 370.70 MB/sec
+
+
+
+terra231
+dd if=/dev/zero of=/tmp/test1.img bs=1G count=1 oflag=dsync
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 1.96981 s, 545 MB/s
+
+dd if=/dev/zero of=/tmp/test2.img bs=512 count=1000 oflag=dsync
+1000+0 records in
+1000+0 records out
+512000 bytes (512 kB, 500 KiB) copied, 0.225068 s, 2.3 MB/s
+
+sudo hdparm -Tt /dev/mapper/cl-root
+/dev/mapper/cl-root:
+ Timing cached reads:   17422 MB in  2.00 seconds = 8721.65 MB/sec
+ Timing buffered disk reads: 4024 MB in  3.00 seconds = 1340.88 MB/sec
