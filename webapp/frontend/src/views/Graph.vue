@@ -1,7 +1,7 @@
 <template>
   <div class="graph">
     <Fullscreen>
-      <Cytoscape :graph="graph" />
+      <Cytoscape :commit="commit" />
     </Fullscreen>
     <Sidebar>
       <Filter msg="Change state" />
@@ -27,7 +27,7 @@ export default defineComponent({
     Cytoscape
   },
   computed:{
-    graph(){
+    commit(){
       return this.$store.state.graph;
     }
   }

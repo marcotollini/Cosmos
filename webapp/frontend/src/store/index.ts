@@ -15,7 +15,7 @@ export default createStore({
         const num = Math.floor(Math.random()*10)
         const nodes: string[] = []
         for(let i = 0; i < num; i++){
-          nodes.push(Math.floor(Math.random()*500).toString())
+          nodes.push(Math.floor(Math.random()*500000).toString())
         }
         commit('changeState', nodes)
       }, 1000)

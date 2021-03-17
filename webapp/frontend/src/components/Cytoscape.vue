@@ -11,7 +11,8 @@ import cytoscape from 'cytoscape';
 export default defineComponent({
   name: 'Cytoscape',
   props: {
-    graph: Object
+    commit: Object,
+    modify: Object
   },
   data: () => ({
     cytoscape: cytoscape.prototype
@@ -19,41 +20,110 @@ export default defineComponent({
   computed: {
   },
   watch: {
-    graph(newVal, oldVal){
-      for(const node of newVal){
-        const x = Math.random() * 500
-        const y = Math.random() * 500
-        console.log(node, x, y)
-        this.cytoscape.add({
-          group: 'nodes',
-          data: {id: node},
-          position: {x, y}
-        })
+    commit(newVal){
+      this.cytoscape.destroy()
+      console.log('destroyed')
+
+      this.cytoscape = cytoscape(
+      {
+        container: this.$el,
+        layout: {
+          name: 'preset'
+        },
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'background-color': 'data(color)',
+              'label': 'data(name)',
+              'width': 'data(radius)',
+              'height': 'data(radius)',
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'line-color': 'data(color)',
+              'width': 'data(width)'
+            }
+          },
+        ],
+        minZoom: 0.1,
+        maxZoom: 10
       }
+    )
+
+    for(let i = 0; i < 1000; i++){
+      const x = Math.random() * 500
+      const y = Math.random() * 500
+      const nodeObj = {
+        group: 'nodes',
+        data: {
+          id: i,
+          color: 'red',
+          name: `Node: ${i}`,
+          radius: Math.random() * 29 + 1
+        },
+        position: {x, y}
+      }
+      this.cytoscape.add(nodeObj)
+
+    }
+
+
+      // for(const node of newVal){
+      //   const x = Math.random() * 500
+      //   const y = Math.random() * 500
+      //   console.log(node, x, y)
+      //   const nodeObj = {
+      //     group: 'nodes',
+      //     data: {
+      //       id: node,
+      //       color: 'red',
+      //       name: `Node: ${node}`,
+      //       radius: Math.random() * 29 + 1
+      //     },
+      //     position: {x, y}
+      //   }
+      //   this.cytoscape.add(nodeObj)
+
+      //   setTimeout(function(that: any) {
+      //     const n = that.cytoscape.$('#'+node);
+      //     n.data('id', n.data('id') + 10)
+      //     console.log('here post', n.data('id'))
+      //   }, 1000, this)
+      // }
     }
   },
   mounted(){
-    this.cytoscape = cytoscape({container: this.$el, style: [ // the stylesheet for the graph
-    {
-      selector: 'node',
-      style: {
-        'background-color': '#666',
-        'label': 'data(id)'
+    this.cytoscape = cytoscape(
+      {
+        container: this.$el,
+        layout: {
+          name: 'preset'
+        },
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'background-color': 'data(color)',
+              'label': 'data(name)',
+              'width': 'data(radius)',
+              'height': 'data(radius)',
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'line-color': 'data(color)',
+              'width': 'data(width)'
+            }
+          },
+        ],
+        minZoom: 0.1,
+        maxZoom: 10
       }
-    },
-
-    {
-      selector: 'edge',
-      style: {
-        'width': 3,
-        'line-color': '#ccc',
-        'target-arrow-color': '#ccc',
-        'target-arrow-shape': 'triangle',
-        'curve-style': 'bezier'
-      }
-    }
-  ],
-})
+    )
   },
 });
 </script>
