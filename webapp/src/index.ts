@@ -1,18 +1,29 @@
-import {getState} from './db';
+import Koa = require('koa');
+import bodyParser = require('koa-bodyparser');
+import morgan = require('koa-morgan');
+import {RouterContext} from '@koa/router';
+import {Next} from 'koa';
+import Database from './db/getDatabase';
 
-async function main() {
-  const times = [];
-  const start = new Date().getTime();
-  for (let i = 0; i < 1; i++) {
-    // times.push(getState(1615449242, '64497:1'));
-    times.push(getState(1615459177, '64497:1'));
-    // times.push(getState(1615449242, '64497:3'));
-  }
-  // await getState(1615449242, '64497:1');
-  await Promise.all(times);
-  const end = new Date().getTime();
-  console.log((end - start) / 1000, 'seconds');
-  // console.log(results);
+if (Database === undefined) {
+  throw 'Database is missing';
 }
 
-main().then(x => {});
+const app = new Koa();
+
+app.use(morgan('dev'));
+app.use(bodyParser());
+
+app.use(async (ctx: RouterContext, next: Next) => {
+  console.log('Body parsed', ctx.request.body);
+  const query = await Database?.stateVpn(1615397401, '64497:1');
+  console.log(query);
+  // const query = knex<BMPDump>('dump')
+  //   .select('*')
+  //   .where('timestamp', '<', 1615397401);
+  // const res = await query;
+  // console.log(res, query.toString());
+  await next();
+});
+
+app.listen(3000);
