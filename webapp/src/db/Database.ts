@@ -1,4 +1,5 @@
 import {Knex} from 'knex';
+import {BMPDump, BMPEvent} from './types';
 
 class Database {
   constructor() {
@@ -29,7 +30,10 @@ class Database {
     throw new TypeError('Please implement abstract method.');
   }
 
-  async stateVpn(timestamp: number, vpn: string) {
+  async stateVpn(
+    timestamp: number,
+    vpn: string
+  ): Promise<[BMPDump[], BMPEvent[]]> {
     throw new TypeError('Please implement abstract method.');
   }
 }

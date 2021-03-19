@@ -2,10 +2,6 @@ import Database from '../Database';
 import {Knex} from 'knex';
 import {BMPDump, BMPEvent} from '../types';
 
-interface BMPEventExtended extends BMPEvent {
-  timestamp_search: number;
-}
-
 class PGDatabase extends Database {
   knex: Knex<any, unknown[]>;
   timeBetweenDumps: number;
@@ -18,7 +14,7 @@ class PGDatabase extends Database {
   // Return the list of bmp_router, rd which are present in the given VPN
   // from the dump closest to the given timestamp
   distinctVpnDump(timestamp: number, vpn: string): Knex.QueryBuilder {
-    return this.knex<BMPDump>('dump')
+    return this.knex<BMPDump>(this.knex.ref('dumptest').as('dp'))
       .distinctOn('bmp_router', 'rd')
       .select('seq', 'bmp_router', 'rd', 'timestamp')
       .where('timestamp', '<=', timestamp)
@@ -29,45 +25,56 @@ class PGDatabase extends Database {
   }
 
   // returns the state of a VRF of a vpn
-  stateVrfVpnDump(table_name: string, timestamp: number, vpn: string) {
-    const knex = this.knex<BMPDump>('dump')
-      .select('dump.*')
-      .rightJoin(this.knex.ref(table_name).as('i'), function () {
-        this.on('dump.bmp_router', '=', 'i.bmp_router')
-          .on('dump.rd', '=', 'i.rd')
-          .on('dump.seq', '=', 'i.seq');
+  stateVrfVpnDump(
+    table_name: string,
+    timestamp: number,
+    vpn: string
+  ): Knex.QueryBuilder {
+    const knex = this.knex<BMPDump>(this.knex.ref('dumptest').as('dp'))
+      .select('dp.*')
+      .rightJoin(this.knex.ref(table_name).as('tmpdp'), function () {
+        this.on('dp.bmp_router', '=', 'tmpdp.bmp_router')
+          .on('dp.rd', '=', 'tmpdp.rd')
+          .on('dp.seq', '=', 'tmpdp.seq');
       })
-      .where('dump.bmp_msg_type', '=', 'route_monitor')
-      .whereRaw('dump.comms @> ?', [JSON.stringify(vpn)])
-      .where('dump.timestamp', '>=', timestamp - this.timeBetweenDumps)
-      .where('dump.timestamp', '<=', timestamp)
-      .orderBy('dump.timestamp', 'asc');
+      .where('dp.bmp_msg_type', '=', 'route_monitor')
+      .whereRaw('dp.comms @> ?', [JSON.stringify(vpn)])
+      .where('dp.timestamp', '>=', timestamp - this.timeBetweenDumps)
+      .where('dp.timestamp', '<=', timestamp)
+      .orderBy('dp.timestamp', 'asc');
 
     return knex;
   }
 
-  stateVrfVpnEvent(table_name: string, timestamp: number, vpn: string) {
-    const knex = this.knex<BMPDump>('event')
-      .select('event.*')
-      .leftJoin(this.knex.ref(table_name).as('i'), function () {
-        this.on('event.bmp_router', '=', 'i.bmp_router');
-        this.on('event.rd', '=', 'i.rd');
+  stateVrfVpnEvent(
+    table_name: string,
+    timestamp: number,
+    vpn: string
+  ): Knex.QueryBuilder {
+    const knex = this.knex<BMPEvent>(this.knex.ref('eventtest').as('et'))
+      .select('et.*')
+      .leftJoin(this.knex.ref(table_name).as('tmpdp'), function () {
+        this.on('et.bmp_router', '=', 'tmpdp.bmp_router');
+        this.on('et.rd', '=', 'tmpdp.rd');
       })
-      .where('event.bmp_msg_type', '=', 'route_monitor')
-      .whereRaw('event.comms @> ?', [JSON.stringify(vpn)])
-      .where('event.timestamp_arrival', '>=', timestamp - this.timeBetweenDumps)
-      .where('event.timestamp_arrival', '<=', timestamp)
+      .where('et.bmp_msg_type', '=', 'route_monitor')
+      .whereRaw('et.comms @> ?', [JSON.stringify(vpn)])
+      .where('et.timestamp_arrival', '>=', timestamp - this.timeBetweenDumps)
+      .where('et.timestamp_arrival', '<=', timestamp)
       .where(function () {
-        this.whereNull('i.timestamp').orWhereRaw(
-          '"event"."timestamp_arrival" > "i"."timestamp"'
+        this.whereNull('tmpdp.timestamp').orWhereRaw(
+          '"et"."timestamp_arrival" > "tmpdp"."timestamp"'
         );
       })
-      .orderBy('event.timestamp_arrival', 'asc');
+      .orderBy('et.timestamp_arrival', 'asc');
 
     return knex;
   }
 
-  async stateVpn(timestamp: number, vpn: string) {
+  async stateVpn(
+    timestamp: number,
+    vpn: string
+  ): Promise<[BMPDump[], BMPEvent[]]> {
     const trx = await this.knex.transaction();
     try {
       const distinctVpnDumpQuery = this.distinctVpnDump(
@@ -81,23 +88,23 @@ class PGDatabase extends Database {
         )
         .transacting(trx);
 
-      console.log(
-        await this.knex(temp_table_name).select('*').transacting(trx)
+      const stateDump = <BMPDump[]>(
+        await this.stateVrfVpnDump(temp_table_name, timestamp, vpn).transacting(
+          trx
+        )
       );
 
-      const stateDump = await this.stateVrfVpnDump(
-        temp_table_name,
-        timestamp,
-        vpn
-      ).transacting(trx);
-
-      const stateEvent = await this.stateVrfVpnEvent(
-        temp_table_name,
-        timestamp,
-        vpn
-      ).transacting(trx);
+      const stateEvent = <BMPEvent[]>(
+        await this.stateVrfVpnEvent(
+          temp_table_name,
+          timestamp,
+          vpn
+        ).transacting(trx)
+      );
 
       await trx.commit();
+
+      return [stateDump, stateEvent];
     } catch (e) {
       await trx.rollback();
       throw e;
@@ -106,4 +113,3 @@ class PGDatabase extends Database {
 }
 
 export default PGDatabase;
-export {BMPDump, BMPEvent};
