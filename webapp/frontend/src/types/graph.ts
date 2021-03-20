@@ -1,18 +1,19 @@
 interface CytoNode {
-    id: string;
-    name: string;
-    radius: number;
-    color: string;
+  id: string;
+  name: string;
+  radius: number;
+  color: string;
 }
 
 interface CytoEdge {
-    id: string;
-    width: number;
-    color: string;
+  id: string;
+  width: number;
+  color: string;
 }
 
 interface CytoGraph {
-    nodes: CytoNode[],
-    edges: CytoEdge[]
+  nodes: CytoNode[];
+  edges: CytoEdge[];;
 }
-export {CytoNode, CytoEdge, CytoGraph}
+export { CytoNode, CytoEdge, CytoGraph };
+
