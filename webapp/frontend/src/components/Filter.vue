@@ -1,7 +1,7 @@
 <template>
   <div class="filter">
-    {{ msg }}
-    <button v-on:click="loadData">Async</button>
+    <input v-model="vpn" placeholder="edit me" />
+    <button v-on:click="loadData">Load data</button>
     <br>
   </div>
 </template>
@@ -14,9 +14,18 @@ export default defineComponent({
   props: {
     msg: String,
   },
+  data() {
+    return {
+      vpn: ''
+    }
+  },
   methods: {
     loadData: function(){
-      console.log('loading data!')
+      console.log('Filter: loading data!', this.$data.vpn)
+      this.$emit('loadData', {
+        timestamp: 1615404068,
+        vpn: '64497:1'
+      })
     }
   }
 });

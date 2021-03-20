@@ -20,7 +20,7 @@ export default defineComponent({
   computed: {
   },
   watch: {
-    commit(newVal){
+    commit(){
       this.cytoscape.destroy()
       console.log('destroyed')
 
