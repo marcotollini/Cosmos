@@ -12,6 +12,7 @@ router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
 
   const state = await Database?.getBMPState(vpn, timestamp);
   ctx.body = state;
+  return;
 });
 
 router.get('/api/bmp/upgrade', async (ctx: RouterContext, next: Next) => {
@@ -22,6 +23,7 @@ router.get('/api/bmp/upgrade', async (ctx: RouterContext, next: Next) => {
 
   const upgrade = await Database?.getBMPUpgrade(vpn, timestamp, startTimestamp);
   ctx.body = upgrade;
+  return;
 });
 
 export default router;
