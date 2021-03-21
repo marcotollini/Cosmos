@@ -58,15 +58,17 @@ export default defineComponent({
           });
         }
 
-        this.cytoscape.add({
-          group: 'edges',
-          data: {
-            id: [src, dst].join('-'),
-            source: src,
-            target: dst,
-            width: (prefixes.length / maxPrefixes) * 5,
-          },
-        });
+        if (this.cytoscape.$id([src, dst].join('-')).length === 0) {
+          this.cytoscape.add({
+            group: 'edges',
+            data: {
+              id: [src, dst].join('-'),
+              source: src,
+              target: dst,
+              width: (prefixes.length / maxPrefixes) * 5,
+            },
+          });
+        }
       }
       // for (let i = 0; i < 1000; i++) {
       //   const x = Math.random() * 500;
