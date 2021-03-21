@@ -1,75 +1,68 @@
 <template>
-  <div id="cytoscape">
-
-  </div>
+  <div id="cytoscape"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
 
 export default defineComponent({
   name: 'Cytoscape',
   props: {
     commit: Object,
-    modify: Object
+    modify: Object,
   },
   data: () => ({
-    cytoscape: cytoscape.prototype
+    cytoscape: cytoscape.prototype,
   }),
-  computed: {
-  },
+  computed: {},
   watch: {
-    commit(){
-      this.cytoscape.destroy()
-      console.log('destroyed')
+    commit() {
+      this.cytoscape.destroy();
+      console.log('destroyed');
 
-      this.cytoscape = cytoscape(
-      {
+      this.cytoscape = cytoscape({
         container: this.$el,
         layout: {
-          name: 'preset'
+          name: 'preset',
         },
         style: [
           {
             selector: 'node',
             style: {
               'background-color': 'data(color)',
-              'label': 'data(name)',
-              'width': 'data(radius)',
-              'height': 'data(radius)',
-            }
+              label: 'data(name)',
+              width: 'data(radius)',
+              height: 'data(radius)',
+            },
           },
           {
             selector: 'edge',
             style: {
               'line-color': 'data(color)',
-              'width': 'data(width)'
-            }
+              width: 'data(width)',
+            },
           },
         ],
         minZoom: 0.1,
-        maxZoom: 10
+        maxZoom: 10,
+      });
+
+      for (let i = 0; i < 1000; i++) {
+        const x = Math.random() * 500;
+        const y = Math.random() * 500;
+        const nodeObj = {
+          group: 'nodes',
+          data: {
+            id: i,
+            color: 'red',
+            name: `Node: ${i}`,
+            radius: Math.random() * 29 + 1,
+          },
+          position: {x, y},
+        };
+        this.cytoscape.add(nodeObj);
       }
-    )
-
-    for(let i = 0; i < 1000; i++){
-      const x = Math.random() * 500
-      const y = Math.random() * 500
-      const nodeObj = {
-        group: 'nodes',
-        data: {
-          id: i,
-          color: 'red',
-          name: `Node: ${i}`,
-          radius: Math.random() * 29 + 1
-        },
-        position: {x, y}
-      }
-      this.cytoscape.add(nodeObj)
-
-    }
-
 
       // for(const node of newVal){
       //   const x = Math.random() * 500
@@ -93,42 +86,38 @@ export default defineComponent({
       //     console.log('here post', n.data('id'))
       //   }, 1000, this)
       // }
-    }
+    },
   },
-  mounted(){
-    this.cytoscape = cytoscape(
-      {
-        container: this.$el,
-        layout: {
-          name: 'preset'
+  mounted() {
+    this.cytoscape = cytoscape({
+      container: this.$el,
+      layout: {
+        name: 'preset',
+      },
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': 'data(color)',
+            label: 'data(name)',
+            width: 'data(radius)',
+            height: 'data(radius)',
+          },
         },
-        style: [
-          {
-            selector: 'node',
-            style: {
-              'background-color': 'data(color)',
-              'label': 'data(name)',
-              'width': 'data(radius)',
-              'height': 'data(radius)',
-            }
+        {
+          selector: 'edge',
+          style: {
+            'line-color': 'data(color)',
+            width: 'data(width)',
           },
-          {
-            selector: 'edge',
-            style: {
-              'line-color': 'data(color)',
-              'width': 'data(width)'
-            }
-          },
-        ],
-        minZoom: 0.1,
-        maxZoom: 10
-      }
-    )
+        },
+      ],
+      minZoom: 0.1,
+      maxZoom: 10,
+    });
   },
 });
 </script>
-
-
 
 <style scoped>
 #cytoscape {
