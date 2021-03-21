@@ -9,7 +9,7 @@ import {
   VirtualRouterDump,
   StatePkt,
   UpgradePkt,
-} from '../types';
+} from 'cosmos-lib/src/types';
 
 import {virtualRouterToKey} from '../../utils';
 

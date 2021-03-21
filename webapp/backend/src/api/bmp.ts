@@ -3,7 +3,6 @@ import {Next} from 'koa';
 
 import Database from '../db/getDatabase';
 import Router = require('@koa/router');
-import {type} from 'node:os';
 const router = new Router();
 
 router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
