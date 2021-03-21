@@ -13,7 +13,7 @@
 import {defineComponent} from 'vue';
 import axios from 'axios';
 import Graphology from 'graphology';
-import {StatePkt} from '../types';
+import {StatePkt} from 'cosmos-lib/src/types';
 
 import Sidebar from '@/views/Sidebar.vue';
 import Fullscreen from '@/views/Fullscreen.vue';
@@ -49,7 +49,7 @@ export default defineComponent({
 
       for (const key in statePkt.state) {
         const vr = statePkt.state[key].virtualRouter;
-        console.log(event);
+        console.log(vr);
       }
     },
   },

@@ -36,6 +36,7 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/router": "^10.0.0",
+    "cosmos-lib": "file:../cosmos-lib",
     "knex": "^0.95.2",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
