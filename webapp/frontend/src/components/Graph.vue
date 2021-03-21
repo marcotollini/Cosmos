@@ -12,7 +12,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-import graphology from 'graphology'
+import Graphology from 'graphology'
+import {StatePkt} from '../types'
 
 import Sidebar from '@/views/Sidebar.vue';
 import Fullscreen from '@/views/Fullscreen.vue';
@@ -29,6 +30,9 @@ export default defineComponent({
     Filter,
     Cytoscape
   },
+  data: () => ({
+    graphology: Graphology.prototype
+  }),
   methods: {
     loadState: async function(info: {vpn: string, timestamp: number}){
       console.log('Graph loading state!', info)
@@ -38,10 +42,16 @@ export default defineComponent({
           vpn, timestamp
         }
       })
-      const state = response.data
+      const statePkt: StatePkt = response.data
 
-      return state
+      for(const key in statePkt.state){
+        const vr = statePkt.state[key].virtualRouter
+        console.log(event)
+      }
     }
+  },
+  mounted(){
+    this.graphology = new Graphology()
   }
 });
 </script>
