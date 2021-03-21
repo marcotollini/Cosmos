@@ -1,4 +1,4 @@
-import {StatePkt, UpgradePkt} from './types';
+import {VirtualRouter} from 'cosmos-lib/src/types';
 
 class Database {
   timeBetweenDumps: number;
