@@ -49,7 +49,7 @@ export default defineComponent({
 
       for (const key in statePkt.state) {
         const vr = statePkt.state[key].virtualRouter;
-        console.log(event);
+        console.log(vr);
       }
     },
   },

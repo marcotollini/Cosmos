@@ -15,3 +15,7 @@ frontend/dist/
 webapp/node_modules/
 
 webapp/build/
+
+webapp/lib/node_modules/
+
+webapp/lib/build/
