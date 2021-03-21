@@ -1,0 +1,4 @@
+*.js        eol=lf
+*.ts        eol=lf
+*.vue        eol=lf
+*.json        eol=lf
