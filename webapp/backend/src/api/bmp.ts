@@ -3,12 +3,19 @@ import {Next} from 'koa';
 
 import Database from '../db/getDatabase';
 import Router = require('@koa/router');
+import {type} from 'node:os';
 const router = new Router();
 
 router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
-  const vpn = ctx.request.body.vpn;
-  const timestamp = ctx.request.body.timestamp;
-  if (!vpn || !timestamp) return ctx.throw(500);
+  if (
+    !ctx.request.query.vpn ||
+    !ctx.request.query.timestamp ||
+    typeof ctx.request.query.timestamp !== 'string' ||
+    typeof ctx.request.query.vpn !== 'string'
+  )
+    return ctx.throw(400);
+  const vpn = ctx.request.query.vpn;
+  const timestamp = parseInt(ctx.request.query.timestamp);
 
   const state = await Database?.getBMPState(vpn, timestamp);
   ctx.body = state;
