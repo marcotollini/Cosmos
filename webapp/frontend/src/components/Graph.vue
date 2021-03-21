@@ -1,7 +1,7 @@
 <template>
   <div class="graph">
     <Fullscreen>
-      <Cytoscape />
+      <Cytoscape :graph="graph" />
     </Fullscreen>
     <Sidebar>
       <Filter v-on:load-data="loadState" />
@@ -12,7 +12,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import axios from 'axios';
-import Graphology from 'graphology';
 import {StatePkt} from 'cosmos-lib/src/types';
 
 import Sidebar from '@/views/Sidebar.vue';
@@ -30,7 +29,8 @@ export default defineComponent({
     Cytoscape,
   },
   data: () => ({
-    graphology: Graphology.prototype,
+    currentState: {} as StatePkt,
+    graph: {},
   }),
   methods: {
     loadState: async function (info: {vpn: string; timestamp: number}) {
@@ -47,14 +47,42 @@ export default defineComponent({
       );
       const statePkt: StatePkt = response.data;
 
-      for (const key in statePkt.state) {
-        const vr = statePkt.state[key].virtualRouter;
-        console.log(vr);
+      this.currentState = statePkt;
+
+      const graph: {
+        [key: string]: {src: string; dst: string; prefixes: string[]};
+      } = {};
+      for (const vrKey in this.currentState.state) {
+        const router = this.currentState.state[vrKey];
+        // const vr = router.virtualRouter;
+        for (const event of router.events) {
+          if (
+            !(event.is_in || event.is_out) ||
+            !event.peer_ip ||
+            !event.bgp_nexthop ||
+            !event.ip_prefix
+          )
+            continue;
+          const src = event.peer_ip;
+          const dst = event.bgp_nexthop;
+          const nodeKey = `${src}-${dst}`;
+          if (!graph[nodeKey]) {
+            graph[nodeKey] = {
+              src,
+              dst,
+              prefixes: [],
+            };
+          }
+          graph[nodeKey].prefixes.push(event.ip_prefix);
+        }
       }
+      console.log('assigned');
+
+      this.$data.graph = graph;
     },
   },
   mounted() {
-    this.graphology = new Graphology();
+    this.currentState = {} as StatePkt;
   },
 });
 </script>
