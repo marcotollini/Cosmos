@@ -13,7 +13,7 @@
 import {defineComponent} from 'vue';
 import axios from 'axios';
 import Graphology from 'graphology';
-import {StatePkt} from '../types';
+import {StatePkt} from 'cosmos-lib/src/types';
 
 import Sidebar from '@/views/Sidebar.vue';
 import Fullscreen from '@/views/Fullscreen.vue';

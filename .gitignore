@@ -19,3 +19,7 @@ webapp/build/
 webapp/lib/node_modules/
 
 webapp/lib/build/
+
+webapp/cosmos-lib/node_modules/
+
+webapp/cosmos-lib/build/
