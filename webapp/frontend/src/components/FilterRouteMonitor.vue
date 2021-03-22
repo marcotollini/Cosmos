@@ -1,6 +1,11 @@
 <template>
   <el-form ref="form" :model="form" label-width="120px">
-    <el-select v-model="form.peer_ip" filterable placeholder="Select">
+    <el-select
+      v-model="form.peer_ip"
+      filterable
+      size="mini"
+      placeholder="Select"
+    >
       <el-option
         v-for="ip of filters.peer_ips"
         :key="ip"
@@ -9,7 +14,9 @@
       >
       </el-option>
     </el-select>
-    <el-button type="primary" @click="filterData">Load data</el-button>
+    <el-button type="primary" @click="filterData" size="mini"
+      >Load data</el-button
+    >
   </el-form>
 </template>
 
