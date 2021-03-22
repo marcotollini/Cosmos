@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "cosmos-lib": "file:../cosmos-lib",
     "cytoscape": "^3.18.1",
+    "element-plus": "^1.0.2-beta.35",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.1.2",
