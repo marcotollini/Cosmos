@@ -30,9 +30,10 @@ function getRelativeTime(seconds: number) {
 
 export default defineComponent({
   name: 'FilterLoadData',
-  prop: {
-    loading: false,
+  props: {
+    loading: Boolean,
   },
+  emits: ['loadData'],
   data() {
     return {
       form: {

@@ -5,7 +5,7 @@
         <div class="side-top">
           <FilterLoadData v-on:load-data="loadState" />
           <FilterRouteMonitor
-            :testpro="filters"
+            :filters="filters"
             v-on:filter-data="filterState"
           />
         </div>
@@ -93,12 +93,17 @@ export default defineComponent({
     FilterRouteMonitor,
     Cytoscape,
   },
-  data: () => ({
-    currentState: {} as StatePkt,
-    filteredState: {} as StatePkt,
-    graph: {} as CytoGraph,
-    filters: 'cazzo',
-  }),
+  data() {
+    return {
+      currentState: {} as StatePkt,
+      filteredState: {} as StatePkt,
+      graph: {} as CytoGraph,
+      filters: {
+        peer_ips: [] as (string | null)[],
+        bgp_nhs: [] as (string | null)[],
+      },
+    };
+  },
   methods: {
     loadState: async function (info: {vpn: string; timestamp: number}) {
       console.log('Graph loading state!', info);
@@ -109,27 +114,37 @@ export default defineComponent({
       );
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
-      this.filteredState = statePkt;
 
-      // this.filters.peer_ips = new Set(
-      //   _.flatten(
-      //     Object.values(statePkt.state).map(x => x.events.map(y => y.peer_ip))
-      //   )
-      // );
+      this.filters.peer_ips = [
+        ...new Set(
+          _.flatten(
+            Object.values(statePkt.state).map(x => x.events.map(y => y.peer_ip))
+          )
+        ),
+      ];
 
-      // this.filters.bgp_nhs = new Set(
-      //   _.flatten(
-      //     Object.values(statePkt.state).map(x =>
-      //       x.events.map(y => y.bgp_nexthop)
-      //     )
-      //   )
-      // );
-
-      console.log(this.filters);
+      this.filters.bgp_nhs = [
+        ...new Set(
+          _.flatten(
+            Object.values(statePkt.state).map(x =>
+              x.events.map(y => y.bgp_nexthop)
+            )
+          )
+        ),
+      ];
 
       this.graph = stateToGraph(statePkt);
     },
-    // filterState: async function (filter) {},
+    filterState: async function (filter: {peer_ip: string}) {
+      this.filteredState = _.cloneDeep(this.currentState);
+
+      for (const vrKey in this.filteredState.state) {
+        const vr = this.filteredState.state[vrKey];
+        vr.events = vr.events.filter(x => x.peer_ip === filter.peer_ip);
+      }
+
+      this.graph = stateToGraph(this.filteredState);
+    },
   },
 });
 </script>

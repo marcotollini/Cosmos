@@ -1,12 +1,15 @@
 <template>
-  <h1>{{ testpro }}</h1>
   <el-form ref="form" :model="form" label-width="120px">
-    <!-- <el-select v-model="form.peer_ip" filterable placeholder="Select">
-      <el-option v-for="vpn of vpns" :key="vpn" :label="vpn" :value="vpn">
+    <el-select v-model="form.peer_ip" filterable placeholder="Select">
+      <el-option
+        v-for="ip of filters.peer_ips"
+        :key="ip"
+        :label="ip"
+        :value="ip"
+      >
       </el-option>
-    </el-select> -->
-
-    <el-button type="primary" @click="loadData">Load data</el-button>
+    </el-select>
+    <el-button type="primary" @click="filterData">Load data</el-button>
   </el-form>
 </template>
 
@@ -15,8 +18,29 @@ import {defineComponent} from 'vue';
 
 export default defineComponent({
   name: 'FilterRouteMonitor',
-  prop: {
-    testpro: String,
+  props: {
+    filters: Object,
+  },
+  emits: ['filterData'],
+  data() {
+    return {
+      form: {
+        peer_ip: '',
+      },
+    };
+  },
+  methods: {
+    filterData() {
+      if (this.form.peer_ip === '') {
+        return;
+      }
+
+      const peer_ip = this.form.peer_ip;
+
+      this.$emit('filterData', {
+        peer_ip: peer_ip,
+      });
+    },
   },
 });
 </script>
