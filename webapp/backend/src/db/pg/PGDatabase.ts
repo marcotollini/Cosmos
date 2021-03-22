@@ -1,5 +1,5 @@
 import Database from '../Database';
-import {Knex} from 'knex';
+import {knex, Knex} from 'knex';
 import {at, uniqBy} from 'lodash';
 
 import {
@@ -36,6 +36,26 @@ class PGDatabase extends Database {
     'is_out',
     'is_post',
   ];
+
+  async getDistinctVpn(): Promise<string[]> {
+    // too complex for knex
+    // ::intger makes the query from minutes to ms
+    const query = this.knex.raw(
+      `SELECT "community"
+      FROM(
+        SELECT distinct(JSONB_ARRAY_ELEMENTS_TEXT("comms")) AS "community"
+        FROM "${this.dumpTableName}"
+        WHERE "timestamp" > extract(EPOCH from now())::integer - ${this.timeBetweenDumps}
+      ) AS "t"
+      WHERE "community" LIKE '64497:%'`
+    );
+
+    console.log(query.toString());
+    const vpns = (await query).rows.map(
+      (x: {community: string}) => x.community
+    );
+    return vpns;
+  }
 
   // General filter for next to all queries
   private BMPGeneralFilter(
