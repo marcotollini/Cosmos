@@ -13,6 +13,7 @@
 import {defineComponent} from 'vue';
 import axios from 'axios';
 import {StatePkt} from 'cosmos-lib/src/types';
+import {CytoGraph, CytoNode, CytoEdge} from '../types';
 
 import Sidebar from '@/views/Sidebar.vue';
 import Fullscreen from '@/views/Fullscreen.vue';
@@ -30,7 +31,7 @@ export default defineComponent({
   },
   data: () => ({
     currentState: {} as StatePkt,
-    graph: {},
+    graph: {} as CytoGraph,
   }),
   methods: {
     loadState: async function (info: {vpn: string; timestamp: number}) {
@@ -38,20 +39,17 @@ export default defineComponent({
       const {vpn, timestamp} = info;
       const response = await axios.get(
         'http://10.212.226.67:3000/api/bmp/state',
-        {
-          params: {
-            vpn,
-            timestamp,
-          },
-        }
+        {params: {vpn, timestamp}}
       );
       const statePkt: StatePkt = response.data;
 
       this.currentState = statePkt;
 
-      const graph: {
-        [key: string]: {src: string; dst: string; prefixes: string[]};
-      } = {};
+      const graph: CytoGraph = {
+        nodes: {},
+        edges: {},
+      };
+
       for (const vrKey in this.currentState.state) {
         const router = this.currentState.state[vrKey];
         // const vr = router.virtualRouter;
@@ -65,15 +63,35 @@ export default defineComponent({
             continue;
           const src = event.peer_ip;
           const dst = event.bgp_nexthop;
-          const nodeKey = `${src}-${dst}`;
-          if (!graph[nodeKey]) {
-            graph[nodeKey] = {
+          if (!graph.nodes[src])
+            graph.nodes[src] = {
+              id: src,
+              label: src,
+              color: 'red',
+              radius: 10,
+              display: true,
+            };
+          if (!graph.nodes[dst])
+            graph.nodes[dst] = {
+              id: dst,
+              label: dst,
+              color: 'blue',
+              radius: 10,
+              display: true,
+            };
+
+          const edgeKey = `${src}-${dst}`;
+          if (!graph.edges[edgeKey]) {
+            graph.edges[edgeKey] = {
+              id: edgeKey,
               src,
               dst,
-              prefixes: [],
+              color: 'green',
+              width: 0,
             };
           }
-          graph[nodeKey].prefixes.push(event.ip_prefix);
+
+          graph.edges[edgeKey].width += 1;
         }
       }
       console.log('assigned');

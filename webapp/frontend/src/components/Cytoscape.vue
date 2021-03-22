@@ -5,6 +5,8 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
+import {CytoGraph} from '../types';
+import {PropType} from 'vue';
 
 export default defineComponent({
   name: 'Cytoscape',
@@ -17,74 +19,44 @@ export default defineComponent({
   computed: {},
   watch: {
     graph() {
-      const graph = this.$props.graph as {
-        [key: string]: {
-          src: string;
-          dst: string;
-          prefixes: string[];
-        };
-      };
+      const graph = this.$props.graph as CytoGraph;
 
-      const maxPrefixes = Object.values(graph).reduce((prev, curr) => {
-        return Math.max(prev, curr.prefixes.length);
+      const maxWidth = Object.values(graph.edges).reduce((prev, curr) => {
+        return Math.max(prev, curr.width);
       }, 0);
 
-      for (const peeringKey in graph) {
-        const src = graph[peeringKey].src;
-        const dst = graph[peeringKey].dst;
-        const prefixes = graph[peeringKey].prefixes;
-        if (this.cytoscape.$id(src).length === 0) {
+      for (const nodeKey in graph.nodes) {
+        const node = graph.nodes[nodeKey];
+        if (this.cytoscape.$id(node.id).length === 0) {
           this.cytoscape.add({
             group: 'nodes',
             data: {
-              id: src,
-              color: 'red',
-              name: src,
-              radius: 20,
+              id: node.id,
+              color: node.color,
+              label: node.label,
+              radius: node.radius,
             },
             position: {x: Math.random() * 500, y: Math.random() * 500},
           });
         }
-        if (this.cytoscape.$id(dst).length === 0) {
-          this.cytoscape.add({
-            group: 'nodes',
-            data: {
-              id: dst,
-              color: 'red',
-              name: dst,
-              radius: 20,
-            },
-            position: {x: Math.random() * 500, y: Math.random() * 500},
-          });
-        }
+      }
 
-        if (this.cytoscape.$id([src, dst].join('-')).length === 0) {
+      for (const edgeKey in graph.edges) {
+        const edge = graph.edges[edgeKey];
+
+        if (this.cytoscape.$id(edgeKey).length === 0) {
           this.cytoscape.add({
             group: 'edges',
             data: {
-              id: [src, dst].join('-'),
-              source: src,
-              target: dst,
-              width: (prefixes.length / maxPrefixes) * 5,
+              id: edge.id,
+              source: edge.src,
+              target: edge.dst,
+              width: (edge.width / maxWidth) * 5,
+              color: edge.color,
             },
           });
         }
       }
-      // for (let i = 0; i < 1000; i++) {
-      //   const x = Math.random() * 500;
-      //   const y = Math.random() * 500;
-      //   const nodeObj = {
-      //     group: 'nodes',
-      //     data: {
-      //       id: i,
-      //       color: 'red',
-      //       name: `Node: ${i}`,
-      //       radius: Math.random() * 29 + 1,
-      //     },
-      //     position: {x, y},
-      //   };
-      //   this.cytoscape.add(nodeObj);
-      // }
     },
   },
   mounted() {
@@ -98,7 +70,7 @@ export default defineComponent({
           selector: 'node',
           style: {
             'background-color': 'data(color)',
-            label: 'data(name)',
+            label: 'data(label)',
             width: 'data(radius)',
             height: 'data(radius)',
           },
