@@ -28,8 +28,8 @@ export default defineComponent({
   props: {
     graph: {},
   },
-  data: (): {cy: cytoscape.Core | undefined} => ({
-    cy: cytoscape.prototype,
+  data: () => ({
+    cy: undefined as cytoscape.Core | undefined,
   }),
   computed: {},
   watch: {
@@ -62,15 +62,17 @@ export default defineComponent({
       const deleteEdges = oldEdges.filter(x => !newEdgesSet.has(x));
       const updateEdges = oldEdges.filter(x => newEdgesSet.has(x));
 
-      deleteNodes.map(x => {
-        cy.$id(x).data('color', 'red');
-      });
+      if (deleteNodes.length !== 0 || deleteEdges.length !== 0) {
+        deleteNodes.map(x => {
+          cy.$id(x).data('color', 'red');
+        });
 
-      deleteEdges.map(x => {
-        cy.$id(x).data('color', 'red');
-      });
+        deleteEdges.map(x => {
+          cy.$id(x).data('color', 'red');
+        });
 
-      await sleep(1000);
+        await sleep(1000);
+      }
 
       this.cy.add(
         addNodes.map(x => {
@@ -103,12 +105,14 @@ export default defineComponent({
         cy.$id(x).data(edgeToCytoscape(graph.edges[x], maxWidth));
       });
 
-      const layout = this.cy.elements().layout({
-        name: 'random',
-        fit: false,
-      });
+      if (addNodes.length !== 0 || addEdges.length !== 0) {
+        const layout = this.cy.elements().layout({
+          name: 'random',
+          fit: false,
+        });
 
-      layout.run();
+        layout.run();
+      }
 
       console.log('done');
     },
