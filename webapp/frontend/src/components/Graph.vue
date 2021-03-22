@@ -1,11 +1,16 @@
 <template>
   <div class="graph">
-    <Fullscreen>
-      <Cytoscape :graph="graph" />
-    </Fullscreen>
-    <Sidebar>
-      <Filter v-on:load-data="loadState" />
-    </Sidebar>
+    <el-container class="el-container-global">
+      <el-aside width="20%">
+        <Filter v-on:load-data="loadState" />
+      </el-aside>
+      <el-container>
+        <el-main>
+          <Cytoscape :graph="graph" />
+        </el-main>
+        <el-footer height="100px">Footer</el-footer>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
@@ -24,8 +29,6 @@ import Cytoscape from '@/components/Cytoscape.vue';
 export default defineComponent({
   name: 'Graph',
   components: {
-    Sidebar,
-    Fullscreen,
     Filter,
     Cytoscape,
   },
@@ -105,3 +108,33 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+body {
+  margin: 0;
+  color: #333;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB';
+}
+</style>
+
+<style scoped>
+.el-header,
+.el-footer {
+  background-color: #b3c0d1;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  min-width: 250px;
+}
+
+.el-main {
+  background-color: #e9eef3;
+  margin: 0;
+  padding: 0;
+}
+
+.el-container-global {
+  height: 100vh;
+}
+</style>
