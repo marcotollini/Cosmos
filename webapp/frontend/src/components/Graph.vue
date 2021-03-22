@@ -71,7 +71,7 @@ export default defineComponent({
             graph.nodes[src] = {
               id: src,
               label: src,
-              color: 'red',
+              color: 'blue',
               radius: 10,
               display: true,
             };
