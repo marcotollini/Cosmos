@@ -48,6 +48,7 @@ export default defineComponent({
       const graph: CytoGraph = {
         nodes: {},
         edges: {},
+        type: 'new',
       };
 
       for (const vrKey in this.currentState.state) {

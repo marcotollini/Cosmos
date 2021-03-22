@@ -5,7 +5,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
-import {CytoGraph} from '../types';
+import {CytoGraph, CytoNode, CytoEdge} from '../types';
 import {PropType} from 'vue';
 
 export default defineComponent({
@@ -36,7 +36,6 @@ export default defineComponent({
               label: node.label,
               radius: node.radius,
             },
-            position: {x: Math.random() * 500, y: Math.random() * 500},
           });
         }
       }
@@ -55,8 +54,23 @@ export default defineComponent({
               color: edge.color,
             },
           });
+        } else {
+          this.cytoscape.$id(edgeKey).data({
+            id: edge.id,
+            source: edge.src,
+            target: edge.dst,
+            width: (edge.width / maxWidth) * 5,
+            color: 'blue',
+          });
         }
       }
+
+      const layout = this.cytoscape.elements().layout({
+        name: 'random',
+        fit: false,
+      });
+
+      layout.run();
     },
   },
   mounted() {

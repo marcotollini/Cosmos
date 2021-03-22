@@ -21,6 +21,7 @@ interface CytoGraph {
   edges: {
     [key: string]: CytoEdge;
   };
+  type: 'new' | 'update' | 'filter';
 }
 
 export {CytoGraph, CytoNode, CytoEdge};
