@@ -11,9 +11,6 @@ import {defineComponent} from 'vue';
 
 export default defineComponent({
   name: 'Filter',
-  props: {
-    msg: String,
-  },
   data() {
     return {
       vpn: '',
