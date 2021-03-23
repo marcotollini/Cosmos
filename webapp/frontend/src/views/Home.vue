@@ -1,7 +1,5 @@
 <template>
-  <div class="home">
-    <Graph />
-  </div>
+  <Graph />
 </template>
 
 <script lang="ts">
