@@ -9,6 +9,7 @@ import {
   VirtualRouterDump,
   StatePkt,
   UpgradePkt,
+  EventCount,
 } from 'cosmos-lib/src/types';
 
 import {virtualRouterToKey} from '../../utils';
@@ -50,12 +51,54 @@ class PGDatabase extends Database {
       WHERE "community" LIKE '64497:%'`
     );
 
-    console.log(query.toString());
     const vpns = (await query).rows.map(
       (x: {community: string}) => x.community
     );
     return vpns;
   }
+
+  async getEventsCounter(
+    startTimestamp: number,
+    endTimestamp: number,
+    precision: number
+  ): Promise<EventCount[]> {
+    const query = this.knex.raw(`
+    SELECT
+      ("timestamp_arrival" / ${precision})::integer*${precision} as "startgroup",
+      ("timestamp_arrival" / ${precision})::integer*${precision} + ${precision} as "endgroup",
+      count(*) as count
+    FROM ${this.eventTableName}
+    WHERE "timestamp_arrival" >= '${startTimestamp}' AND "timestamp_arrival" <= '${endTimestamp}'
+    GROUP BY "startgroup"
+    `);
+    const buckets: EventCount[] = (await query).rows;
+    return buckets;
+  }
+
+  async getEventsCounterApprox(
+    startTimestamp: number,
+    endTimestamp: number,
+    precision: number
+  ): Promise<EventCount[]> {
+    let currentTimestamp = Math.floor(startTimestamp / precision) * precision;
+    const approxQueries = [];
+    while (currentTimestamp <= endTimestamp) {
+      const start = currentTimestamp;
+      const end = currentTimestamp + precision;
+      const approxQuery = `SELECT
+        count_estimate('SELECT * from ${this.eventTableName} where "timestamp_arrival" > ${start} and "timestamp_arrival" <= ${end}'),
+        ${start} as startgroup,
+        ${end} as endgroup`;
+      approxQueries.push(this.knex.raw(approxQuery));
+      currentTimestamp += precision;
+    }
+    const query = this.knex.unionAll(approxQueries);
+    console.log(query.toString());
+    const buckets: EventCount[] = await query;
+    return buckets;
+  }
+
+  // https://wiki.postgresql.org/wiki/Count_estimate
 
   // General filter for next to all queries
   private BMPGeneralFilter(
@@ -273,7 +316,6 @@ class PGDatabase extends Database {
         {column: 'timestamp_arrival', order: 'desc'},
       ]);
 
-    console.log(query.toString());
     const upgrade = await query;
 
     const upgradePkt: UpgradePkt = {
