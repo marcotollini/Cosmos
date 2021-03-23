@@ -15,7 +15,9 @@
         <el-main>
           <Cytoscape :graph="graph" />
         </el-main>
-        <el-footer height="100px">Footer</el-footer>
+        <el-footer height="200px" class="timeseries">
+          <TimeseriesChart></TimeseriesChart>
+        </el-footer>
       </el-container>
     </el-container>
   </div>
@@ -31,6 +33,7 @@ import {CytoGraph, CytoNode, CytoEdge} from '../types';
 import FilterLoadData from '@/components/FilterLoadData.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
+import TimeseriesChart from '@/components/TimeseriesChart.vue';
 
 function stateToGraph(statePkt: StatePkt) {
   const graph: CytoGraph = {
@@ -92,6 +95,7 @@ export default defineComponent({
     FilterLoadData,
     FilterRouteMonitor,
     Cytoscape,
+    TimeseriesChart,
   },
   data() {
     return {
@@ -154,6 +158,7 @@ body {
   margin: 0;
   color: #333;
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB';
+  overflow-y: hidden;
 }
 </style>
 
@@ -189,5 +194,9 @@ body {
 .side-bottom {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+}
+.timeseries {
+  background: #e9eef3;
+  border-top: #333 solid 1px;
 }
 </style>
