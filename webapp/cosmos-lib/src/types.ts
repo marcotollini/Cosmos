@@ -96,6 +96,12 @@ interface UpgradePkt {
   };
 }
 
+interface EventCount {
+  startgroup: number;
+  endgroup: number;
+  count: number;
+}
+
 export {
   BMPDump,
   BMPEvent,
@@ -103,4 +109,5 @@ export {
   UpgradePkt,
   VirtualRouter,
   VirtualRouterDump,
+  EventCount,
 };
