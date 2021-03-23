@@ -5,91 +5,120 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
+import {CytoGraph, CytoEdge} from '../types';
+
+function edgeToCytoscape(edge: CytoEdge, maxWidth: number) {
+  return {
+    id: edge.id,
+    source: edge.src,
+    target: edge.dst,
+    width: Math.max(edge.width / maxWidth, 2),
+    color: edge.color,
+  };
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export default defineComponent({
   name: 'Cytoscape',
   props: {
-    commit: Object,
-    modify: Object,
+    graph: {},
   },
   data: () => ({
-    cytoscape: cytoscape.prototype,
+    cy: undefined as cytoscape.Core | undefined,
   }),
   computed: {},
   watch: {
-    commit() {
-      this.cytoscape.destroy();
-      console.log('destroyed');
+    async graph() {
+      if (this.cy === undefined) return;
+      const cy = this.cy;
 
-      this.cytoscape = cytoscape({
-        container: this.$el,
-        layout: {
-          name: 'preset',
-        },
-        style: [
-          {
-            selector: 'node',
-            style: {
-              'background-color': 'data(color)',
-              label: 'data(name)',
-              width: 'data(radius)',
-              height: 'data(radius)',
-            },
-          },
-          {
-            selector: 'edge',
-            style: {
-              'line-color': 'data(color)',
-              width: 'data(width)',
-            },
-          },
-        ],
-        minZoom: 0.1,
-        maxZoom: 10,
-      });
+      const graph = this.$props.graph as CytoGraph;
+      const maxWidth = Object.values(graph.edges).reduce((prev, curr) => {
+        return Math.max(prev, curr.width);
+      }, 0);
 
-      for (let i = 0; i < 1000; i++) {
-        const x = Math.random() * 500;
-        const y = Math.random() * 500;
-        const nodeObj = {
-          group: 'nodes',
-          data: {
-            id: i,
-            color: 'red',
-            name: `Node: ${i}`,
-            radius: Math.random() * 29 + 1,
-          },
-          position: {x, y},
-        };
-        this.cytoscape.add(nodeObj);
+      const oldNodes = this.cy.nodes().map(x => x.id());
+      const oldNodesSet = new Set(oldNodes);
+
+      const newNodes = Object.values(graph.nodes).map(x => x.id);
+      const newNodesSet = new Set(newNodes);
+
+      const addNodes = newNodes.filter(x => !oldNodesSet.has(x));
+      const deleteNodes = oldNodes.filter(x => !newNodesSet.has(x));
+      const updateNodes = oldNodes.filter(x => newNodesSet.has(x));
+
+      const oldEdges = this.cy.edges().map(x => x.id());
+      const oldEdgesSet = new Set(oldEdges);
+
+      const newEdges = Object.values(graph.edges).map(x => x.id);
+      const newEdgesSet = new Set(newEdges);
+
+      const addEdges = newEdges.filter(x => !oldEdgesSet.has(x));
+      const deleteEdges = oldEdges.filter(x => !newEdgesSet.has(x));
+      const updateEdges = oldEdges.filter(x => newEdgesSet.has(x));
+
+      if (deleteNodes.length !== 0 || deleteEdges.length !== 0) {
+        deleteNodes.map(x => {
+          cy.$id(x).data('color', 'red');
+        });
+
+        deleteEdges.map(x => {
+          cy.$id(x).data('color', 'red');
+        });
+
+        await sleep(1000);
       }
 
-      // for(const node of newVal){
-      //   const x = Math.random() * 500
-      //   const y = Math.random() * 500
-      //   console.log(node, x, y)
-      //   const nodeObj = {
-      //     group: 'nodes',
-      //     data: {
-      //       id: node,
-      //       color: 'red',
-      //       name: `Node: ${node}`,
-      //       radius: Math.random() * 29 + 1
-      //     },
-      //     position: {x, y}
-      //   }
-      //   this.cytoscape.add(nodeObj)
+      this.cy.add(
+        addNodes.map(x => {
+          return {group: 'nodes', data: graph.nodes[x]};
+        })
+      );
 
-      //   setTimeout(function(that: any) {
-      //     const n = that.cytoscape.$('#'+node);
-      //     n.data('id', n.data('id') + 10)
-      //     console.log('here post', n.data('id'))
-      //   }, 1000, this)
-      // }
+      deleteNodes.map(x => {
+        cy.remove(cy.$id(x));
+      });
+
+      updateNodes.map(x => {
+        cy.$id(x).data(graph.nodes[x]);
+      });
+
+      this.cy.add(
+        addEdges.map(x => {
+          return {
+            group: 'edges',
+            data: edgeToCytoscape(graph.edges[x], maxWidth),
+          };
+        })
+      );
+
+      deleteEdges.map(x => {
+        cy.remove(cy.$id(x));
+      });
+
+      updateEdges.map(x => {
+        cy.$id(x).data(edgeToCytoscape(graph.edges[x], maxWidth));
+      });
+
+      if (addNodes.length !== 0 || addEdges.length !== 0) {
+        const layout = this.cy.elements().layout({
+          name: 'random',
+          fit: false,
+        });
+
+        layout.run();
+      }
+
+      console.log('done');
     },
   },
   mounted() {
-    this.cytoscape = cytoscape({
+    this.cy = cytoscape({
       container: this.$el,
       layout: {
         name: 'preset',
@@ -99,7 +128,7 @@ export default defineComponent({
           selector: 'node',
           style: {
             'background-color': 'data(color)',
-            label: 'data(name)',
+            label: 'data(label)',
             width: 'data(radius)',
             height: 'data(radius)',
           },
@@ -121,10 +150,12 @@ export default defineComponent({
 
 <style scoped>
 #cytoscape {
-  position: absolute;
-  left: 0;
+  /* position: absolute; */
+  /* left: 0;
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
+  width: 100%;
+  height: 100%;
 }
 </style>
