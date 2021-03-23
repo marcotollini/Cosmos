@@ -6,7 +6,6 @@ import Router = require('@koa/router');
 const router = new Router();
 
 router.get('/api/vpn/distinct', async (ctx: RouterContext, next: Next) => {
-  console.log('here');
   const vpns = await Database?.getDistinctVpn();
   ctx.body = vpns;
   return;
