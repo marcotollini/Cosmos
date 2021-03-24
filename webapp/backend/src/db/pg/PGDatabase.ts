@@ -64,13 +64,16 @@ class PGDatabase extends Database {
   ): Promise<EventCount[]> {
     const query = this.knex.raw(`
     SELECT
+      count(*)::integer as count,
       ("timestamp_arrival" / ${precision})::integer*${precision} as "startgroup",
-      ("timestamp_arrival" / ${precision})::integer*${precision} + ${precision} as "endgroup",
-      count(*) as count
+      ("timestamp_arrival" / ${precision})::integer*${precision} + ${precision} as "endgroup"
     FROM ${this.eventTableName}
     WHERE "timestamp_arrival" >= '${startTimestamp}' AND "timestamp_arrival" <= '${endTimestamp}'
     GROUP BY "startgroup"
+    ORDER BY "startgroup"
     `);
+    console.log('not_approximated', query.toString());
+
     const buckets: EventCount[] = (await query).rows;
     return buckets;
   }
@@ -82,18 +85,18 @@ class PGDatabase extends Database {
   ): Promise<EventCount[]> {
     let currentTimestamp = Math.floor(startTimestamp / precision) * precision;
     const approxQueries = [];
-    while (currentTimestamp <= endTimestamp) {
+    while (currentTimestamp < endTimestamp) {
       const start = currentTimestamp;
-      const end = currentTimestamp + precision;
+      const end = Math.min(currentTimestamp + precision, endTimestamp);
       const approxQuery = `SELECT
-        count_estimate('SELECT * from ${this.eventTableName} where "timestamp_arrival" > ${start} and "timestamp_arrival" <= ${end}'),
-        ${start} as startgroup,
-        ${end} as endgroup`;
+        count_estimate('SELECT * from ${this.eventTableName} where "timestamp_arrival" > ${start} and "timestamp_arrival" <= ${end}')::integer as count,
+        ${start} as "startgroup",
+        ${end} as "endgroup"`;
       approxQueries.push(this.knex.raw(approxQuery));
       currentTimestamp += precision;
     }
     const query = this.knex.unionAll(approxQueries);
-    console.log(query.toString());
+    console.log('approx', query.toString());
     const buckets: EventCount[] = await query;
     return buckets;
   }
