@@ -20,16 +20,15 @@
           filterable
           allow-create
           multiple
-          :loading="filtersLoading"
           size="mini"
           placeholder="Select"
           @change="filterData"
         >
           <el-option
             v-for="val of filter.values"
-            :key="val"
-            :label="val"
-            :value="val"
+            :key="val.original"
+            :label="val.rep"
+            :value="val.original"
           >
           </el-option>
         </el-select>
@@ -37,8 +36,8 @@
           v-if="filter.type === 'range'"
           v-model="form[filter.id]"
           input-size="mini"
-          :min="filter.values[0]"
-          :max="filter.values[1]"
+          :min="filter.values[0].sorting"
+          :max="filter.values[1].sorting"
           @change="filterData"
         ></ElSliderInputs>
       </el-collapse-item>
@@ -74,19 +73,17 @@ export default defineComponent({
   data() {
     return {
       form: {} as {[key: string]: any},
-      filtersLoading: false,
       filters: [] as {
         id: string;
         title: string;
         active: boolean;
         type: string;
-        values: (string | number)[];
+        values: {rep: string; sorting: any; original: any}[];
       }[],
     };
   },
   watch: {
     currentState() {
-      this.filtersLoading = true;
       const statePkt = this.$props.currentState as StatePkt;
 
       const dimensionsArray: GenericObjArray = {};
@@ -115,34 +112,50 @@ export default defineComponent({
         const ccdim = _.camelCase(dimension);
         const dimensionConf = config[ccdim] || config['DEFAULT CONFIG'];
         if (!dimensionConf.enabled) continue;
+
+        let values = dimensions[dimension].map(x => {
+          return {
+            rep: x === null ? 'null' : (x as any).toString(),
+            sorting: x,
+            original: x,
+          };
+        }) as {rep: string; sorting: any; original: any}[];
+
+        // maybe cast
+        if (dimensionConf.cast && dimensionConf.cast === 'parseInt') {
+          values = values.map(x => {
+            return {
+              rep: x.rep,
+              sorting: parseInt(x.sorting as string),
+              original: x.original,
+            };
+          });
+        }
+
+        if (dimensionConf.type === 'range') {
+          const min = _.minBy(values, x => x.sorting);
+          const max = _.maxBy(values, x => x.sorting);
+          if (min === undefined || max === undefined) {
+            console.log('not sure what do here');
+            continue;
+          }
+          values = [min, max];
+        }
+
+        values.sort((a, b) => {
+          if (a.sorting < b.sorting) return -1;
+          else if (a.sorting > b.sorting) return 1;
+          return 0;
+        });
+
         const filter = {
           id: dimension,
           title: _.capitalize(_.lowerCase(dimension)),
           active: false,
           type: dimensionConf.type,
-          values: [] as any[],
+          values: values,
         };
 
-        if (dimensionConf.cast) {
-          if (dimensionConf.cast === 'parseInt') {
-            dimensions[dimension] = (dimensions[dimension] as string[]).map(x =>
-              parseInt(x)
-            );
-          }
-        }
-
-        if (dimensionConf.type === 'range') {
-          filter.values = [
-            Math.min(...(dimensions[dimension] as number[])),
-            Math.max(...(dimensions[dimension] as number[])),
-          ];
-          filter.values.sort((a, b) => a - b);
-        } else {
-          filter.values = dimensions[dimension];
-          filter.values.sort((a, b) => a - b);
-        }
-
-        console.log(filter.values);
         this.filters.push(filter);
       }
 
@@ -151,10 +164,6 @@ export default defineComponent({
         else if (a.id > b.id) return 1;
         return 0;
       });
-
-      console.log(this.filters);
-
-      this.filtersLoading = false;
     },
   },
   methods: {

@@ -116,6 +116,8 @@ export default defineComponent({
         'http://10.212.226.67:3000/api/bmp/state',
         {params: {vpn, timestamp}}
       );
+      console.log('Loading done');
+
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
 
