@@ -2,14 +2,18 @@
   <div class="graph">
     <el-container class="el-container-global">
       <el-aside width="20%">
-        <div class="side-top">
-          <FilterLoadData v-on:load-data="loadState" />
-          <FilterRouteMonitor
-            :filters="filters"
-            v-on:filter-data="filterState"
-          />
-        </div>
-        <el-footer class="side-bottom" height="17vh">Footer</el-footer>
+        <el-container class="el-container-global">
+          <el-main style="border-right: 1px #909399 solid">
+            <div class="side-top">
+              <FilterLoadData v-on:load-data="loadState" />
+              <FilterRouteMonitor
+                :currentState="currentState"
+                v-on:filter-data="filterState"
+              />
+            </div>
+          </el-main>
+          <el-footer class="side-bottom" height="200px">Footer</el-footer>
+        </el-container>
       </el-aside>
       <el-container>
         <el-main>
@@ -102,10 +106,6 @@ export default defineComponent({
       currentState: {} as StatePkt,
       filteredState: {} as StatePkt,
       graph: {} as CytoGraph,
-      filters: {
-        peer_ips: [] as (string | null)[],
-        bgp_nhs: [] as (string | null)[],
-      },
     };
   },
   methods: {
@@ -118,24 +118,6 @@ export default defineComponent({
       );
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
-
-      this.filters.peer_ips = [
-        ...new Set(
-          _.flatten(
-            Object.values(statePkt.state).map(x => x.events.map(y => y.peer_ip))
-          )
-        ),
-      ];
-
-      this.filters.bgp_nhs = [
-        ...new Set(
-          _.flatten(
-            Object.values(statePkt.state).map(x =>
-              x.events.map(y => y.bgp_nexthop)
-            )
-          )
-        ),
-      ];
 
       this.graph = stateToGraph(statePkt);
     },
@@ -183,20 +165,8 @@ body {
   height: 100vh;
 }
 
-.side-top {
-  height: 80vh;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.side-top h1 {
-  margin: 0;
-}
-.side-bottom {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
 .timeseries {
   background: #e9eef3;
-  border-top: #333 solid 1px;
+  border-top: #909399 solid 1px;
 }
 </style>
