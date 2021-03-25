@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'ElSliderInputs',
@@ -24,19 +25,25 @@ export default defineComponent({
     min: Number,
     max: Number,
     inputSize: String,
+    modelValue: Array,
   },
-  emits: ['loadData'],
+  emits: ['loadData', 'update:modelValue', 'change'],
   data() {
     return {
       low: this.$props.min,
       high: this.$props.max,
       model: [this.$props.min, this.$props.max],
+      throttledChange: _.throttle(_.partial(this.$emit, 'change'), 500, {
+        trailing: true,
+      }),
     };
   },
   watch: {
     model() {
       this.low = this.model[0];
       this.high = this.model[1];
+      this.$emit('update:modelValue', this.model);
+      this.throttledChange();
     },
     low() {
       this.model = [this.low, this.model[1]];

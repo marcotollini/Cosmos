@@ -39,6 +39,7 @@
           input-size="mini"
           :min="filter.values[0]"
           :max="filter.values[1]"
+          @change="filterData"
         ></ElSliderInputs>
       </el-collapse-item>
     </el-collapse>
@@ -81,7 +82,7 @@ export default defineComponent({
     };
   },
   watch: {
-    async currentState() {
+    currentState() {
       this.filtersLoading = true;
       const statePkt = this.$props.currentState as StatePkt;
 
@@ -112,7 +113,7 @@ export default defineComponent({
           this.filters.push({
             id: dimension,
             title: _.capitalize(_.lowerCase(dimension)),
-            active: false,
+            active: true,
             type: 'range',
             values: [
               Math.min(...(dimensions[dimension] as Set<number>)),
@@ -133,6 +134,9 @@ export default defineComponent({
       console.log(this.filters);
 
       this.filtersLoading = false;
+    },
+    form() {
+      console.log(this.form);
     },
   },
   methods: {
