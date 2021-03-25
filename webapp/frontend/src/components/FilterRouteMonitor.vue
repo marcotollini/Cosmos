@@ -70,7 +70,7 @@ export default defineComponent({
   emits: ['filterData'],
   data() {
     return {
-      form: {},
+      form: {} as {[key: string]: any},
       filtersLoading: false,
       filters: [] as {
         id: string;
@@ -113,7 +113,7 @@ export default defineComponent({
           this.filters.push({
             id: dimension,
             title: _.capitalize(_.lowerCase(dimension)),
-            active: true,
+            active: false,
             type: 'range',
             values: [
               Math.min(...(dimensions[dimension] as Set<number>)),
@@ -135,13 +135,20 @@ export default defineComponent({
 
       this.filtersLoading = false;
     },
-    form() {
-      console.log(this.form);
-    },
   },
   methods: {
     filterData() {
       console.log('filterdata', this.form);
+      for (const filter of this.filters) {
+        const formElem = this.form[filter.id];
+        if (filter.type === 'select') {
+          filter.active = formElem.length !== 0;
+        } else if (filter.type === 'range') {
+          filter.active =
+            filter.values[0] !== formElem[0] ||
+            filter.values[1] !== formElem[1];
+        }
+      }
       // if (this.form.peer_ip === '') {
       //   return;
       // }
