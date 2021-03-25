@@ -3,7 +3,7 @@
     <el-container class="el-container-global">
       <el-aside width="20%">
         <el-container class="el-container-global">
-          <el-main style="border-right: 1px #909399 solid">
+          <el-main style="border-right: 1px #909399 solid" class="mac-scroll">
             <div class="side-top">
               <FilterLoadData v-on:load-data="loadState" />
               <FilterRouteMonitor
@@ -168,5 +168,27 @@ body {
 .timeseries {
   background: #e9eef3;
   border-top: #909399 solid 1px;
+}
+
+.mac-scroll::-webkit-scrollbar {
+  background-color: #fff;
+  width: 16px;
+}
+
+/* background of the scrollbar except button or resizer */
+.mac-scroll::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+/* scrollbar itself */
+.mac-scroll::-webkit-scrollbar-thumb {
+  background-color: #babac0;
+  border-radius: 16px;
+  border: 4px solid #fff;
+}
+
+/* set button(top and bottom of the scrollbar) */
+.mac-scroll::-webkit-scrollbar-button {
+  display: none;
 }
 </style>

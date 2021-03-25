@@ -1,6 +1,6 @@
 <template>
   <el-form ref="form" :model="form" label-width="120px">
-    <el-collapse accordion>
+    <el-collapse>
       <el-collapse-item
         v-for="filter of filters"
         v-bind:key="filter.title"
