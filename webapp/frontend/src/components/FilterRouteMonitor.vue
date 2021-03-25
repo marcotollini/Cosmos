@@ -50,6 +50,9 @@
 import {defineComponent} from 'vue';
 import {StatePkt} from 'cosmos-lib/src/types';
 import _ from 'lodash';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const config = require('../filter.json');
+
 interface GenericObjArray {
   [key: string]: unknown[];
 }
@@ -101,35 +104,53 @@ export default defineComponent({
         }
       }
 
-      const dimensions: GenericObjSet = {};
+      const dimensions: GenericObjArray = {};
       for (const dimension in dimensionsArray) {
         const values = new Set(dimensionsArray[dimension]);
         if (values.size === 1 && [...values][0] === null) continue;
-        dimensions[dimension] = values;
+        dimensions[dimension] = [...values];
       }
 
       for (const dimension in dimensions) {
-        if (dimension === 'id') {
-          this.filters.push({
-            id: dimension,
-            title: _.capitalize(_.lowerCase(dimension)),
-            active: false,
-            type: 'range',
-            values: [
-              Math.min(...(dimensions[dimension] as Set<number>)),
-              Math.max(...(dimensions[dimension] as Set<number>)),
-            ],
-          });
-        } else {
-          this.filters.push({
-            id: dimension,
-            title: _.capitalize(_.lowerCase(dimension)),
-            active: false,
-            type: 'select',
-            values: [...dimensions[dimension]] as (string | number)[],
-          });
+        const ccdim = _.camelCase(dimension);
+        const dimensionConf = config[ccdim] || config['DEFAULT CONFIG'];
+        if (!dimensionConf.enabled) continue;
+        const filter = {
+          id: dimension,
+          title: _.capitalize(_.lowerCase(dimension)),
+          active: false,
+          type: dimensionConf.type,
+          values: [] as any[],
+        };
+
+        if (dimensionConf.cast) {
+          if (dimensionConf.cast === 'parseInt') {
+            dimensions[dimension] = (dimensions[dimension] as string[]).map(x =>
+              parseInt(x)
+            );
+          }
         }
+
+        if (dimensionConf.type === 'range') {
+          filter.values = [
+            Math.min(...(dimensions[dimension] as number[])),
+            Math.max(...(dimensions[dimension] as number[])),
+          ];
+          filter.values.sort((a, b) => a - b);
+        } else {
+          filter.values = dimensions[dimension];
+          filter.values.sort((a, b) => a - b);
+        }
+
+        console.log(filter.values);
+        this.filters.push(filter);
       }
+
+      this.filters.sort((a, b) => {
+        if (a.id < b.id) return -1;
+        else if (a.id > b.id) return 1;
+        return 0;
+      });
 
       console.log(this.filters);
 
