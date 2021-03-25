@@ -31,7 +31,7 @@
 import {defineComponent} from 'vue';
 import axios from 'axios';
 import _ from 'lodash';
-import {StatePkt} from 'cosmos-lib/src/types';
+import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
 import {CytoGraph, CytoNode, CytoEdge} from '../types';
 
 import FilterLoadData from '@/components/FilterLoadData.vue';
@@ -39,6 +39,9 @@ import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
 
+type BMPFilter = {
+  [key in keyof (BMPDump | BMPEvent)]?: any[];
+};
 function stateToGraph(statePkt: StatePkt) {
   const graph: CytoGraph = {
     nodes: {},
@@ -123,12 +126,35 @@ export default defineComponent({
 
       this.graph = stateToGraph(statePkt);
     },
-    filterState: async function (filter: {peer_ip: string}) {
+    filterState: function (filtersRaw: BMPFilter) {
       this.filteredState = _.cloneDeep(this.currentState);
+
+      const filters: BMPFilter = {};
+      for (const dimensionString in filtersRaw) {
+        const dimension = dimensionString as keyof BMPFilter;
+        const filter = filtersRaw[dimension];
+
+        if (
+          filter !== undefined &&
+          Array.isArray(filter) &&
+          filter.length !== 0
+        ) {
+          filters[dimension] = filtersRaw[dimension];
+        }
+      }
 
       for (const vrKey in this.filteredState.state) {
         const vr = this.filteredState.state[vrKey];
-        vr.events = vr.events.filter(x => x.peer_ip === filter.peer_ip);
+        vr.events = vr.events.filter(x => {
+          for (const dimensionString in filters) {
+            const dimension = dimensionString as keyof BMPFilter;
+            const filter = filters[dimension];
+            if (filter !== undefined && filter.indexOf(x[dimension]) === -1) {
+              return false;
+            }
+          }
+          return true;
+        });
       }
 
       this.graph = stateToGraph(this.filteredState);

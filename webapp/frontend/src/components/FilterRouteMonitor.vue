@@ -179,13 +179,8 @@ export default defineComponent({
             filter.values[1] !== formElem[1];
         }
       }
-      // if (this.form.peer_ip === '') {
-      //   return;
-      // }
-      // const peer_ip = this.form.peer_ip;
-      // this.$emit('filterData', {
-      //   peer_ip: peer_ip,
-      // });
+
+      this.$emit('filterData', this.form);
     },
   },
 });
