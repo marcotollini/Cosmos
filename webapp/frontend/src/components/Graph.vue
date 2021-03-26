@@ -34,7 +34,7 @@ import _ from 'lodash';
 import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
 import {CytoGraph} from '../types';
 
-import LoadDataForm from '@/components/FormLoadData.vue';
+import LoadDataForm from '@/components/LoadDataForm.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
@@ -192,6 +192,15 @@ body {
   color: #333;
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB';
   overflow-y: hidden;
+}
+
+.side-elem-width {
+  width: 95% !important;
+  margin-top: 5px;
+}
+
+.text-center {
+  text-align: center;
 }
 </style>
 
