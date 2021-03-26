@@ -2,14 +2,18 @@
   <div class="graph">
     <el-container class="el-container-global">
       <el-aside width="20%">
-        <div class="side-top">
-          <FilterLoadData v-on:load-data="loadState" />
-          <FilterRouteMonitor
-            :filters="filters"
-            v-on:filter-data="filterState"
-          />
-        </div>
-        <el-footer class="side-bottom" height="17vh">Footer</el-footer>
+        <el-container class="el-container-global">
+          <el-main style="border-right: 1px #909399 solid" class="mac-scroll">
+            <div class="side-top">
+              <FilterLoadData v-on:load-data="loadState" />
+              <FilterRouteMonitor
+                :currentState="currentState"
+                v-on:filter-data="filterState"
+              />
+            </div>
+          </el-main>
+          <el-footer class="side-bottom" height="200px">Footer</el-footer>
+        </el-container>
       </el-aside>
       <el-container>
         <el-main>
@@ -27,14 +31,18 @@
 import {defineComponent} from 'vue';
 import axios from 'axios';
 import _ from 'lodash';
-import {StatePkt} from 'cosmos-lib/src/types';
+import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
 import {CytoGraph, CytoNode, CytoEdge} from '../types';
 
 import FilterLoadData from '@/components/FilterLoadData.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
+import {RouteLocationNormalizedLoaded} from 'vue-router';
 
+type BMPFilter = {
+  [key in keyof (BMPDump | BMPEvent)]?: any[];
+};
 function stateToGraph(statePkt: StatePkt) {
   const graph: CytoGraph = {
     nodes: {},
@@ -102,11 +110,19 @@ export default defineComponent({
       currentState: {} as StatePkt,
       filteredState: {} as StatePkt,
       graph: {} as CytoGraph,
-      filters: {
-        peer_ips: [] as (string | null)[],
-        bgp_nhs: [] as (string | null)[],
-      },
     };
+  },
+  watch: {
+    $route(
+      to: RouteLocationNormalizedLoaded,
+      from: RouteLocationNormalizedLoaded
+    ) {
+      console.log(
+        'decoded',
+        to.path,
+        JSON.parse(decodeURI(to.path.split('/').pop() as string))
+      );
+    },
   },
   methods: {
     loadState: async function (info: {vpn: string; timestamp: number}) {
@@ -116,36 +132,53 @@ export default defineComponent({
         'http://10.212.226.67:3000/api/bmp/state',
         {params: {vpn, timestamp}}
       );
+      console.log('Loading done');
+
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
 
-      this.filters.peer_ips = [
-        ...new Set(
-          _.flatten(
-            Object.values(statePkt.state).map(x => x.events.map(y => y.peer_ip))
-          )
-        ),
-      ];
-
-      this.filters.bgp_nhs = [
-        ...new Set(
-          _.flatten(
-            Object.values(statePkt.state).map(x =>
-              x.events.map(y => y.bgp_nexthop)
-            )
-          )
-        ),
-      ];
-
       this.graph = stateToGraph(statePkt);
     },
-    filterState: async function (filter: {peer_ip: string}) {
+    filterState: function (filtersRaw: BMPFilter) {
       this.filteredState = _.cloneDeep(this.currentState);
+
+      const filters: BMPFilter = {};
+      for (const dimensionString in filtersRaw) {
+        const dimension = dimensionString as keyof BMPFilter;
+        const filter = filtersRaw[dimension];
+
+        if (
+          filter !== undefined &&
+          Array.isArray(filter) &&
+          filter.length !== 0
+        ) {
+          filters[dimension] = filtersRaw[dimension];
+        }
+      }
 
       for (const vrKey in this.filteredState.state) {
         const vr = this.filteredState.state[vrKey];
-        vr.events = vr.events.filter(x => x.peer_ip === filter.peer_ip);
+        vr.events = vr.events.filter(x => {
+          for (const dimensionString in filters) {
+            const dimension = dimensionString as keyof BMPFilter;
+            const filter = filters[dimension];
+            if (filter === undefined) continue;
+            if (Array.isArray(x[dimension])) {
+              for (const d of x[dimension] as string[]) {
+                if (filter.indexOf(d) === -1) {
+                  return false;
+                }
+              }
+            } else if (filter.indexOf(x[dimension]) === -1) {
+              return false;
+            }
+          }
+          return true;
+        });
       }
+
+      console.log(JSON.stringify(filters));
+      this.$router.push(encodeURI(JSON.stringify(filters)));
 
       this.graph = stateToGraph(this.filteredState);
     },
@@ -183,20 +216,30 @@ body {
   height: 100vh;
 }
 
-.side-top {
-  height: 80vh;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.side-top h1 {
-  margin: 0;
-}
-.side-bottom {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
 .timeseries {
   background: #e9eef3;
-  border-top: #333 solid 1px;
+  border-top: #909399 solid 1px;
+}
+
+.mac-scroll::-webkit-scrollbar {
+  background-color: #fff;
+  width: 16px;
+}
+
+/* background of the scrollbar except button or resizer */
+.mac-scroll::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+/* scrollbar itself */
+.mac-scroll::-webkit-scrollbar-thumb {
+  background-color: #babac0;
+  border-radius: 16px;
+  border: 4px solid #fff;
+}
+
+/* set button(top and bottom of the scrollbar) */
+.mac-scroll::-webkit-scrollbar-button {
+  display: none;
 }
 </style>

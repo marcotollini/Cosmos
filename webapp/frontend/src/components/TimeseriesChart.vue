@@ -22,7 +22,7 @@ function generateDayWiseTimeSeries(s: number, count: number) {
     series.push([new Date(`${i + 1} Nov 2012`), values[s][i]]);
     i++;
   }
-  console.log(series);
+  // console.log(series);
   return series;
 }
 
@@ -98,7 +98,7 @@ export default defineComponent({
           },
         ],
         markers: {
-          size: 1,
+          size: 0,
           strokeColor: '#fff',
           strokeWidth: 3,
           strokeOpacity: 1,
@@ -135,8 +135,8 @@ export default defineComponent({
           x: {
             format: 'dd MMM yyyy',
           },
-          intersect: true,
-          shared: false,
+          // intersect: true,
+          // shared: false,
         },
         legend: {
           position: 'top',

@@ -97,9 +97,10 @@ export default defineComponent({
     },
   },
   mounted: function () {
-    axios
-      .get('http://10.212.226.67:3000/api/vpn/distinct')
-      .then(response => (this.vpns = response.data));
+    axios.get('http://10.212.226.67:3000/api/vpn/distinct').then(response => {
+      this.vpns = response.data;
+      this.vpns.sort();
+    });
   },
 });
 </script>

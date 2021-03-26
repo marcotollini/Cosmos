@@ -1,0 +1,27 @@
+{
+    "DEFAULT CONFIG": {
+        "enabled": true,
+        "type": "select"
+    },
+    "id": {
+        "enabled": false,
+        "type": "range"
+    },
+    "seq": {
+        "enabled": false,
+        "type": "range"
+    },
+    "timestamp": {
+        "enabled": false,
+        "type": "range"
+    },
+    "timestampDatabase": {
+        "enabled": false,
+        "type": "range"
+    },
+    "label": {
+        "enabled": true,
+        "type": "select",
+        "cast": "parseInt"
+    }
+}
