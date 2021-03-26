@@ -149,7 +149,14 @@ export default defineComponent({
           for (const dimensionString in filters) {
             const dimension = dimensionString as keyof BMPFilter;
             const filter = filters[dimension];
-            if (filter !== undefined && filter.indexOf(x[dimension]) === -1) {
+            if (filter === undefined) continue;
+            if (Array.isArray(x[dimension])) {
+              for (const d of x[dimension] as string[]) {
+                if (filter.indexOf(d) === -1) {
+                  return false;
+                }
+              }
+            } else if (filter.indexOf(x[dimension]) === -1) {
               return false;
             }
           }
