@@ -5,8 +5,8 @@
         <el-container class="el-container-global">
           <el-main style="border-right: 1px #909399 solid" class="mac-scroll">
             <div class="side-top">
-              <FilterLoadData v-on:load-data="loadState" />
-              <FilterRouteMonitor
+              <load-data-form v-on:load-data="loadState" />
+              <filter-route-monitor
                 :currentState="currentState"
                 v-on:filter-data="filterState"
               />
@@ -17,10 +17,10 @@
       </el-aside>
       <el-container>
         <el-main>
-          <Cytoscape :graph="graph" />
+          <cytoscape :graph="graph" />
         </el-main>
         <el-footer height="200px" class="timeseries">
-          <TimeseriesChart></TimeseriesChart>
+          <timeseries-chart />
         </el-footer>
       </el-container>
     </el-container>
@@ -32,9 +32,9 @@ import {defineComponent} from 'vue';
 import axios from 'axios';
 import _ from 'lodash';
 import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
-import {CytoGraph, CytoNode, CytoEdge} from '../types';
+import {CytoGraph} from '../types';
 
-import FilterLoadData from '@/components/FilterLoadData.vue';
+import LoadDataForm from '@/components/FormLoadData.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
@@ -100,7 +100,7 @@ function stateToGraph(statePkt: StatePkt) {
 export default defineComponent({
   name: 'Graph',
   components: {
-    FilterLoadData,
+    LoadDataForm,
     FilterRouteMonitor,
     Cytoscape,
     TimeseriesChart,
