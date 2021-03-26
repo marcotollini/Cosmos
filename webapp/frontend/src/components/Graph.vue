@@ -38,6 +38,7 @@ import FilterLoadData from '@/components/FilterLoadData.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
+import {RouteLocationNormalizedLoaded} from 'vue-router';
 
 type BMPFilter = {
   [key in keyof (BMPDump | BMPEvent)]?: any[];
@@ -111,6 +112,18 @@ export default defineComponent({
       graph: {} as CytoGraph,
     };
   },
+  watch: {
+    $route(
+      to: RouteLocationNormalizedLoaded,
+      from: RouteLocationNormalizedLoaded
+    ) {
+      console.log(
+        'decoded',
+        to.path,
+        JSON.parse(decodeURI(to.path.split('/').pop() as string))
+      );
+    },
+  },
   methods: {
     loadState: async function (info: {vpn: string; timestamp: number}) {
       console.log('Graph loading state!', info);
@@ -163,6 +176,9 @@ export default defineComponent({
           return true;
         });
       }
+
+      console.log(JSON.stringify(filters));
+      this.$router.push(encodeURI(JSON.stringify(filters)));
 
       this.graph = stateToGraph(this.filteredState);
     },

@@ -107,8 +107,12 @@ export default defineComponent({
 
       if (addNodes.length !== 0 || addEdges.length !== 0) {
         const layout = this.cy.elements().layout({
-          name: 'random',
+          name: 'cose',
+          randomize: true,
           fit: false,
+          animate: false,
+          boundingBox: {x1: 0, y1: 0, w: 1000, h: 600},
+          padding: 300,
         });
 
         layout.run();
@@ -131,6 +135,7 @@ export default defineComponent({
             label: 'data(label)',
             width: 'data(radius)',
             height: 'data(radius)',
+            'font-size': 'red',
           },
         },
         {
@@ -138,6 +143,19 @@ export default defineComponent({
           style: {
             'line-color': 'data(color)',
             width: 'data(width)',
+          },
+        },
+        {
+          selector: 'node[label]',
+          style: {
+            'text-background-color': '#e9eef3',
+            'text-background-opacity': 1,
+            'text-border-opacity': 1,
+            'text-border-width': 1,
+            'text-border-style': 'solid',
+            'text-border-color': '#333',
+            'text-background-padding': '3px',
+            'text-margin-y': -5,
           },
         },
       ],
@@ -150,11 +168,6 @@ export default defineComponent({
 
 <style scoped>
 #cytoscape {
-  /* position: absolute; */
-  /* left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0; */
   width: 100%;
   height: 100%;
   overflow: hidden;

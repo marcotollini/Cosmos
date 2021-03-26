@@ -3,7 +3,7 @@
     <el-collapse>
       <el-collapse-item
         v-for="filter of filters"
-        v-bind:key="filter.title"
+        :key="filter.id"
         :name="filter.id"
       >
         <template #title>
@@ -85,6 +85,7 @@ export default defineComponent({
   watch: {
     currentState() {
       const statePkt = this.$props.currentState as StatePkt;
+      this.filters = [];
 
       const dimensionsArray: GenericObjArray = {};
 
