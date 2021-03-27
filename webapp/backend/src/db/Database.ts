@@ -12,7 +12,7 @@ class Database {
     console.log('New database instance created');
   }
 
-  async getDistinctVpn(): Promise<string[]> {
+  async getDistinctVpn(timestamp: number): Promise<string[]> {
     throw new TypeError('Please implement abstract method.');
   }
 

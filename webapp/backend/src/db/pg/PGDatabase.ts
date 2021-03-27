@@ -38,22 +38,36 @@ class PGDatabase extends Database {
     'is_post',
   ];
 
-  async getDistinctVpn(): Promise<string[]> {
+  async getDistinctVpn(timestamp: number): Promise<string[]> {
     // too complex for knex
     // ::intger makes the query from minutes to ms
-    const query = this.knex.raw(
-      `SELECT "community"
-      FROM(
-        SELECT distinct(JSONB_ARRAY_ELEMENTS_TEXT("comms")) AS "community"
-        FROM "${this.dumpTableName}"
-        WHERE "timestamp" > extract(EPOCH from now())::integer - ${this.timeBetweenDumps}
-      ) AS "t"
-      WHERE "community" LIKE '64497:%'`
-    );
+    // const query = this.knex.raw(
+    //   `SELECT "community"
+    //   FROM(
+    //     SELECT distinct(JSONB_ARRAY_ELEMENTS_TEXT("comms")) AS "community"
+    //     FROM "${this.dumpTableName}"
+    //     WHERE "timestamp" > ${timestamp} - ${this.timeBetweenDumps}
+    //   ) AS "t"
+    //   WHERE "community" LIKE '64497:%'`
+    // );
 
-    const vpns = (await query).rows.map(
-      (x: {community: string}) => x.community
-    );
+    const query = this.knex
+      .select('community')
+      .from(
+        this.knex
+          .select(
+            this.knex.raw(
+              'distinct(JSONB_ARRAY_ELEMENTS_TEXT("comms")) as community'
+            )
+          )
+          .as('t')
+          .from(this.dumpTableName)
+          .where('timestamp', '<=', timestamp)
+          .where('timestamp', '>', timestamp - this.timeBetweenDumps)
+      )
+      .where('community', 'like', '64497:%');
+    const results = await query;
+    const vpns = results.map((x: {community: string}) => x.community);
     return vpns;
   }
 
