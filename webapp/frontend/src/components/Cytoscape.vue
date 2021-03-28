@@ -5,6 +5,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
+import _ from 'lodash';
 import {CytoGraph, CytoEdge} from '../types';
 
 function edgeToCytoscape(edge: CytoEdge, maxWidth: number) {
@@ -38,6 +39,7 @@ export default defineComponent({
       const cy = this.cy;
 
       const graph = this.$props.graph as CytoGraph;
+      const type = graph.type;
       const maxWidth = Object.values(graph.edges).reduce((prev, curr) => {
         return Math.max(prev, curr.width);
       }, 0);
@@ -49,8 +51,10 @@ export default defineComponent({
       const newNodesSet = new Set(newNodes);
 
       const addNodes = newNodes.filter(x => !oldNodesSet.has(x));
-      const deleteNodes = oldNodes.filter(x => !newNodesSet.has(x));
-      const updateNodes = oldNodes.filter(x => newNodesSet.has(x));
+      const [deleteNodes, updateNodes] = _.partition(
+        oldNodes,
+        x => !newNodesSet.has(x)
+      );
 
       const oldEdges = this.cy.edges().map(x => x.id());
       const oldEdgesSet = new Set(oldEdges);
@@ -59,21 +63,25 @@ export default defineComponent({
       const newEdgesSet = new Set(newEdges);
 
       const addEdges = newEdges.filter(x => !oldEdgesSet.has(x));
-      const deleteEdges = oldEdges.filter(x => !newEdgesSet.has(x));
-      const updateEdges = oldEdges.filter(x => newEdgesSet.has(x));
+      const [deleteEdges, updateEdges] = _.partition(
+        oldEdges,
+        x => !newEdgesSet.has(x)
+      );
 
-      if (deleteNodes.length !== 0 || deleteEdges.length !== 0) {
-        deleteNodes.map(x => {
-          cy.$id(x).data('color', 'red');
-        });
+      // if (deleteNodes.length !== 0 || deleteEdges.length !== 0) {
+      //   cy.startBatch();
+      //   deleteNodes.map(x => {
+      //     cy.$id(x).data('color', 'red');
+      //   });
 
-        deleteEdges.map(x => {
-          cy.$id(x).data('color', 'red');
-        });
+      //   deleteEdges.map(x => {
+      //     cy.$id(x).data('color', 'red');
+      //   });
+      //   cy.endBatch();
+      //   await sleep(500);
+      // }
 
-        await sleep(1000);
-      }
-
+      cy.startBatch();
       this.cy.add(
         addNodes.map(x => {
           return {group: 'nodes', data: graph.nodes[x]};
@@ -81,11 +89,19 @@ export default defineComponent({
       );
 
       deleteNodes.map(x => {
-        cy.remove(cy.$id(x));
+        if (type === 'load') {
+          cy.remove(cy.$id(x));
+        } else if (type === 'filter') {
+          cy.$id(x).style('visibility', 'hidden');
+        }
       });
 
       updateNodes.map(x => {
-        cy.$id(x).data(graph.nodes[x]);
+        const node = cy.$id(x);
+        node.data(graph.nodes[x]);
+        if (type === 'filter') {
+          node.style('visibility', 'visible');
+        }
       });
 
       this.cy.add(
@@ -98,27 +114,41 @@ export default defineComponent({
       );
 
       deleteEdges.map(x => {
-        cy.remove(cy.$id(x));
+        if (type === 'load') {
+          cy.remove(cy.$id(x));
+        } else if (type === 'filter') {
+          cy.$id(x).style('visibility', 'hidden');
+        }
       });
 
       updateEdges.map(x => {
-        cy.$id(x).data(edgeToCytoscape(graph.edges[x], maxWidth));
+        const edge = cy.$id(x);
+        edge.data(edgeToCytoscape(graph.edges[x], maxWidth));
+        if (type === 'filter') {
+          edge.style('visibility', 'visible');
+        }
       });
 
-      if (addNodes.length !== 0 || addEdges.length !== 0) {
+      if (type === 'load' && (addNodes.length !== 0 || addEdges.length !== 0)) {
+        const widthPadding = 100;
+        const heightPadding = 50;
         const layout = this.cy.elements().layout({
           name: 'cose',
           randomize: true,
           fit: false,
           animate: false,
-          boundingBox: {x1: 0, y1: 0, w: 1000, h: 600},
+          boundingBox: {
+            x1: widthPadding,
+            y1: heightPadding,
+            w: cy.width() - widthPadding * 2,
+            h: cy.height() - heightPadding * 2,
+          },
           padding: 300,
         });
 
         layout.run();
       }
-
-      console.log('done');
+      cy.endBatch();
     },
   },
   mounted() {
@@ -135,7 +165,6 @@ export default defineComponent({
             label: 'data(label)',
             width: 'data(radius)',
             height: 'data(radius)',
-            'font-size': 'red',
           },
         },
         {

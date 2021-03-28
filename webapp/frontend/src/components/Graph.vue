@@ -47,15 +47,16 @@ import {RouteLocationNormalizedLoaded} from 'vue-router';
 type BMPFilter = {
   [key in keyof (BMPDump | BMPEvent)]?: any[];
 };
-function stateToGraph(statePkt: StatePkt) {
+function stateToGraph(statePkt: StatePkt, type: 'load' | 'filter') {
   const graph: CytoGraph = {
     nodes: {},
     edges: {},
+    type,
   };
 
   for (const vrKey in statePkt.state) {
     const vr = statePkt.state[vrKey];
-    const virtualRouter = vr.virtualRouter;
+    // const virtualRouter = vr.virtualRouter;
     for (const event of vr.events) {
       if (
         !(event.is_in || event.is_out) ||
@@ -193,7 +194,7 @@ export default defineComponent({
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
 
-      this.graph = stateToGraph(statePkt);
+      this.graph = stateToGraph(statePkt, 'load');
 
       loadingNotification.close();
       this.$notify({
@@ -246,7 +247,7 @@ export default defineComponent({
       console.log(JSON.stringify(filters));
       this.$router.push(encodeURI(JSON.stringify(filters)));
 
-      this.graph = stateToGraph(this.filteredState);
+      this.graph = stateToGraph(this.filteredState, 'filter');
     },
   },
 });
