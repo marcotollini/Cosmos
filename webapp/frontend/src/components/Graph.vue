@@ -5,7 +5,11 @@
         <el-container class="el-container-global">
           <el-main style="border-right: 1px #909399 solid" class="mac-scroll">
             <div class="side-top">
-              <load-data-form v-on:load-data="loadState" />
+              <load-state-form
+                v-on:load-data="loadState"
+                v-model="stateLoaded"
+                style="margin-bottom: 10px"
+              />
               <filter-route-monitor
                 :currentState="currentState"
                 v-on:filter-data="filterState"
@@ -29,12 +33,12 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import axios from 'axios';
+import axios, {CancelToken, CancelTokenSource} from 'axios';
 import _ from 'lodash';
 import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
 import {CytoGraph} from '../types';
 
-import LoadDataForm from '@/components/LoadDataForm.vue';
+import LoadStateForm from '@/components/LoadStateForm.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
@@ -97,10 +101,21 @@ function stateToGraph(statePkt: StatePkt) {
   return graph;
 }
 
+function datetimeToString(datetime: Date) {
+  const padding = _.partialRight(_.padStart, 2, '0');
+  const year = padding(datetime.getFullYear().toString());
+  const month = padding((datetime.getMonth() + 1).toString());
+  const day = padding(datetime.getDate().toString());
+  const hour = padding(datetime.getHours().toString());
+  const minute = padding(datetime.getMinutes().toString());
+  const second = padding(datetime.getSeconds().toString());
+  return `${year}-${month}-${day} at ${hour}:${minute}:${second}`;
+}
+
 export default defineComponent({
   name: 'Graph',
   components: {
-    LoadDataForm,
+    LoadStateForm,
     FilterRouteMonitor,
     Cytoscape,
     TimeseriesChart,
@@ -110,9 +125,16 @@ export default defineComponent({
       currentState: {} as StatePkt,
       filteredState: {} as StatePkt,
       graph: {} as CytoGraph,
+      stateLoaded: {} as {vpn: number; datetime: Date},
+      axiosToken: undefined as
+        | undefined
+        | {token: CancelTokenSource; notification: any},
     };
   },
   watch: {
+    async stateLoaded() {
+      await this.loadState();
+    },
     $route(
       to: RouteLocationNormalizedLoaded,
       from: RouteLocationNormalizedLoaded
@@ -125,19 +147,63 @@ export default defineComponent({
     },
   },
   methods: {
-    loadState: async function (info: {vpn: string; timestamp: number}) {
-      console.log('Graph loading state!', info);
-      const {vpn, timestamp} = info;
+    async loadState() {
+      const {vpn, datetime} = this.stateLoaded;
+
+      // If there is another request for loading, cancel it
+      if (this.axiosToken !== undefined) {
+        this.axiosToken.token.cancel();
+        this.axiosToken.notification.close();
+        this.$notify({
+          title: 'Loading graph',
+          message: 'Cancelling previous request',
+          type: 'error',
+          customClass: 'text-left',
+          duration: 3000,
+        });
+
+        // process.nextTick in a fancy way with await :)
+        // needed for notify to work correctly, otherwise
+        // popups are overlapping
+        await Promise.resolve();
+      }
+
+      // Notify about the new request
+      const loadingNotification = this.$notify({
+        title: 'Loading graph',
+        message: `Loading the data for vpn ${vpn} and date ${datetimeToString(
+          datetime
+        )}`,
+        iconClass: 'el-icon-loading',
+        customClass: 'text-left',
+        duration: 0,
+      });
+
+      // timestamp in seconds
+      const timestamp = Math.floor(datetime.getTime() / 1000);
+      const axiosToken = axios.CancelToken.source();
+      this.axiosToken = {token: axiosToken, notification: loadingNotification};
       const response = await axios.get(
         'http://10.212.226.67:3000/api/bmp/state',
-        {params: {vpn, timestamp}}
+        {params: {vpn, timestamp}, cancelToken: axiosToken.token}
       );
-      console.log('Loading done');
+
+      this.axiosToken = undefined;
 
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
 
       this.graph = stateToGraph(statePkt);
+
+      loadingNotification.close();
+      this.$notify({
+        title: 'Loading graph',
+        message: `Completed loading of the data for vpn ${vpn} and date ${datetimeToString(
+          datetime
+        )}`,
+        type: 'success',
+        duration: 3000,
+      });
     },
     filterState: function (filtersRaw: BMPFilter) {
       this.filteredState = _.cloneDeep(this.currentState);
@@ -201,6 +267,10 @@ body {
 
 .text-center {
   text-align: center;
+}
+
+.text-left .el-notification__content p {
+  text-align: left !important;
 }
 </style>
 
