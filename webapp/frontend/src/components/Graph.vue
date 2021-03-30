@@ -147,6 +147,7 @@ export default defineComponent({
     },
 
     filtersLoaded() {
+      if (this.currentState.timestamp === undefined) return;
       const filtersRaw = this.filtersLoaded;
       this.filteredState = _.cloneDeep(this.currentState);
 
@@ -265,7 +266,7 @@ export default defineComponent({
       );
     },
   },
-  async mounted() {
+  mounted() {
     try {
       const splitted = this.$route.path.split('/').pop() as string;
       if (splitted === '') return;
@@ -275,8 +276,7 @@ export default defineComponent({
         datetime: new Date(parameters.data.datetime),
       };
       this.stateLoaded = data;
-      // await this.loadState();
-      // this.filtersLoaded = parameters.filters;
+      this.filtersLoaded = parameters.filters;
     } catch (e) {
       console.log(e);
       this.$router.push('/');

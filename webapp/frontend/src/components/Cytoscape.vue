@@ -129,7 +129,11 @@ export default defineComponent({
         }
       });
 
-      if (type === 'load' && (addNodes.length !== 0 || addEdges.length !== 0)) {
+      if (
+        this.cy
+          .nodes()
+          .filter(x => x.position().x === 0 && x.position().y === 0).length > 0
+      ) {
         const widthPadding = 100;
         const heightPadding = 50;
         const layout = this.cy.elements().layout({

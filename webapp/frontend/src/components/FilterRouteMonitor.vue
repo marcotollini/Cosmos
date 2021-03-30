@@ -86,6 +86,9 @@ export default defineComponent({
     };
   },
   watch: {
+    modelValue() {
+      this.form = _.clone(this.modelValue) as {[key: string]: any};
+    },
     currentState() {
       const statePkt = this.$props.currentState as StatePkt;
       this.filters = [];
@@ -165,10 +168,13 @@ export default defineComponent({
         else if (a.id > b.id) return 1;
         return 0;
       });
+
+      this.filterData();
     },
   },
   methods: {
     filterData() {
+      if (Object.keys(this.form).length === 0) return;
       for (const filter of this.filters) {
         const formElem = this.form[filter.id];
         if (filter.type === 'select') {
