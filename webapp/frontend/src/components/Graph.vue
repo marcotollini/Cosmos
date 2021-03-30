@@ -12,7 +12,7 @@
               />
               <filter-route-monitor
                 :currentState="currentState"
-                v-on:filter-data="filterState"
+                v-model="filtersLoaded"
               />
             </div>
           </el-main>
@@ -124,6 +124,7 @@ export default defineComponent({
       filteredState: {} as StatePkt,
       graph: {} as CytoGraph,
       stateLoaded: {} as {vpn: number; datetime: Date},
+      filtersLoaded: {} as BMPFilter,
       axiosToken: undefined as
         | undefined
         | {token: CancelTokenSource; notification: any},
@@ -137,17 +138,67 @@ export default defineComponent({
       to: RouteLocationNormalizedLoaded,
       from: RouteLocationNormalizedLoaded
     ) {
-      console.log(JSON.parse(atob(to.path.split('/').pop() as string)));
-      // console.log(
-      //   'decoded',
-      //   to.path,
-      //   JSON.parse(decodeURI(to.path.split('/').pop() as string))
-      // );
+      try {
+        const parameters = JSON.parse(atob(to.path.split('/').pop() as string));
+        console.log(parameters);
+      } catch (e) {
+        this.$router.push('/');
+      }
+    },
+
+    filtersLoaded() {
+      const filtersRaw = this.filtersLoaded;
+      this.filteredState = _.cloneDeep(this.currentState);
+
+      const filters: BMPFilter = {};
+      for (const dimensionString in filtersRaw) {
+        const dimension = dimensionString as keyof BMPFilter;
+        const filter = filtersRaw[dimension];
+
+        if (
+          filter !== undefined &&
+          Array.isArray(filter) &&
+          filter.length !== 0
+        ) {
+          filters[dimension] = filtersRaw[dimension];
+        }
+      }
+
+      this.filteredState.events = this.filteredState.events.filter(x => {
+        for (const dimensionString in filters) {
+          const dimension = dimensionString as keyof BMPFilter;
+          const filter = filters[dimension];
+          if (filter === undefined) continue;
+          if (Array.isArray(x[dimension])) {
+            for (const d of x[dimension] as string[]) {
+              if (filter.indexOf(d) === -1) {
+                return false;
+              }
+            }
+          } else if (filter.indexOf(x[dimension]) === -1) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      this.graph = stateToGraph(this.filteredState, 'filter');
+
+      this.$router.push(
+        btoa(
+          JSON.stringify({
+            data: this.stateLoaded,
+            filters: this.filtersLoaded,
+          })
+        )
+      );
     },
   },
+
   methods: {
     async loadState() {
       const {vpn, datetime} = this.stateLoaded;
+      console.log(vpn, datetime);
 
       // If there is another request for loading, cancel it
       if (this.axiosToken !== undefined) {
@@ -203,46 +254,33 @@ export default defineComponent({
         type: 'success',
         duration: 3000,
       });
+
+      this.$router.push(
+        btoa(
+          JSON.stringify({
+            data: this.stateLoaded,
+            filters: this.filtersLoaded,
+          })
+        )
+      );
     },
-    filterState: function (filtersRaw: BMPFilter) {
-      this.filteredState = _.cloneDeep(this.currentState);
-
-      const filters: BMPFilter = {};
-      for (const dimensionString in filtersRaw) {
-        const dimension = dimensionString as keyof BMPFilter;
-        const filter = filtersRaw[dimension];
-
-        if (
-          filter !== undefined &&
-          Array.isArray(filter) &&
-          filter.length !== 0
-        ) {
-          filters[dimension] = filtersRaw[dimension];
-        }
-      }
-
-      this.filteredState.events = this.filteredState.events.filter(x => {
-        for (const dimensionString in filters) {
-          const dimension = dimensionString as keyof BMPFilter;
-          const filter = filters[dimension];
-          if (filter === undefined) continue;
-          if (Array.isArray(x[dimension])) {
-            for (const d of x[dimension] as string[]) {
-              if (filter.indexOf(d) === -1) {
-                return false;
-              }
-            }
-          } else if (filter.indexOf(x[dimension]) === -1) {
-            return false;
-          }
-        }
-        return true;
-      });
-
-      this.$router.push(btoa(JSON.stringify(filters)));
-
-      this.graph = stateToGraph(this.filteredState, 'filter');
-    },
+  },
+  async mounted() {
+    try {
+      const splitted = this.$route.path.split('/').pop() as string;
+      if (splitted === '') return;
+      const parameters = JSON.parse(atob(splitted));
+      const data = {
+        vpn: parameters.data.vpn,
+        datetime: new Date(parameters.data.datetime),
+      };
+      this.stateLoaded = data;
+      // await this.loadState();
+      // this.filtersLoaded = parameters.filters;
+    } catch (e) {
+      console.log(e);
+      this.$router.push('/');
+    }
   },
 });
 </script>

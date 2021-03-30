@@ -70,11 +70,12 @@ export default defineComponent({
   },
   props: {
     currentState: {},
+    modelValue: Object,
   },
-  emits: ['filterData'],
+  emits: ['update:modelValue'],
   data() {
     return {
-      form: {} as {[key: string]: any},
+      form: (this.$props.modelValue || {}) as {[key: string]: any},
       filters: [] as {
         id: string;
         title: string;
@@ -178,8 +179,7 @@ export default defineComponent({
             filter.values[1] !== formElem[1];
         }
       }
-
-      this.$emit('filterData', this.form);
+      this.$emit('update:modelValue', _.clone(this.form));
     },
   },
 });

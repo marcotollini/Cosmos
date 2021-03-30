@@ -145,6 +145,12 @@ export default defineComponent({
       ],
     };
   },
+  watch: {
+    modelValue() {
+      this.loadState();
+      this.form = _.clone(this.modelValue) as {vpn: string; datetime: Date};
+    },
+  },
   methods: {
     loadState() {
       if (
