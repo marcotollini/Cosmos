@@ -54,49 +54,46 @@ function stateToGraph(statePkt: StatePkt, type: 'load' | 'filter') {
     type,
   };
 
-  for (const vrKey in statePkt.state) {
-    const vr = statePkt.state[vrKey];
-    // const virtualRouter = vr.virtualRouter;
-    for (const event of vr.events) {
-      if (
-        !(event.is_in || event.is_out) ||
-        !event.peer_ip ||
-        !event.bgp_nexthop ||
-        !event.ip_prefix
-      )
-        continue;
-      const src = event.peer_ip;
-      const dst = event.bgp_nexthop;
-      if (!graph.nodes[src])
-        graph.nodes[src] = {
-          id: src,
-          label: src,
-          color: 'blue',
-          radius: 10,
-          display: true,
-        };
-      if (!graph.nodes[dst])
-        graph.nodes[dst] = {
-          id: dst,
-          label: dst,
-          color: 'blue',
-          radius: 10,
-          display: true,
-        };
+  for (const event of statePkt.events) {
+    if (
+      !(event.is_in || event.is_out) ||
+      !event.peer_ip ||
+      !event.bgp_nexthop ||
+      !event.ip_prefix
+    )
+      continue;
 
-      const edgeKey = `${src}-${dst}`;
-      if (!graph.edges[edgeKey]) {
-        graph.edges[edgeKey] = {
-          id: edgeKey,
-          src,
-          dst,
-          color: 'green',
-          width: 0,
-        };
-      }
+    const src = event.peer_ip;
+    const dst = event.bgp_nexthop;
+    if (!graph.nodes[src])
+      graph.nodes[src] = {
+        id: src,
+        label: src,
+        color: 'blue',
+        radius: 10,
+        display: true,
+      };
+    if (!graph.nodes[dst])
+      graph.nodes[dst] = {
+        id: dst,
+        label: dst,
+        color: 'blue',
+        radius: 10,
+        display: true,
+      };
 
-      graph.edges[edgeKey].width += 1;
+    const edgeKey = `${src}-${dst}`;
+    if (!graph.edges[edgeKey]) {
+      graph.edges[edgeKey] = {
+        id: edgeKey,
+        src,
+        dst,
+        color: 'green',
+        width: 0,
+      };
     }
+
+    graph.edges[edgeKey].width += 1;
   }
 
   return graph;
@@ -224,26 +221,23 @@ export default defineComponent({
         }
       }
 
-      for (const vrKey in this.filteredState.state) {
-        const vr = this.filteredState.state[vrKey];
-        vr.events = vr.events.filter(x => {
-          for (const dimensionString in filters) {
-            const dimension = dimensionString as keyof BMPFilter;
-            const filter = filters[dimension];
-            if (filter === undefined) continue;
-            if (Array.isArray(x[dimension])) {
-              for (const d of x[dimension] as string[]) {
-                if (filter.indexOf(d) === -1) {
-                  return false;
-                }
+      this.filteredState.events = this.filteredState.events.filter(x => {
+        for (const dimensionString in filters) {
+          const dimension = dimensionString as keyof BMPFilter;
+          const filter = filters[dimension];
+          if (filter === undefined) continue;
+          if (Array.isArray(x[dimension])) {
+            for (const d of x[dimension] as string[]) {
+              if (filter.indexOf(d) === -1) {
+                return false;
               }
-            } else if (filter.indexOf(x[dimension]) === -1) {
-              return false;
             }
+          } else if (filter.indexOf(x[dimension]) === -1) {
+            return false;
           }
-          return true;
-        });
-      }
+        }
+        return true;
+      });
 
       this.$router.push(btoa(JSON.stringify(filters)));
 

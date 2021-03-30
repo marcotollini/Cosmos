@@ -40,7 +40,7 @@ class Database {
     vpn: string,
     timestamp: number,
     startTimestamp: number
-  ): Promise<UpgradePkt> {
+  ): Promise<StatePkt> {
     throw new TypeError('Please implement abstract method.');
   }
 }

@@ -78,22 +78,8 @@ interface VirtualRouterDump extends VirtualRouter {
 
 interface StatePkt {
   timestamp: number;
-  state: {
-    [key: string]: {
-      virtualRouter: VirtualRouter;
-      events: (BMPDump | BMPEvent)[];
-    };
-  };
-}
-
-interface UpgradePkt {
-  timestamp: number;
-  upgrade: {
-    [key: string]: {
-      virtualRouter: VirtualRouter;
-      events: BMPEvent[];
-    };
-  };
+  events: (BMPDump | BMPEvent)[];
+  type: 'state' | 'upgrade';
 }
 
 interface EventCount {
@@ -106,7 +92,6 @@ export {
   BMPDump,
   BMPEvent,
   StatePkt,
-  UpgradePkt,
   VirtualRouter,
   VirtualRouterDump,
   EventCount,

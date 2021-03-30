@@ -1,5 +1,5 @@
 import Database from '../Database';
-import {knex, Knex} from 'knex';
+import {Knex} from 'knex';
 import {at, uniqBy} from 'lodash';
 
 import {
@@ -8,7 +8,6 @@ import {
   VirtualRouter,
   VirtualRouterDump,
   StatePkt,
-  UpgradePkt,
   EventCount,
 } from 'cosmos-lib/src/types';
 
@@ -38,19 +37,12 @@ class PGDatabase extends Database {
     'is_post',
   ];
 
+  /**
+   * Returns a list of VPN active in the given status
+   * @param {number} timestamp - The timestamp for which we want to find the VPNs
+   * @return {Promise<string[]>} A list of distinct VPN in a promise
+   */
   async getDistinctVpn(timestamp: number): Promise<string[]> {
-    // too complex for knex
-    // ::intger makes the query from minutes to ms
-    // const query = this.knex.raw(
-    //   `SELECT "community"
-    //   FROM(
-    //     SELECT distinct(JSONB_ARRAY_ELEMENTS_TEXT("comms")) AS "community"
-    //     FROM "${this.dumpTableName}"
-    //     WHERE "timestamp" > ${timestamp} - ${this.timeBetweenDumps}
-    //   ) AS "t"
-    //   WHERE "community" LIKE '64497:%'`
-    // );
-
     const query = this.knex
       .select('community')
       .from(
@@ -71,6 +63,13 @@ class PGDatabase extends Database {
     return vpns;
   }
 
+  /**
+   * Returns the total number of events in a backet of dimension "precision" and limited by startTimestamp and endTimestmap
+   * @param {number} startTimestamp - The minimum timestamp for a backet
+   * @param {number} endTimestamp - The maximum timestamp for a bucket
+   * @param {number} precision - The dimension of each bucket
+   * @return {Promise<EventCount[]>} The list of buckets, with the start and end timestamp, and the number of events
+   */
   async getEventsCounter(
     startTimestamp: number,
     endTimestamp: number,
@@ -92,6 +91,14 @@ class PGDatabase extends Database {
     return buckets;
   }
 
+  /**
+   * Returns the total number of events APPROXIMATED in a backet of dimension "precision" and limited by startTimestamp and endTimestmap
+   * @param {number} startTimestamp - The minimum timestamp for a backet
+   * @param {number} endTimestamp - The maximum timestamp for a bucket
+   * @param {number} precision - The dimension of each bucket
+   * @return {Promise<EventCount[]>} The list of buckets, with the start and end timestamp, and the approximated number of events
+   *  https://wiki.postgresql.org/wiki/Count_estimate
+   */
   async getEventsCounterApprox(
     startTimestamp: number,
     endTimestamp: number,
@@ -115,28 +122,27 @@ class PGDatabase extends Database {
     return buckets;
   }
 
-  // https://wiki.postgresql.org/wiki/Count_estimate
-
-  // General filter for next to all queries
-  private BMPGeneralFilter(
-    knex: Knex.QueryBuilder,
-    table_name: string,
-    vpn: string
-  ) {
-    return knex
-      .where(`${table_name}.bmp_msg_type`, '=', 'route_monitor')
-      .whereRaw(`"${table_name}"."comms" @> ?`, [JSON.stringify(vpn)]);
-  }
-
-  // Select and filters the dump queries
+  /**
+   * General filter for dump queryes
+   * @param {string} vpn - The VPN we want to filter on
+   * @param {number} timestmap - The timestamp of the dump we want to generate
+   * @return {QueryBuild} A basic query filter, which can be additionally filtered or selected
+   */
   private BMPDumpFilter(vpn: string, timestamp: number) {
     const knex = this.knex<BMPDump>(this.knex.ref(this.dumpTableName).as('dp'));
-    return this.BMPGeneralFilter(knex, 'dp', vpn)
+    return knex
+      .where('dp.bmp_msg_type', '=', 'route_monitor')
+      .whereRaw('"dp"."comms" @> ?', [JSON.stringify(vpn)])
       .where('dp.timestamp', '>=', timestamp - this.timeBetweenDumps)
       .where('dp.timestamp', '<=', timestamp);
   }
 
-  // Select and filters the events queries
+  /**
+   * General filter for events queryes
+   * @param {string} vpn - The VPN we want to filter on
+   * @param {number} timestmap - The timestamp of the event we want to generate
+   * @return {QueryBuild} A basic query filter, which can be additionally filtered or selected
+   */
   private BMPEventFilter(
     vpn: string,
     timestamp: number,
@@ -145,13 +151,19 @@ class PGDatabase extends Database {
     const knex = this.knex<BMPDump>(
       this.knex.ref(this.eventTableName).as('et')
     );
-    return this.BMPGeneralFilter(knex, 'et', vpn)
+    return knex
+      .where('et.bmp_msg_type', '=', 'route_monitor')
+      .whereRaw('"et"."comms" @> ?', [JSON.stringify(vpn)])
       .where('et.timestamp_arrival', '>=', startTimestamp)
       .where('et.timestamp_arrival', '<=', timestamp);
   }
 
-  // Select the given table name, filters it, and distinct on the
-  // properties to cal the virtual routers
+  /**
+   * General filter for dump queryes
+   * @param {string} vpn - The VPN we want to filter on
+   * @param {number} timestmap - The timestamp of the dump we want to generate
+   * @return {QueryBuild} A basic query filter, which can be additionally filtered or selected
+   */
   private virtualRoutersBMPGeneral(
     table_name: string,
     vpn: string,
@@ -162,7 +174,9 @@ class PGDatabase extends Database {
       .distinctOn('bmp_router', 'rd')
       .orderBy(['bmp_router', 'rd', {column: 'timestamp', order: 'DESC'}]);
 
-    return this.BMPGeneralFilter(knex, 'table', vpn)
+    return knex
+      .where('table.bmp_msg_type', '=', 'route_monitor')
+      .whereRaw('"table"."comms" @> ?', [JSON.stringify(vpn)])
       .where('table.timestamp', '>=', startTimestamp)
       .where('table.timestamp', '<=', timestamp);
   }
@@ -293,25 +307,9 @@ class PGDatabase extends Database {
 
       const statePkt: StatePkt = {
         timestamp,
-        state: {},
+        type: 'dump',
+        events: eventsDistict,
       };
-
-      for (const event of eventsDistict) {
-        const virtualRouter: VirtualRouter = {
-          bmp_router: event.bmp_router,
-          rd: event.rd,
-        };
-        const VRKey = virtualRouterToKey(virtualRouter);
-
-        if (!statePkt.state[VRKey]) {
-          statePkt.state[VRKey] = {
-            virtualRouter,
-            events: [],
-          };
-        }
-
-        statePkt.state[VRKey].events.push(event);
-      }
 
       return statePkt;
     } catch (e) {
@@ -324,7 +322,7 @@ class PGDatabase extends Database {
     vpn: string,
     timestamp: number,
     startTimestamp: number
-  ): Promise<UpgradePkt> {
+  ): Promise<StatePkt> {
     const query = this.BMPEventFilter(vpn, timestamp, startTimestamp)
       .select('et.*')
       .distinctOn(...this.keyDistinctEvent)
@@ -335,27 +333,11 @@ class PGDatabase extends Database {
 
     const upgrade = await query;
 
-    const upgradePkt: UpgradePkt = {
+    const upgradePkt: StatePkt = {
       timestamp,
-      upgrade: {},
+      type: 'upgrade',
+      events: upgrade,
     };
-
-    for (const event of upgrade) {
-      const virtualRouter: VirtualRouter = {
-        bmp_router: event.bmp_router,
-        rd: event.rd,
-      };
-      const VRKey = virtualRouterToKey(virtualRouter);
-
-      if (!upgradePkt.upgrade[VRKey]) {
-        upgradePkt.upgrade[VRKey] = {
-          virtualRouter,
-          events: [],
-        };
-      }
-
-      upgradePkt.upgrade[VRKey].events.push(event);
-    }
 
     return upgradePkt;
   }

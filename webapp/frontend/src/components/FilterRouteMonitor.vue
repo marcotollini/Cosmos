@@ -91,16 +91,13 @@ export default defineComponent({
 
       const dimensionsArray: GenericObjArray = {};
 
-      for (const vrKey in statePkt.state) {
-        const events = statePkt.state[vrKey].events;
-        for (const event of events) {
-          for (const key in event) {
-            const e = (event as unknown) as GenericObjArray;
-            if (!dimensionsArray[key]) dimensionsArray[key] = [];
+      for (const event of statePkt.events) {
+        for (const key in event) {
+          const e = (event as unknown) as GenericObjArray;
+          if (!dimensionsArray[key]) dimensionsArray[key] = [];
 
-            if (Array.isArray(e[key])) dimensionsArray[key].push(...e[key]);
-            else dimensionsArray[key].push(e[key]);
-          }
+          if (Array.isArray(e[key])) dimensionsArray[key].push(...e[key]);
+          else dimensionsArray[key].push(e[key]);
         }
       }
 
@@ -171,7 +168,6 @@ export default defineComponent({
   },
   methods: {
     filterData() {
-      console.log('filterdata', this.form);
       for (const filter of this.filters) {
         const formElem = this.form[filter.id];
         if (filter.type === 'select') {
