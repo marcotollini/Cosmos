@@ -140,11 +140,12 @@ export default defineComponent({
       to: RouteLocationNormalizedLoaded,
       from: RouteLocationNormalizedLoaded
     ) {
-      console.log(
-        'decoded',
-        to.path,
-        JSON.parse(decodeURI(to.path.split('/').pop() as string))
-      );
+      console.log(JSON.parse(atob(to.path.split('/').pop() as string)));
+      // console.log(
+      //   'decoded',
+      //   to.path,
+      //   JSON.parse(decodeURI(to.path.split('/').pop() as string))
+      // );
     },
   },
   methods: {
@@ -244,8 +245,7 @@ export default defineComponent({
         });
       }
 
-      console.log(JSON.stringify(filters));
-      this.$router.push(encodeURI(JSON.stringify(filters)));
+      this.$router.push(btoa(JSON.stringify(filters)));
 
       this.graph = stateToGraph(this.filteredState, 'filter');
     },

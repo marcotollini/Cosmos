@@ -13,33 +13,35 @@
             v-if="filter.active"
           ></i>
         </template>
-        <el-select
-          v-if="filter.type === 'select'"
-          v-model="form[filter.id]"
-          clearable
-          filterable
-          allow-create
-          multiple
-          size="mini"
-          placeholder="Select"
-          @change="filterData"
-        >
-          <el-option
-            v-for="val of filter.values"
-            :key="val.original"
-            :label="val.rep"
-            :value="val.original"
+        <div class="text-center">
+          <el-select
+            v-if="filter.type === 'select'"
+            v-model="form[filter.id]"
+            clearable
+            filterable
+            allow-create
+            multiple
+            size="mini"
+            placeholder="Select"
+            @change="filterData"
           >
-          </el-option>
-        </el-select>
-        <ElSliderInputs
-          v-if="filter.type === 'range'"
-          v-model="form[filter.id]"
-          input-size="mini"
-          :min="filter.values[0].sorting"
-          :max="filter.values[1].sorting"
-          @change="filterData"
-        ></ElSliderInputs>
+            <el-option
+              v-for="val of filter.values"
+              :key="val.original"
+              :label="val.rep"
+              :value="val.original"
+            >
+            </el-option>
+          </el-select>
+          <ElSliderInputs
+            v-if="filter.type === 'range'"
+            v-model="form[filter.id]"
+            input-size="mini"
+            :min="filter.values[0].sorting"
+            :max="filter.values[1].sorting"
+            @change="filterData"
+          ></ElSliderInputs>
+        </div>
       </el-collapse-item>
     </el-collapse>
   </el-form>
