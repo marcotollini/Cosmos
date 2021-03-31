@@ -131,7 +131,7 @@ CREATE TABLE "public"."dump" (
 ) WITH (oids = false);
 
 
-CREATE INDEX dump_comms_rm_idx ON "dump" USING gin(comms jsonb_path_ops) WHERE bmp_msg_type = 'route_monitor';
-CREATE INDEX event_comms_rm_idx ON "event" USING gin(comms jsonb_path_ops) WHERE bmp_msg_type = 'route_monitor';
-
-CREATE INDEX dump_rd_timestamp_seq_rm_idx ON "dump" (rd, "timestamp", seq) WHERE bmp_msg_type = 'route_monitor';
+CREATE INDEX dump_comms_idx ON "dump" USING gin(comms jsonb_path_ops);
+CREATE INDEX event_comms_idx ON "event" USING gin(comms jsonb_path_ops);
+CREATE INDEX dump_bmp_msg_type_idx ON "dump"("bmp_msg_type");
+CREATE INDEX event_bmp_msg_type_idx ON "event"("bmp_msg_type");

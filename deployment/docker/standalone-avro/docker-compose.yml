@@ -161,8 +161,8 @@ services:
     depends_on:
       kafka-connect:
         condition: service_healthy
-    command: "bash /connect/setup.sh"
-    # command: "bash -c 'sleep 100000'"
+    # command: "bash /connect/setup.sh"
+    command: "bash -c 'sleep 100000'"
     pid: "root"
     volumes:
       - ./kafka-connect-config/:/connect/
@@ -176,13 +176,11 @@ services:
       - 3000:3000
     volumes:
       - ../../../webapp:/usr/app/
-    working_dir: /usr/app/
-    command: sleep 100000
+    working_dir: /usr/app/backend
+    command: sleep 10000000
     environment:
-      PGHOST: "timescale"
-      PGDATABASE: "l3visualization"
-      PGUSER: "l3visualization"
-      PGPASSWORD: "password"
+      DBCLIENT: "pg"
+      PGURI: "postgresql://l3visualization:password@timescale/l3visualization"
 
   pgadmin:
     image: dpage/pgadmin4
