@@ -1,9 +1,4 @@
-import {
-  VirtualRouter,
-  StatePkt,
-  UpgradePkt,
-  EventCount,
-} from 'cosmos-lib/src/types';
+import {VirtualRouter, StatePkt, EventCount} from 'cosmos-lib/src/types';
 
 class Database {
   timeBetweenDumps: number;
@@ -16,7 +11,7 @@ class Database {
     throw new TypeError('Please implement abstract method.');
   }
 
-  async getEventsCounter(
+  async getEventsCount(
     startTimestamp: number,
     endTimestamp: number,
     precision: number
@@ -24,7 +19,7 @@ class Database {
     throw new TypeError('Please implement abstract method.');
   }
 
-  async getEventsCounterApprox(
+  async getEventsCountApprox(
     startTimestamp: number,
     endTimestamp: number,
     precision: number

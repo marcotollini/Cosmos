@@ -83,8 +83,8 @@ interface StatePkt {
 }
 
 interface EventCount {
-  startgroup: number;
-  endgroup: number;
+  start_bucket: number;
+  end_bucket: number;
   count: number;
 }
 
