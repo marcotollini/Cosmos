@@ -274,6 +274,42 @@ class PGDatabase extends Database {
 
     return statePkt;
   }
+
+  async getBMPUpgrade(
+    vpn: string,
+    timestamp: number,
+    startTimestamp: number
+  ): Promise<StatePkt> {
+    const keyDistinctEventSql = sql.join(
+      this.keyDistinctEvent.map(x => sql.identifier(['et', x])),
+      sql`, `
+    );
+
+    const query = sql`
+      SELECT DISTINCT ON (${keyDistinctEventSql}) et.*
+      FROM ${sql.identifier([this.eventTableName])} AS et
+      WHERE et.bmp_msg_type = ${'route_monitor'}
+      AND et.comms @> ${sql.json(vpn)}
+      AND et.timestamp_arrival > ${startTimestamp}
+      AND et.timestamp_arrival <= ${timestamp}
+      ORDER BY ${keyDistinctEventSql}, et.timestamp_arrival DESC
+    `;
+
+    const request = this.pool.connect(async connection =>
+      connection.query(query)
+    );
+
+    const result = await request;
+    const upgrade = (result.rows as unknown) as BMPEvent[];
+
+    const upgradePkt: StatePkt = {
+      timestamp,
+      type: 'upgrade',
+      events: upgrade,
+    };
+
+    return upgradePkt;
+  }
 }
 
 export default PGDatabase;
