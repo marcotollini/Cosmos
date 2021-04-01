@@ -5,7 +5,7 @@ import {
   TaggedTemplateLiteralInvocationType,
   QueryResultRowType,
 } from 'slonik';
-import {at, uniqBy} from 'lodash';
+import {at, constant, uniqBy} from 'lodash';
 
 import {
   BMPDump,
@@ -194,6 +194,85 @@ class PGDatabase extends Database {
     const result = await request;
     const buckets = (result.rows as unknown) as EventCount[];
     return buckets;
+  }
+
+  async getBMPState(vpn: string, timestamp: number): Promise<StatePkt> {
+    const tempTable = 'distdump';
+    const tempTableSql = sql`
+      CREATE TEMPORARY TABLE ${sql.identifier([tempTable])} ON COMMIT DROP AS
+      SELECT DISTINCT ON (bmp_router, rd) bmp_router, rd, seq, timestamp
+      FROM ${sql.identifier([this.dumpTableName])}
+      WHERE bmp_msg_type = ${'route_monitor'}
+      AND comms @> ${sql.json(vpn)}
+      AND timestamp > ${timestamp - this.timeBetweenDumps}
+      AND timestamp <= ${timestamp}
+      ORDER BY bmp_router, rd, timestamp DESC
+    `;
+
+    const dumpSql = sql`
+      SELECT dp.*
+      FROM ${sql.identifier([this.dumpTableName])} AS dp
+      RIGHT JOIN ${sql.identifier([tempTable])} AS tmpdp
+      ON dp.bmp_router = tmpdp.bmp_router
+      AND dp.rd = tmpdp.rd
+      AND dp.seq = tmpdp.seq
+      WHERE dp.bmp_msg_type = ${'route_monitor'}
+      AND dp.comms @> ${sql.json(vpn)}
+      AND dp.timestamp >= ${timestamp - this.timeBetweenDumps}
+      AND dp.timestamp < ${timestamp}
+      ORDER BY dp.timestamp DESC
+    `;
+
+    const keyDistinctEventSql = sql.join(
+      this.keyDistinctEvent.map(x => sql.identifier(['et', x])),
+      sql`, `
+    );
+    const upgradeSql = sql`
+      SELECT DISTINCT ON (${keyDistinctEventSql}) et.*
+      FROM ${sql.identifier([this.eventTableName])} AS et
+      LEFT JOIN ${sql.identifier([tempTable])} as tmpdp
+      ON et.bmp_router = tmpdp.bmp_router
+      AND et.rd = tmpdp.rd
+      WHERE et.bmp_msg_type = ${'route_monitor'}
+      AND et.comms @> ${sql.json(vpn)}
+      AND et.timestamp_arrival > ${timestamp - this.timeBetweenDumps}
+      AND et.timestamp_arrival <= ${timestamp}
+      ORDER BY ${keyDistinctEventSql}, et.timestamp_arrival DESC
+    `;
+
+    const [dumpQuery, upgradeQuery] = await this.pool.connect(
+      async connection =>
+        connection.transaction(async transactionConnection => {
+          await transactionConnection.query(tempTableSql);
+          const requestDump = transactionConnection.query(dumpSql);
+          const requestUpgrade = transactionConnection.query(upgradeSql);
+
+          const [dumpQuery, upgradeQuery] = await Promise.all([
+            requestDump,
+            requestUpgrade,
+          ]);
+
+          return [dumpQuery, upgradeQuery];
+        })
+    );
+
+    const dumpRows = (dumpQuery.rows as unknown) as BMPDump[];
+    const upgradeRows = (upgradeQuery.rows as unknown) as BMPEvent[];
+
+    const eventsDistict: (BMPDump | BMPEvent)[] = uniqBy(
+      [...upgradeRows, ...dumpRows],
+      e => {
+        return at(e as any, this.keyDistinctEvent).join('-');
+      }
+    );
+
+    const statePkt: StatePkt = {
+      timestamp,
+      type: 'state',
+      events: eventsDistict,
+    };
+
+    return statePkt;
   }
 }
 
