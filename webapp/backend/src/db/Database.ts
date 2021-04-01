@@ -14,7 +14,8 @@ class Database {
   async getEventsCount(
     startTimestamp: number,
     endTimestamp: number,
-    precision: number
+    precision: number,
+    filter?: {[key: string]: any | any[]}
   ): Promise<EventCount[]> {
     throw new TypeError('Please implement abstract method.');
   }
@@ -22,7 +23,8 @@ class Database {
   async getEventsCountApprox(
     startTimestamp: number,
     endTimestamp: number,
-    precision: number
+    precision: number,
+    filter?: {[key: string]: any | any[]}
   ): Promise<EventCount[]> {
     throw new TypeError('Please implement abstract method.');
   }

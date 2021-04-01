@@ -42,6 +42,37 @@ class PGDatabase extends Database {
     'is_post',
   ];
 
+  colNamesTypeArray = ['as_path', 'comms', 'ecomms', 'lcomms'];
+
+  /**
+   * Returns a query that filters the value accordingly to the given filter. It can be used in a WHERE query.
+   * A key of filter might be a single value, or multiple (an array). If it is an array, all the values will be joined with an OR
+   * @param {object} filter - The filter used to filter out the events
+   * @return {TaggedTemplateLiteralInvocationType<QueryResultRowType>} A query as (a = 1 OR a = 2) AND (b = 10 OR b = 11)
+   */
+  generateSqlFilter(filter: {
+    [key: string]: any | any[];
+  }): TaggedTemplateLiteralInvocationType<QueryResultRowType> {
+    const andQueries = [];
+    for (const [colName, maybeValues] of Object.entries(filter)) {
+      const orQueries = [];
+      const values = Array.isArray(maybeValues) ? maybeValues : [maybeValues];
+
+      for (const value of values) {
+        if (this.colNamesTypeArray.indexOf(colName) !== -1) {
+          orQueries.push(
+            sql`${sql.json(value)} @> ${sql.identifier([colName])}`
+          );
+        } else {
+          orQueries.push(sql`${sql.identifier([colName])} = ${value}`);
+        }
+      }
+
+      andQueries.push(sql`(${sql.join(orQueries, sql` OR `)})`);
+    }
+    return sql`${sql.join(andQueries, sql` AND `)}`;
+  }
+
   /**
    * Returns a list of VPN active in the given status
    * @param {number} timestamp - The timestamp for which we want to find the VPNs
@@ -73,16 +104,21 @@ class PGDatabase extends Database {
    * @param {number} startTimestamp - The minimum timestamp for a backet
    * @param {number} endTimestamp - The maximum timestamp for a bucket
    * @param {number} precision - The dimension of each bucket
+   * @param {object} filter - The filter used to filter out the events
    * @return {Promise<EventCount[]>} The list of buckets, with the start and end timestamp, and the number of events
    */
   async getEventsCount(
     startTimestamp: number,
     endTimestamp: number,
-    precision: number
+    precision: number,
+    filter?: {[key: string]: any | any[]}
   ): Promise<EventCount[]> {
     const minTimestamp = Math.floor(startTimestamp / precision) * precision;
     const maxTimestamp =
       Math.floor(endTimestamp / precision) * precision + precision;
+    const filterQuery = filter
+      ? sql`AND ${this.generateSqlFilter(filter)}`
+      : sql``;
     const query = sql`
       SELECT
         count,
@@ -95,10 +131,12 @@ class PGDatabase extends Database {
         FROM ${sql.identifier([this.eventTableName])}
         WHERE timestamp_arrival >= ${minTimestamp}
         AND timestamp_arrival <= ${maxTimestamp}
+        ${filterQuery}
         GROUP BY bucket
       ) as t
       ORDER BY start_bucket`;
 
+    console.log(query);
     const request = this.pool.connect(async connection =>
       connection.query(query)
     );
@@ -119,9 +157,13 @@ class PGDatabase extends Database {
   async getEventsCountApprox(
     startTimestamp: number,
     endTimestamp: number,
-    precision: number
+    precision: number,
+    filter?: {[key: string]: any | any[]}
   ): Promise<EventCount[]> {
     const subqueries = [] as TaggedTemplateLiteralInvocationType<QueryResultRowType>[];
+    const filterQuery = filter
+      ? sql`AND ${this.generateSqlFilter(filter)}`
+      : sql``;
     let currentTimestamp = Math.floor(startTimestamp / precision) * precision;
     while (currentTimestamp < endTimestamp) {
       const start = currentTimestamp;
@@ -129,7 +171,8 @@ class PGDatabase extends Database {
       const estimateQuery = `SELECT *
         FROM ${this.eventTableName}
         WHERE timestamp_arrival > ${start}
-        AND timestamp_arrival <= ${end}`;
+        AND timestamp_arrival <= ${end}
+        ${filterQuery}`;
 
       const approxQuery = sql`SELECT
         count_estimate(${estimateQuery})::integer as count,
