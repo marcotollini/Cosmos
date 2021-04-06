@@ -69,6 +69,7 @@ export default defineComponent({
       type: Object,
     },
     modelValue: {
+      // active filters: {dimension: [selected values]}
       default: undefined,
       type: Object,
     },
@@ -221,10 +222,8 @@ export default defineComponent({
       for (const filter of this.filters) {
         const formElem = this.active[filter.id];
         if (filter.type === 'select') {
-          filter.active = formElem.length !== 0;
+          filter.active = formElem !== undefined && formElem.length !== 0;
         } else if (filter.type === 'range') {
-          // TODO: check
-          console.log('here', formElem, filter.values);
           filter.active =
             formElem !== undefined &&
             (filter.values[0].original !== formElem[0] ||
