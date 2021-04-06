@@ -123,7 +123,7 @@ export default defineComponent({
       currentState: {} as StatePkt,
       filteredState: {} as StatePkt,
       graph: {} as CytoGraph,
-      stateLoaded: {} as {vpn: number; datetime: Date},
+      stateLoaded: undefined as {vpn: number; datetime: Date} | undefined,
       filtersLoaded: {} as BMPFilter,
       axiosToken: undefined as
         | undefined
@@ -134,17 +134,17 @@ export default defineComponent({
     async stateLoaded() {
       await this.loadState();
     },
-    $route(
-      to: RouteLocationNormalizedLoaded,
-      from: RouteLocationNormalizedLoaded
-    ) {
-      try {
-        const parameters = JSON.parse(atob(to.path.split('/').pop() as string));
-        console.log(parameters);
-      } catch (e) {
-        this.$router.push('/');
-      }
-    },
+    // $route(
+    //   to: RouteLocationNormalizedLoaded,
+    //   from: RouteLocationNormalizedLoaded
+    // ) {
+    //   try {
+    //     const parameters = JSON.parse(atob(to.path.split('/').pop() as string));
+    //     console.log(parameters);
+    //   } catch (e) {
+    //     this.$router.push('/');
+    //   }
+    // },
 
     filtersLoaded() {
       if (this.currentState.timestamp === undefined) return;
@@ -198,6 +198,7 @@ export default defineComponent({
 
   methods: {
     async loadState() {
+      if (this.stateLoaded === undefined) return;
       const {vpn, datetime} = this.stateLoaded;
       console.log(vpn, datetime);
 

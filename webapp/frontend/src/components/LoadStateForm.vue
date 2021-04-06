@@ -19,12 +19,17 @@
           <el-select
             v-model="form.vpn"
             filterable
-            :loading="isLoading"
+            :loading="isLoadingVpnList"
             placeholder="Select"
             class="side-elem-width"
             @change="loadState"
           >
-            <el-option v-for="vpn of vpns" :key="vpn" :label="vpn" :value="vpn">
+            <el-option
+              v-for="vpn of vpnList"
+              :key="vpn"
+              :label="vpn"
+              :value="vpn"
+            >
             </el-option>
           </el-select>
         </el-col>
@@ -48,7 +53,7 @@ function dateToSeconds(date: Date) {
   return Math.floor(date.getTime() / 1000);
 }
 
-function getVpns(timestamp: Date, axiosToken: CancelToken) {
+function vpnList(timestamp: Date, axiosToken: CancelToken) {
   return axios.get('http://10.212.226.67:3000/api/vpn/distinct', {
     params: {timestamp: dateToSeconds(timestamp)},
     cancelToken: axiosToken,
@@ -58,26 +63,20 @@ function getVpns(timestamp: Date, axiosToken: CancelToken) {
 export default defineComponent({
   name: 'LoadStateForm',
   props: {
-    loading: Boolean,
-    modelValue: Object,
+    modelValue: {
+      type: Object,
+      default: undefined,
+    },
   },
   emits: ['update:modelValue'],
   data() {
     return {
-      isLoading: false,
-      form: {
-        vpn:
-          this.$props.modelValue && this.$props.modelValue.vpn
-            ? this.$props.modelValue.vpn
-            : '',
-        datetime:
-          this.$props.modelValue && this.$props.modelValue.datetime
-            ? this.$props.modelValue.datetime
-            : new Date(),
+      form: this.$props.modelValue || {
+        datetime: new Date(),
       },
-      axiosToken: undefined as undefined | CancelTokenSource,
-      cachedDatetime: undefined as undefined | Date,
-      vpns: [],
+      axiosToken: undefined as CancelTokenSource | undefined,
+      vpnList: [],
+      isLoadingVpnList: false,
       timeShortcuts: [
         {
           text: 'Now',
@@ -147,61 +146,38 @@ export default defineComponent({
   },
   watch: {
     modelValue() {
-      this.loadState();
       this.form = _.clone(this.modelValue) as {vpn: string; datetime: Date};
+      this.timestampChanged();
     },
   },
   methods: {
     loadState() {
-      if (
-        this.form.vpn === '' ||
-        (this.modelValue &&
-          this.form.vpn === this.modelValue.vpn &&
-          this.form.datetime === this.modelValue.datetime)
-      ) {
-        return;
-      }
-
-      // We need to change object
-      // or the change event will not be emitted correctly
-      const form = _.clone(this.form);
-
-      this.$emit('update:modelValue', form);
+      if (!_.isEqual(this.form, this.modelValue))
+        this.$emit('update:modelValue', this.form);
     },
     timestampChanged() {
-      // component plus is not in ms precision
-      if (
-        this.form.datetime === null ||
-        (this.cachedDatetime &&
-          dateToSeconds(this.form.datetime) ===
-            dateToSeconds(this.cachedDatetime))
-      )
-        return;
-      this.cachedDatetime = this.form.datetime;
-
       if (this.axiosToken !== undefined) {
         this.axiosToken.cancel();
       }
-
-      this.isLoading = true;
+      this.isLoadingVpnList = true;
       this.axiosToken = axios.CancelToken.source();
       const selected = this.form.datetime;
-      this.vpns = [];
       const selectedVpn = this.form.vpn;
-      this.form.vpn = '';
 
-      getVpns(selected, this.axiosToken.token)
+      vpnList(selected, this.axiosToken.token)
         .then(response => {
-          const vpns = response.data;
-          vpns.sort();
-          this.vpns = vpns;
-          if (vpns.indexOf(selectedVpn) !== -1) {
+          const vpnList = response.data;
+          vpnList.sort();
+          this.vpnList = vpnList;
+          if (vpnList.indexOf(selectedVpn) !== -1) {
             this.form.vpn = selectedVpn;
             this.loadState();
+          } else {
+            this.form.vpn = undefined;
           }
         })
         .finally(() => {
-          this.isLoading = false;
+          this.isLoadingVpnList = false;
         });
     },
   },
