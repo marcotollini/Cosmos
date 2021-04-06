@@ -89,7 +89,7 @@ export default defineComponent({
           original: basicType;
         }[];
       }[],
-      filterDataThrottled: _.throttle(this.filterData as any, 1000, {
+      filterDataThrottled: _.throttle(this.filterData as () => void, 1000, {
         trailing: true,
       }),
     };
