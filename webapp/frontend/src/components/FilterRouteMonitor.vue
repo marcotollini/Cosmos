@@ -39,7 +39,7 @@
             input-size="mini"
             :min="filter.values[0].sorting"
             :max="filter.values[1].sorting"
-            @change="filterData"
+            @change="filterDataThrottled"
           ></ElSliderInputs>
         </div>
       </el-collapse-item>
@@ -89,6 +89,9 @@ export default defineComponent({
           original: basicType;
         }[];
       }[],
+      filterDataThrottled: _.throttle(this.filterData as any, 1000, {
+        trailing: true,
+      }),
     };
   },
   watch: {
@@ -221,9 +224,11 @@ export default defineComponent({
           filter.active = formElem.length !== 0;
         } else if (filter.type === 'range') {
           // TODO: check
+          console.log('here', formElem, filter.values);
           filter.active =
-            filter.values[0].representation !== formElem[0] ||
-            filter.values[1].representation !== formElem[1];
+            formElem !== undefined &&
+            (filter.values[0].original !== formElem[0] ||
+              filter.values[1].original !== formElem[1]);
         }
       }
       this.$emit('update:modelValue', _.clone(this.active));

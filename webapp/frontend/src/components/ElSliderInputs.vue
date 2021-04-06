@@ -33,9 +33,6 @@ export default defineComponent({
       low: this.$props.min,
       high: this.$props.max,
       model: [this.$props.min, this.$props.max],
-      throttledChange: _.throttle(_.partial(this.$emit, 'change'), 500, {
-        trailing: true,
-      }),
     };
   },
   watch: {
@@ -43,7 +40,7 @@ export default defineComponent({
       this.low = this.model[0];
       this.high = this.model[1];
       this.$emit('update:modelValue', this.model);
-      this.throttledChange();
+      this.$emit('change');
     },
     low() {
       this.model = [this.low, this.model[1]];
