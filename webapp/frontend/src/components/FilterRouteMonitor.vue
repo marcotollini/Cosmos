@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="form" :model="form" label-width="120px">
+  <el-form ref="form" :model="active" label-width="120px">
     <el-collapse>
       <el-collapse-item
         v-for="filter of filters"
@@ -16,7 +16,7 @@
         <div class="text-center">
           <el-select
             v-if="filter.type === 'select'"
-            v-model="form[filter.id]"
+            v-model="active[filter.id]"
             clearable
             filterable
             allow-create
@@ -35,7 +35,7 @@
           </el-select>
           <ElSliderInputs
             v-if="filter.type === 'range'"
-            v-model="form[filter.id]"
+            v-model="active[filter.id]"
             input-size="mini"
             :min="filter.values[0].sorting"
             :max="filter.values[1].sorting"
@@ -54,14 +54,9 @@ import _ from 'lodash';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require('../filter.json');
 
-interface GenericObjArray {
-  [key: string]: unknown[];
-}
-interface GenericObjSet {
-  [key: string]: Set<unknown>;
-}
-
 import ElSliderInputs from '@/components/ElSliderInputs.vue';
+
+type basicType = number | string | boolean;
 
 export default defineComponent({
   name: 'FilterRouteMonitor',
@@ -69,123 +64,169 @@ export default defineComponent({
     ElSliderInputs,
   },
   props: {
-    currentState: {},
-    modelValue: Object,
+    currentState: {
+      default: undefined,
+      type: Object,
+    },
+    modelValue: {
+      default: undefined,
+      type: Object,
+    },
   },
   emits: ['update:modelValue'],
   data() {
     return {
-      form: (this.$props.modelValue || {}) as {[key: string]: any},
+      /* Active filters as {dimension: [values selected]}*/
+      active: this.$props.modelValue as {[key: string]: string[]},
       filters: [] as {
         id: string;
         title: string;
         active: boolean;
         type: string;
-        values: {rep: string; sorting: any; original: any}[];
+        values: {
+          representation: string;
+          sorting: basicType;
+          original: basicType;
+        }[];
       }[],
     };
   },
   watch: {
     modelValue() {
-      this.form = _.clone(this.modelValue) as {[key: string]: any};
+      this.active = _.clone(this.modelValue);
     },
     currentState() {
+      // if undefined, simply reset all filters and ignore
+      if (this.$props.currentState === undefined) {
+        this.filters = [];
+        return;
+      }
+
       const statePkt = this.$props.currentState as StatePkt;
-      this.filters = [];
+      /*
+       * From the state packet we need to
+       * 1. Extract dimensions list
+       * 2. For each dimension, extract list of possible values
+       * 3. Filter nulls
+       * 4. Maybe case
+       * 5. Sort values
+       * 6. Sort dimensions
+       */
 
-      const dimensionsArray: GenericObjArray = {};
-
-      for (const event of statePkt.events) {
-        for (const key in event) {
-          const e = (event as unknown) as GenericObjArray;
-          if (!dimensionsArray[key]) dimensionsArray[key] = [];
-
-          if (Array.isArray(e[key])) dimensionsArray[key].push(...e[key]);
-          else dimensionsArray[key].push(e[key]);
+      /*
+       * 1. Extract dimensions list
+       * 2. For each dimension, extract list of possible values
+       */
+      const dimensionsToValues = {};
+      _.mergeWith(
+        dimensionsToValues,
+        ...statePkt.events,
+        (objValue: basicType[], srcV: basicType[]) => {
+          const srcValue = Array.isArray(srcV) ? srcV : [srcV];
+          if (objValue !== undefined) {
+            return [...objValue, ...srcValue];
+          } else {
+            return srcValue;
+          }
         }
-      }
+      );
 
-      const dimensions: GenericObjArray = {};
-      for (const dimension in dimensionsArray) {
-        const values = new Set(dimensionsArray[dimension]);
-        if (values.size === 1 && [...values][0] === null) continue;
-        dimensions[dimension] = [...values];
-      }
+      /*
+       * 2. Distinct possible values
+       */
+      const dimensionsToValuesDist = _.mapValues(
+        dimensionsToValues,
+        (values: basicType[]) => {
+          return [...new Set(values)];
+        }
+      );
 
-      for (const dimension in dimensions) {
-        const ccdim = _.camelCase(dimension);
-        const dimensionConf = config[ccdim] || config['DEFAULT CONFIG'];
-        if (!dimensionConf.enabled) continue;
+      /*
+       * 3. Filter nulls
+       */
+      const dimensionsToValuesDistFiltered = _.pickBy(
+        dimensionsToValuesDist,
+        (values: basicType[], dimension: string) => {
+          // filter [null]
+          if (
+            values.length === 1 &&
+            (values[0] === null || values[0] === undefined)
+          )
+            return false;
+          // filter dimensions deactivated in config
+          const ccdim = _.camelCase(dimension);
+          const dimensionConf = config[ccdim] || config['DEFAULT CONFIG'];
+          if (!dimensionConf.enabled) return false;
 
-        let values = dimensions[dimension].map(x => {
-          return {
-            rep: x === null ? 'null' : (x as any).toString(),
-            sorting: x,
-            original: x,
-          };
-        }) as {rep: string; sorting: any; original: any}[];
+          return true;
+        }
+      );
 
-        // maybe cast
-        if (dimensionConf.cast && dimensionConf.cast === 'parseInt') {
-          values = values.map(x => {
+      const dimensionFilters = _.mapValues(
+        dimensionsToValuesDistFiltered,
+        (values: basicType[], dimension: string) => {
+          const ccdim = _.camelCase(dimension);
+          const dimensionConf = config[ccdim] || config['DEFAULT CONFIG'];
+          let valuesObj = values.map(x => {
             return {
-              rep: x.rep,
-              sorting: parseInt(x.sorting as string),
-              original: x.original,
+              representation: x === null ? 'null' : x.toString(),
+              sorting:
+                dimensionConf.cast === 'parseInt' ? parseInt(x as string) : x,
+              original: x,
             };
           });
-        }
 
-        if (dimensionConf.type === 'range') {
-          const min = _.minBy(values, x => x.sorting);
-          const max = _.maxBy(values, x => x.sorting);
-          if (min === undefined || max === undefined) {
-            console.log('not sure what do here');
-            continue;
+          if (dimensionConf.type === 'range') {
+            const min = _.minBy(valuesObj, x => x.sorting);
+            const max = _.maxBy(valuesObj, x => x.sorting);
+            if (min !== undefined && max !== undefined) valuesObj = [min, max];
           }
-          values = [min, max];
+
+          valuesObj.sort((a, b) => {
+            if (a.sorting < b.sorting) return -1;
+            else if (a.sorting > b.sorting) return 1;
+            return 0;
+          });
+
+          return {
+            id: dimension,
+            title: _.capitalize(_.lowerCase(dimension)),
+            active: false,
+            type: dimensionConf.type,
+            values: valuesObj,
+          };
         }
+      );
 
-        values.sort((a, b) => {
-          if (a.sorting < b.sorting) return -1;
-          else if (a.sorting > b.sorting) return 1;
-          return 0;
-        });
+      const filters = Object.values(dimensionFilters);
 
-        const filter = {
-          id: dimension,
-          title: _.capitalize(_.lowerCase(dimension)),
-          active: false,
-          type: dimensionConf.type,
-          values: values,
-        };
-
-        this.filters.push(filter);
-      }
-
-      this.filters.sort((a, b) => {
+      filters.sort((a, b) => {
         if (a.id < b.id) return -1;
         else if (a.id > b.id) return 1;
         return 0;
       });
+
+      this.filters = filters;
 
       this.filterData();
     },
   },
   methods: {
     filterData() {
-      if (Object.keys(this.form).length === 0) return;
+      if (this.active === undefined) return;
+
       for (const filter of this.filters) {
-        const formElem = this.form[filter.id];
+        const formElem = this.active[filter.id];
         if (filter.type === 'select') {
           filter.active = formElem.length !== 0;
         } else if (filter.type === 'range') {
+          // TODO: check
           filter.active =
-            filter.values[0] !== formElem[0] ||
-            filter.values[1] !== formElem[1];
+            filter.values[0].representation !== formElem[0] ||
+            filter.values[1].representation !== formElem[1];
         }
       }
-      this.$emit('update:modelValue', _.clone(this.form));
+      this.$emit('update:modelValue', _.clone(this.active));
     },
   },
 });
