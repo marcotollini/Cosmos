@@ -24,6 +24,10 @@ export default defineComponent({
       default: undefined,
       type: Object,
     },
+    filtersLoaded: {
+      default: undefined,
+      type: Object,
+    },
   },
   data() {
     return {
@@ -123,6 +127,59 @@ export default defineComponent({
     stateLoaded() {
       this.countEvents();
     },
+    filtersLoaded() {
+      if (this.stateLoaded === undefined) return;
+      const stateLoaded = this.stateLoaded as {vpn: string; datetime: Date};
+      const activeFilters = _.pickBy(this.filtersLoaded, (value: []) => {
+        return value.length > 0;
+      });
+
+      if (Object.keys(activeFilters).length === 0) return;
+      console.log(activeFilters);
+
+      const stateTimestamp = new Date(
+        stateLoaded.datetime.getTime() - 1 * 24 * 60 * 60 * 1000
+      );
+
+      const endTimestamp = new Date(
+        stateLoaded.datetime.getTime() + 1 * 24 * 60 * 60 * 1000
+      );
+
+      const params = {
+        startTimestamp: dateToSeconds(stateTimestamp),
+        endTimestamp: dateToSeconds(endTimestamp),
+        precision: 60,
+        approximation: false,
+        filter: activeFilters,
+      };
+
+      axios
+        .get('http://10.212.226.67:3000/api/bmp/count', {
+          params,
+        })
+        .then(response => {
+          const data = response.data as EventCount[];
+          const countList = data.map(x => {
+            const secondInt = (x.end_bucket - x.start_bucket) / 2;
+            return [
+              new Date((x.start_bucket + secondInt) * 1000),
+              Math.round(x.count / secondInt),
+            ];
+          });
+          this.setSeriesFiltered(countList);
+          // this.setMarker(this.stateLoaded.datetime);
+        })
+        .catch(e => {
+          if (axios.isCancel(e)) {
+            console.log('Request canceled', e.message);
+          } else {
+            throw e;
+          }
+        })
+        .finally(() => {
+          // this.isLoadingVpnList = false;
+        });
+    },
   },
   methods: {
     setMarker(time: Date) {
@@ -152,7 +209,7 @@ export default defineComponent({
     setSeriesFiltered(list: (number | Date)[][]) {
       this.setSeries(1, list);
     },
-    countEvents() {
+    countEvents(filters?: any[]) {
       if (this.stateLoaded === undefined) return;
       const stateLoaded = this.stateLoaded as {vpn: string; datetime: Date};
       if (this.axiosToken !== undefined) {
@@ -168,14 +225,16 @@ export default defineComponent({
         stateLoaded.datetime.getTime() + 1 * 24 * 60 * 60 * 1000
       );
 
+      const params = {
+        startTimestamp: dateToSeconds(stateTimestamp),
+        endTimestamp: dateToSeconds(endTimestamp),
+        precision: 60,
+        approximation: false,
+      };
+
       axios
         .get('http://10.212.226.67:3000/api/bmp/count', {
-          params: {
-            startTimestamp: dateToSeconds(stateTimestamp),
-            endTimestamp: dateToSeconds(endTimestamp),
-            precision: 60,
-            approximation: false,
-          },
+          params,
           cancelToken: this.axiosToken.token,
         })
         .then(response => {

@@ -24,7 +24,10 @@
           <cytoscape :graph="graph" />
         </el-main>
         <el-footer height="200px" class="timeseries">
-          <timeseries-chart :stateLoaded="stateLoaded" />
+          <timeseries-chart
+            :stateLoaded="stateLoaded"
+            :filtersLoaded="filtersLoaded"
+          />
         </el-footer>
       </el-container>
     </el-container>

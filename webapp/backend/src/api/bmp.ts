@@ -58,11 +58,29 @@ router.get('/api/bmp/count', async (ctx: RouterContext, next: Next) => {
   const precision = parseInt(ctx.request.query.precision);
   const approximation = ctx.request.query.approximation !== 'false';
 
+  let filter = undefined;
+  if (
+    ctx.request.query.filter &&
+    typeof ctx.request.query.filter === 'string'
+  ) {
+    try {
+      filter = JSON.parse(ctx.request.query.filter);
+    } catch (e) {
+      console.log('cannot parse filter');
+      return ctx.throw(500);
+    }
+  }
+
   if (!approximation) {
-    ctx.body = await Database?.getEventsCount(start, end, precision);
+    ctx.body = await Database?.getEventsCount(start, end, precision, filter);
     return;
   } else {
-    ctx.body = await Database?.getEventsCountApprox(start, end, precision);
+    ctx.body = await Database?.getEventsCountApprox(
+      start,
+      end,
+      precision,
+      filter
+    );
     return;
   }
 });
