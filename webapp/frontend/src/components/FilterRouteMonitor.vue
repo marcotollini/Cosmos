@@ -78,7 +78,7 @@ export default defineComponent({
   data() {
     return {
       /* Active filters as {dimension: [values selected]}*/
-      active: this.$props.modelValue as {[key: string]: string[]},
+      active: (this.$props.modelValue || {}) as {[key: string]: string[]},
       filters: [] as {
         id: string;
         title: string;
