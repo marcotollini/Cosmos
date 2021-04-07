@@ -16,8 +16,6 @@ import {
   EventCount,
 } from 'cosmos-lib/src/types';
 
-import {virtualRouterToKey} from '../../utils';
-
 class PGDatabase extends Database {
   pool: DatabasePoolType;
   eventTableName = 'event';
@@ -94,7 +92,6 @@ class PGDatabase extends Database {
     const result = await request;
     const rows = result.rows as readonly {community: string}[];
     const distinctVpn = rows.map(x => x.community);
-    console.log(distinctVpn);
 
     return distinctVpn;
   }
@@ -136,7 +133,6 @@ class PGDatabase extends Database {
       ) as t
       ORDER BY start_bucket`;
 
-    console.log(query);
     const request = this.pool.connect(async connection =>
       connection.query(query)
     );
@@ -163,7 +159,7 @@ class PGDatabase extends Database {
     const subqueries = [] as TaggedTemplateLiteralInvocationType<QueryResultRowType>[];
     const filterQuery = filter
       ? sql`AND ${this.generateSqlFilter(filter)}`
-      : sql``;
+      : '';
     let currentTimestamp = Math.floor(startTimestamp / precision) * precision;
     while (currentTimestamp < endTimestamp) {
       const start = currentTimestamp;
@@ -172,7 +168,7 @@ class PGDatabase extends Database {
         FROM ${this.eventTableName}
         WHERE timestamp_arrival > ${start}
         AND timestamp_arrival <= ${end}
-        ${filterQuery}`;
+        ${filterQuery.toString()}`;
 
       const approxQuery = sql`SELECT
         count_estimate(${estimateQuery})::integer as count,

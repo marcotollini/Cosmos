@@ -1,7 +1,7 @@
 <template>
   <apexchart
     type="line"
-    height="184px"
+    height="190px"
     :options="options"
     :series="series"
   ></apexchart>
@@ -9,123 +9,82 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import axios from 'axios';
+import axios, {CancelTokenSource} from 'axios';
+import _ from 'lodash';
+import {EventCount} from 'cosmos-lib/src/types';
 
-function generateDayWiseTimeSeries(s: number, count: number) {
-  const values = [
-    [4, 3, 10, 9, 29, 19, 25, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5],
-    [2, 3, 8, 7, 22, 16, 23, 7, 11, 5, 12, 5, 10, 4, 15, 2, 6, 2],
-  ];
-  let i = 0;
-  const series = [];
-  while (i < count) {
-    series.push([new Date(`${i + 1} Nov 2012`), values[s][i]]);
-    i++;
-  }
-  // console.log(series);
-  return series;
+function dateToSeconds(date: Date) {
+  return Math.floor(date.getTime() / 1000);
 }
 
 export default defineComponent({
   name: 'TimeseriesChart',
-  props: {},
-  emits: [],
+  props: {
+    stateLoaded: {
+      default: undefined,
+      type: Object,
+    },
+  },
   data() {
     return {
-      series: [
-        {
-          name: 'Total Views',
-          data: generateDayWiseTimeSeries(0, 18),
-        },
-        {
-          name: 'Unique Views',
-          data: generateDayWiseTimeSeries(1, 18),
-        },
-      ],
+      series: undefined as
+        | {
+            name: string;
+            data: (number | Date)[][];
+          }[]
+        | undefined,
       options: {
         chart: {
-          type: 'area',
-          height: 300,
+          type: 'line',
+          stacked: false,
           foreColor: '#999',
-          stacked: true,
-          dropShadow: {
-            enabled: true,
-            enabledSeries: [0],
-            top: -2,
-            left: 2,
-            blur: 5,
-            opacity: 0.06,
-          },
-          events: {
-            // click: function (
-            //   event: MouseEvent,
-            //   chartContext: unknown,
-            //   config: unknown
-            // ) {
-            //   console.log('click', event, chartContext, config);
-            // },
-            selection: function (
-              chartContext: unknown,
-              {xaxis, yaxis}: unknown
-            ) {
-              console.log('selection', chartContext, xaxis, yaxis);
-            },
-            dataPointSelection: function (
-              event: MouseEvent,
-              chartContext: unknown,
-              config: unknown
-            ) {
-              console.log(this.dataPointSelection, config);
-            },
-          },
         },
-        colors: ['#00E396', '#0090FF'],
+        colors: ['#FF1654', '#247BA0'],
         stroke: {
+          width: [3, 3],
           curve: 'smooth',
-          width: 3,
         },
         dataLabels: {
           enabled: false,
         },
-        series: [
-          {
-            name: 'Total Views',
-            data: generateDayWiseTimeSeries(0, 18),
-          },
-          {
-            name: 'Unique Views',
-            data: generateDayWiseTimeSeries(1, 18),
-          },
-        ],
-        markers: {
-          size: 0,
-          strokeColor: '#fff',
-          strokeWidth: 3,
-          strokeOpacity: 1,
-          fillOpacity: 1,
-          hover: {
-            size: 6,
-          },
+        noData: {
+          text: 'No data loaded',
         },
         xaxis: {
           type: 'datetime',
+          labels: {
+            datetimeUTC: false,
+          },
           axisBorder: {
             show: false,
           },
           axisTicks: {
             show: false,
           },
+          tooltip: {
+            enabled: false,
+          },
         },
         yaxis: {
           labels: {
-            offsetX: 14,
-            offsetY: -5,
+            offsetX: -10,
+            offsetY: -3,
           },
           tooltip: {
-            enabled: true,
+            enabled: false,
           },
         },
         grid: {
+          yaxis: {
+            lines: {
+              show: true,
+            },
+          },
+          xaxis: {
+            lines: {
+              show: true,
+            },
+          },
           padding: {
             left: -5,
             right: 5,
@@ -133,21 +92,115 @@ export default defineComponent({
         },
         tooltip: {
           x: {
-            format: 'dd MMM yyyy',
+            format: 'HH:mm dd MMM yyyy',
           },
-          // intersect: true,
-          // shared: false,
         },
         legend: {
           position: 'top',
           horizontalAlign: 'left',
         },
-        fill: {
-          type: 'solid',
-          fillOpacity: 0.7,
+        annotations: {
+          xaxis: [
+            {
+              x: new Date(new Date().getTime() - 30 * 60 * 1000).getTime(),
+              borderColor: '#00E396',
+              label: {
+                borderColor: '#00E396',
+                style: {
+                  color: '#fff',
+                  background: '#00E396',
+                },
+                text: 'Current',
+              },
+            },
+          ],
         },
       },
+      axiosToken: undefined as CancelTokenSource | undefined,
     };
+  },
+  watch: {
+    stateLoaded() {
+      this.countEvents();
+    },
+  },
+  methods: {
+    setMarker(time: Date) {
+      const options = _.clone(this.options);
+      options.annotations.xaxis[0].x = time.getTime();
+      this.options = options;
+    },
+    setSeries(index: number, list: (number | Date)[][]) {
+      const series = this.series
+        ? _.clone(this.series)
+        : [
+            {
+              name: 'All',
+              data: [],
+            },
+            {
+              name: 'Filtered',
+              data: [],
+            },
+          ];
+      series[index].data = list;
+      this.series = series;
+    },
+    setSeriesAll(list: (number | Date)[][]) {
+      this.setSeries(0, list);
+    },
+    setSeriesFiltered(list: (number | Date)[][]) {
+      this.setSeries(1, list);
+    },
+    countEvents() {
+      if (this.stateLoaded === undefined) return;
+      const stateLoaded = this.stateLoaded as {vpn: string; datetime: Date};
+      if (this.axiosToken !== undefined) {
+        this.axiosToken.cancel();
+      }
+      this.axiosToken = axios.CancelToken.source();
+
+      const stateTimestamp = new Date(
+        stateLoaded.datetime.getTime() - 1 * 24 * 60 * 60 * 1000
+      );
+
+      const endTimestamp = new Date(
+        stateLoaded.datetime.getTime() + 1 * 24 * 60 * 60 * 1000
+      );
+
+      axios
+        .get('http://10.212.226.67:3000/api/bmp/count', {
+          params: {
+            startTimestamp: dateToSeconds(stateTimestamp),
+            endTimestamp: dateToSeconds(endTimestamp),
+            precision: 60,
+            approximation: false,
+          },
+          cancelToken: this.axiosToken.token,
+        })
+        .then(response => {
+          const data = response.data as EventCount[];
+          const countList = data.map(x => {
+            const secondInt = (x.end_bucket - x.start_bucket) / 2;
+            return [
+              new Date((x.start_bucket + secondInt) * 1000),
+              Math.round(x.count / secondInt),
+            ];
+          });
+          this.setSeriesAll(countList);
+          this.setMarker(this.stateLoaded.datetime);
+        })
+        .catch(e => {
+          if (axios.isCancel(e)) {
+            console.log('Request canceled', e.message);
+          } else {
+            throw e;
+          }
+        })
+        .finally(() => {
+          // this.isLoadingVpnList = false;
+        });
+    },
   },
 });
 </script>

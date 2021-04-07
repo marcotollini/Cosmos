@@ -57,13 +57,12 @@ router.get('/api/bmp/count', async (ctx: RouterContext, next: Next) => {
   const end = parseInt(ctx.request.query.endTimestamp);
   const precision = parseInt(ctx.request.query.precision);
   const approximation = ctx.request.query.approximation !== 'false';
-  console.log(approximation);
 
   if (!approximation) {
-    ctx.body = await Database?.getEventsCounter(start, end, precision);
+    ctx.body = await Database?.getEventsCount(start, end, precision);
     return;
   } else {
-    ctx.body = await Database?.getEventsCounterApprox(start, end, precision);
+    ctx.body = await Database?.getEventsCountApprox(start, end, precision);
     return;
   }
 });

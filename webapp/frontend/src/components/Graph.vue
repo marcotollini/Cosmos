@@ -24,7 +24,7 @@
           <cytoscape :graph="graph" />
         </el-main>
         <el-footer height="200px" class="timeseries">
-          <timeseries-chart />
+          <timeseries-chart :stateLoaded="stateLoaded" />
         </el-footer>
       </el-container>
     </el-container>
