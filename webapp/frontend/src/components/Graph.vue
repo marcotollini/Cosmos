@@ -145,6 +145,8 @@ export default defineComponent({
       if (this.currentState === undefined) return;
       if (this.filtersLoaded === undefined) return;
 
+      console.log('filtering data');
+
       const filtersRaw = this.filtersLoaded;
       this.filteredState = _.cloneDeep(this.currentState);
 
@@ -154,18 +156,24 @@ export default defineComponent({
           value !== undefined && Array.isArray(value) && value.length !== 0
       );
 
+      /*
+       * We can have multiple filters, each with multiple selected values.
+       * We do an and between filters, but an or between values inside
+       * the same filter.
+       */
       this.filteredState.events = this.filteredState.events.filter(x => {
         for (const dimensionString in filters) {
           const dimension = dimensionString as keyof BMPFilter;
+          // filter: the list of value selected for a given dimension
           const filter = filters[dimension];
           if (filter === undefined) continue;
-          if (Array.isArray(x[dimension])) {
-            for (const d of x[dimension] as string[]) {
-              if (filter.indexOf(d) === -1) {
-                return false;
-              }
-            }
-          } else if (filter.indexOf(x[dimension]) === -1) {
+          if (x[dimension] === null) return;
+          const values = (Array.isArray(x[dimension])
+            ? x[dimension]
+            : [x[dimension]]) as any[];
+          const valsFilt = values.filter(value => filter.indexOf(value) !== -1);
+
+          if (valsFilt.length === 0) {
             return false;
           }
         }
