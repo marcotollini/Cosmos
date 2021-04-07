@@ -176,6 +176,13 @@ export default defineComponent({
             this.form.vpn = undefined;
           }
         })
+        .catch(e => {
+          if (axios.isCancel(e)) {
+            console.log('Request canceled', e.message);
+          } else {
+            throw e;
+          }
+        })
         .finally(() => {
           this.isLoadingVpnList = false;
         });

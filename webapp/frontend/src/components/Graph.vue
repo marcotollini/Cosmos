@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import axios, {CancelToken, CancelTokenSource} from 'axios';
+import axios, {CancelTokenSource} from 'axios';
 import _ from 'lodash';
 import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
 import {CytoGraph} from '../types';
@@ -42,7 +42,6 @@ import LoadStateForm from '@/components/LoadStateForm.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 import TimeseriesChart from '@/components/TimeseriesChart.vue';
-import {RouteLocationNormalizedLoaded} from 'vue-router';
 
 type BMPFilter = {
   [key in keyof (BMPDump | BMPEvent)]?: any[];
@@ -120,11 +119,16 @@ export default defineComponent({
   },
   data() {
     return {
-      currentState: {} as StatePkt,
-      filteredState: {} as StatePkt,
+      // State: list of events
+      currentState: undefined as StatePkt | undefined,
+      // generated from current state on which we apply filters
+      filteredState: undefined as StatePkt | undefined,
+      // nodes and edges
       graph: {} as CytoGraph,
+      // the state loaded from load-state-form
       stateLoaded: undefined as {vpn: number; datetime: Date} | undefined,
-      filtersLoaded: {} as BMPFilter,
+      // the list of filters loaded {dimension: [values selected]}
+      filtersLoaded: undefined as BMPFilter | undefined,
       axiosToken: undefined as
         | undefined
         | {token: CancelTokenSource; notification: any},
@@ -134,36 +138,21 @@ export default defineComponent({
     async stateLoaded() {
       await this.loadState();
     },
-    // $route(
-    //   to: RouteLocationNormalizedLoaded,
-    //   from: RouteLocationNormalizedLoaded
-    // ) {
-    //   try {
-    //     const parameters = JSON.parse(atob(to.path.split('/').pop() as string));
-    //     console.log(parameters);
-    //   } catch (e) {
-    //     this.$router.push('/');
-    //   }
-    // },
-
+    /*
+     * Converts currentState into filteredState by applying the filters
+     */
     filtersLoaded() {
-      if (this.currentState.timestamp === undefined) return;
+      if (this.currentState === undefined) return;
+      if (this.filtersLoaded === undefined) return;
+
       const filtersRaw = this.filtersLoaded;
       this.filteredState = _.cloneDeep(this.currentState);
 
-      const filters: BMPFilter = {};
-      for (const dimensionString in filtersRaw) {
-        const dimension = dimensionString as keyof BMPFilter;
-        const filter = filtersRaw[dimension];
-
-        if (
-          filter !== undefined &&
-          Array.isArray(filter) &&
-          filter.length !== 0
-        ) {
-          filters[dimension] = filtersRaw[dimension];
-        }
-      }
+      const filters: BMPFilter = _.pickBy(
+        filtersRaw,
+        (value: unknown) =>
+          value !== undefined && Array.isArray(value) && value.length !== 0
+      );
 
       this.filteredState.events = this.filteredState.events.filter(x => {
         for (const dimensionString in filters) {
@@ -200,7 +189,6 @@ export default defineComponent({
     async loadState() {
       if (this.stateLoaded === undefined) return;
       const {vpn, datetime} = this.stateLoaded;
-      console.log(vpn, datetime);
 
       // If there is another request for loading, cancel it
       if (this.axiosToken !== undefined) {
