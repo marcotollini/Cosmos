@@ -4,24 +4,24 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import cytoscape from 'cytoscape';
+import cytoscape, {NodeSingular} from 'cytoscape';
 import _ from 'lodash';
-import {CytoGraph, CytoEdge} from 'cosmos-lib/src/types';
+import {CytoGraph, CytoEdgeReady, CytoNodeReady} from 'cosmos-lib/src/types';
 
-function edgeToCytoscape(edge: CytoEdge, maxWidth: number) {
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const colors = require('../colors.json');
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const graphDefaults = require('../graph-defaults.json');
+
+function edgeToCytoscape(edge: CytoEdgeReady, maxWidth: number) {
   return {
     id: edge.id,
     source: edge.src,
     target: edge.dst,
-    width: Math.max(edge.width / maxWidth, 2),
+    width: Math.max(edge.width / maxWidth, 1),
     color: edge.color,
   };
-}
-
-function sleep(ms: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
 }
 
 export default defineComponent({
@@ -30,24 +30,55 @@ export default defineComponent({
     graph: {},
   },
   data: () => ({
-    cy: undefined as cytoscape.Core | undefined,
+    cy: {} as cytoscape.Core,
+    currentGraph: {} as CytoGraph,
   }),
   computed: {},
   watch: {
     async graph() {
+      this.currentGraph = this.graph as CytoGraph;
+      await this.draw();
+    },
+  },
+  methods: {
+    draw() {
       if (this.cy === undefined) return;
       const cy = this.cy;
 
-      const graph = this.$props.graph as CytoGraph;
+      const graph = this.currentGraph;
       const type = graph.type;
-      const maxWidth = Object.values(graph.edges).reduce((prev, curr) => {
-        return Math.max(prev, curr.width);
+
+      /* assign defaults to nodes and edges */
+      const edges = _.mapValues(graph.edges, x => {
+        return _.defaults(x, graphDefaults.edge);
+      }) as Record<string, CytoEdgeReady>;
+
+      const nodes = _.mapValues(graph.nodes, x => {
+        return _.defaults(x, graphDefaults.node);
+      }) as Record<string, CytoNodeReady>;
+
+      /* assign colors */
+      Object.keys(nodes).forEach(x => {
+        const node = nodes[x];
+        if (colors.node[node.color]) node.color = colors.node[node.color];
+        if (colors.colors[node.color]) node.color = colors.colors[node.color];
+      });
+
+      Object.keys(edges).forEach(x => {
+        const edge = edges[x];
+        if (colors.edge[edge.color]) edge.color = colors.edge[edge.color];
+        if (colors.colors[edge.color]) edge.color = colors.colors[edge.color];
+      });
+
+      /* assign colors */
+      const maxWidth = Object.values(edges).reduce((prev, curr) => {
+        return Math.max(prev, 2);
       }, 0);
 
       const oldNodes = this.cy.nodes().map(x => x.id());
       const oldNodesSet = new Set(oldNodes);
 
-      const newNodes = Object.values(graph.nodes).map(x => x.id);
+      const newNodes = Object.values(nodes).map(x => x.id);
       const newNodesSet = new Set(newNodes);
 
       const addNodes = newNodes.filter(x => !oldNodesSet.has(x));
@@ -59,7 +90,7 @@ export default defineComponent({
       const oldEdges = this.cy.edges().map(x => x.id());
       const oldEdgesSet = new Set(oldEdges);
 
-      const newEdges = Object.values(graph.edges).map(x => x.id);
+      const newEdges = Object.values(edges).map(x => x.id);
       const newEdgesSet = new Set(newEdges);
 
       const addEdges = newEdges.filter(x => !oldEdgesSet.has(x));
@@ -68,23 +99,15 @@ export default defineComponent({
         x => !newEdgesSet.has(x)
       );
 
-      // if (deleteNodes.length !== 0 || deleteEdges.length !== 0) {
-      //   cy.startBatch();
-      //   deleteNodes.map(x => {
-      //     cy.$id(x).data('color', 'red');
-      //   });
-
-      //   deleteEdges.map(x => {
-      //     cy.$id(x).data('color', 'red');
-      //   });
-      //   cy.endBatch();
-      //   await sleep(500);
-      // }
-
       cy.startBatch();
-      this.cy.add(
+      cy.add(
         addNodes.map(x => {
-          return {group: 'nodes', data: graph.nodes[x]};
+          const node = nodes[x];
+          return {
+            group: 'nodes',
+            data: node,
+            classes: node.visible ? '' : 'hidden',
+          };
         })
       );
 
@@ -92,23 +115,32 @@ export default defineComponent({
         if (type === 'load') {
           cy.remove(cy.$id(x));
         } else if (type === 'filter') {
-          cy.$id(x).style('visibility', 'hidden');
+          cy.$id(x).addClass('hidden');
         }
       });
 
       updateNodes.map(x => {
+        const updateNode = nodes[x];
         const node = cy.$id(x);
-        node.data(graph.nodes[x]);
-        if (type === 'filter') {
-          node.style('visibility', 'visible');
+        node.data(updateNode);
+        if (updateNode.visible && node.hasClass('hidden')) {
+          node.removeClass('hidden');
+        } else if (!updateNode.visible && !node.hasClass('hidden')) {
+          node.addClass('hidden');
         }
       });
 
-      this.cy.add(
+      cy.add(
         addEdges.map(x => {
+          const edge = edges[x];
           return {
             group: 'edges',
-            data: edgeToCytoscape(graph.edges[x], maxWidth),
+            data: edgeToCytoscape(edge, maxWidth),
+            classes:
+              cy.$id(edge.src).hasClass('hidden') ||
+              cy.$id(edge.dst).hasClass('hidden')
+                ? 'hidden'
+                : '',
           };
         })
       );
@@ -117,22 +149,27 @@ export default defineComponent({
         if (type === 'load') {
           cy.remove(cy.$id(x));
         } else if (type === 'filter') {
-          cy.$id(x).style('visibility', 'hidden');
+          cy.$id(x).addClass('hidden');
         }
       });
 
       updateEdges.map(x => {
+        const updateEdge = edges[x];
         const edge = cy.$id(x);
-        edge.data(edgeToCytoscape(graph.edges[x], maxWidth));
-        if (type === 'filter') {
-          edge.style('visibility', 'visible');
+        edge.data(edgeToCytoscape(updateEdge, maxWidth));
+        const shouldHidden =
+          cy.$id(updateEdge.src).hasClass('hidden') ||
+          cy.$id(updateEdge.dst).hasClass('hidden');
+        if (!shouldHidden && edge.hasClass('hidden')) {
+          edge.removeClass('hidden');
+        } else if (shouldHidden && !edge.hasClass('hidden')) {
+          edge.addClass('hidden');
         }
       });
 
       if (
-        this.cy
-          .nodes()
-          .filter(x => x.position().x === 0 && x.position().y === 0).length > 0
+        cy.nodes().filter(x => x.position().x === 0 && x.position().y === 0)
+          .length > 0
       ) {
         const widthPadding = 100;
         const heightPadding = 50;
@@ -154,6 +191,18 @@ export default defineComponent({
       }
       cy.endBatch();
     },
+    nodeTap(node: NodeSingular) {
+      console.log(node.id(), 'tapped');
+      const data = node.data() as CytoNodeReady;
+      if (data.children.length === 0) return;
+
+      const visibility = !this.cy.$id(data.children[0]).data('visible');
+      for (const child of data.children) {
+        this.currentGraph.nodes[child].visible = visibility;
+      }
+
+      this.draw();
+    },
   },
   mounted() {
     this.cy = cytoscape({
@@ -162,6 +211,12 @@ export default defineComponent({
         name: 'preset',
       },
       style: [
+        {
+          selector: '.hidden',
+          style: {
+            visibility: 'hidden',
+          },
+        },
         {
           selector: 'node',
           style: {
@@ -194,6 +249,11 @@ export default defineComponent({
       ],
       minZoom: 0.1,
       maxZoom: 10,
+    });
+
+    const nodeTap = this.nodeTap;
+    this.cy.on('tap', 'node', function (this: NodeSingular) {
+      nodeTap(this);
     });
   },
 });

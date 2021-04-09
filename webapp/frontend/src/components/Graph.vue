@@ -51,59 +51,10 @@ type BMPFilter = {
 };
 function stateToGraph(
   statePkt: StatePkt,
-  community: string,
+  vpn: string,
   type: 'load' | 'filter'
 ) {
-  return VPNTopologyGenerator(statePkt, community, type);
-  // const graph: CytoGraph = {
-  //   nodes: {},
-  //   edges: {},
-  //   type,
-  // };
-
-  // for (const event of statePkt.events) {
-  //   if (
-  //     !(event.is_in || event.is_out) ||
-  //     !event.peer_ip ||
-  //     !event.bgp_nexthop ||
-  //     !event.ip_prefix
-  //   )
-  //     continue;
-
-  //   const src = event.peer_ip;
-  //   const dst = event.bgp_nexthop;
-  //   if (!graph.nodes[src])
-  //     graph.nodes[src] = {
-  //       id: src,
-  //       label: src,
-  //       color: 'blue',
-  //       radius: 10,
-  //       display: true,
-  //     };
-  //   if (!graph.nodes[dst])
-  //     graph.nodes[dst] = {
-  //       id: dst,
-  //       label: dst,
-  //       color: 'blue',
-  //       radius: 10,
-  //       display: true,
-  //     };
-
-  //   const edgeKey = `${src}-${dst}`;
-  //   if (!graph.edges[edgeKey]) {
-  //     graph.edges[edgeKey] = {
-  //       id: edgeKey,
-  //       src,
-  //       dst,
-  //       color: 'green',
-  //       width: 0,
-  //     };
-  //   }
-
-  //   graph.edges[edgeKey].width += 1;
-  // }
-
-  // return graph;
+  return VPNTopologyGenerator(statePkt, vpn, type);
 }
 
 function datetimeToString(datetime: Date) {

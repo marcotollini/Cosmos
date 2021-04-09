@@ -1,0 +1,12 @@
+{
+    "node": {
+        "color": "default",
+        "radius": 12,
+        "visible": true,
+        "children": []
+    },
+    "edge": {
+        "color": "default",
+        "width": 0.5
+    }
+}

@@ -1,11 +1,7 @@
 import {uniqWith, pick, isEqual} from 'lodash';
-import {StatePkt, CytoGraph} from 'cosmos-lib/src/types';
+import {StatePkt, CytoGraph, CytoNode} from 'cosmos-lib/src/types';
 
-function generate(
-  statePkt: StatePkt,
-  community: string,
-  type: 'load' | 'filter'
-) {
+function generate(statePkt: StatePkt, vpn: string, type: 'load' | 'filter') {
   const graph: CytoGraph = {
     nodes: {},
     edges: {},
@@ -17,65 +13,54 @@ function generate(
     isEqual
   );
 
-  const nodes = uniqueRouterRd.map(x => {
-    return {
-      id: `${x.bmp_router}-${x.rd}`,
-      bmp_router: x.bmp_router,
-      rd: x.rd,
-    };
-  });
+  const bmpRouterRdMap: Record<string, (string | null)[]> = {};
+  for (const r of uniqueRouterRd) {
+    if (!bmpRouterRdMap[r.bmp_router]) bmpRouterRdMap[r.bmp_router] = [];
+    bmpRouterRdMap[r.bmp_router].push(r.rd);
+  }
 
-  graph.nodes['community'] = {
-    id: 'community',
-    label: community,
-    color: 'green',
-    radius: 10,
-    display: true,
+  const vpnNode = {
+    id: vpn,
+    label: vpn,
+    color: 'accent',
   };
 
-  for (const node of nodes) {
-    graph.nodes[node.id] = {
-      id: node.id,
-      label: node.id,
-      color: 'blue',
-      radius: 10,
-      display: true,
+  graph.nodes[vpnNode.id] = vpnNode;
+
+  for (const bmpRouter in bmpRouterRdMap) {
+    const children: string[] = [];
+    for (const rd of bmpRouterRdMap[bmpRouter]) {
+      const nodeRdKey = `${bmpRouter}_${rd}`;
+      graph.nodes[nodeRdKey] = {
+        id: nodeRdKey,
+        label: `${rd}`,
+        visible: false,
+      } as CytoNode;
+      children.push(nodeRdKey);
+
+      const edgeRdKey = `${bmpRouter}->${rd}`;
+      graph.edges[edgeRdKey] = {
+        id: edgeRdKey,
+        src: bmpRouter,
+        dst: nodeRdKey,
+      };
+    }
+
+    graph.nodes[bmpRouter] = {
+      id: bmpRouter,
+      label: bmpRouter,
+      children,
     };
 
-    const edgeKey = `${node.id}-community`;
+    const edgeKey = `${bmpRouter}->${vpnNode.id}`;
     graph.edges[edgeKey] = {
       id: edgeKey,
-      src: node.id,
-      dst: 'community',
-      color: 'black',
-      width: 1,
+      src: bmpRouter,
+      dst: vpnNode.id,
     };
   }
 
   return graph;
-
-  // const eventsInOut = statePkt.events.filter(
-  //   x => x.is_in === true || x.is_out === true
-  // );
-
-  // const [eventsIn, eventsOut] = partition(eventsInOut, x => x.is_in === true);
-
-  // const epMap: Record<string, [string, string | null, string | null][]> = {};
-  // for (const eventOut of eventsOut) {
-  //   if (eventOut.comms === null) continue;
-  //   const endPoints = eventOut.comms.filter(x => x.indexOf('64499') !== -1);
-  //   if (endPoints.length === 0) continue;
-  //   for (const endPoint of endPoints) {
-  //     if (!epMap[endPoint]) epMap[endPoint] = [];
-  //     epMap[endPoint].push([
-  //       eventOut.bmp_router,
-  //       eventOut.rd,
-  //       eventOut.peer_ip,
-  //     ]);
-  //   }
-  // }
-
-  // console.log(epMap);
 }
 
 export default generate;

@@ -91,12 +91,30 @@ interface EventCount {
 interface CytoNode {
   id: string;
   label: string;
+  color?: string | number;
+  radius?: number;
+  visible?: boolean;
+  children?: string[];
+}
+
+interface CytoNodeReady {
+  id: string;
+  label: string;
   color: string | number;
   radius: number;
-  display: boolean;
+  visible: boolean;
+  children: string[];
 }
 
 interface CytoEdge {
+  id: string;
+  src: string;
+  dst: string;
+  color?: string | number;
+  width?: number;
+}
+
+interface CytoEdgeReady {
   id: string;
   src: string;
   dst: string;
@@ -124,4 +142,6 @@ export {
   CytoGraph,
   CytoNode,
   CytoEdge,
+  CytoNodeReady,
+  CytoEdgeReady,
 };
