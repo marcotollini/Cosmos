@@ -250,4 +250,8 @@ export default defineComponent({
 .ml-10 {
   margin-left: 10px;
 }
+
+.el-select--mini {
+  width: 95%;
+}
 </style>

@@ -217,7 +217,7 @@ class PGDatabase extends Database {
       FROM ${sql.identifier([this.dumpTableName])} AS dp
       RIGHT JOIN ${sql.identifier([tempTable])} AS tmpdp
       ON dp.bmp_router = tmpdp.bmp_router
-      AND dp.rd = tmpdp.rd
+      AND dp.rd is not distinct from tmpdp.rd
       AND dp.seq = tmpdp.seq
       WHERE dp.bmp_msg_type = ${'route_monitor'}
       AND dp.comms @> ${sql.json(vpn)}
@@ -235,7 +235,7 @@ class PGDatabase extends Database {
       FROM ${sql.identifier([this.eventTableName])} AS et
       LEFT JOIN ${sql.identifier([tempTable])} as tmpdp
       ON et.bmp_router = tmpdp.bmp_router
-      AND et.rd = tmpdp.rd
+      AND et.rd is not distinct from tmpdp.rd
       WHERE et.bmp_msg_type = ${'route_monitor'}
       AND et.comms @> ${sql.json(vpn)}
       AND et.timestamp_arrival > ${timestamp - this.timeBetweenDumps}
