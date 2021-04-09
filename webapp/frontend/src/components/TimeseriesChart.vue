@@ -240,9 +240,9 @@ export default defineComponent({
         .then(response => {
           const data = response.data as EventCount[];
           const countList = data.map(x => {
-            const secondInt = (x.end_bucket - x.start_bucket) / 2;
+            const secondInt = x.end_bucket - x.start_bucket;
             return [
-              new Date((x.start_bucket + secondInt) * 1000),
+              new Date(x.start_bucket * 1000),
               Math.round(x.count / secondInt),
             ];
           });

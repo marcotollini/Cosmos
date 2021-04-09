@@ -159,7 +159,14 @@ class PGDatabase extends Database {
     const subqueries = [] as TaggedTemplateLiteralInvocationType<QueryResultRowType>[];
     const filterQuery = filter
       ? sql`AND ${this.generateSqlFilter(filter)}`
-      : '';
+      : sql``;
+    const filterQueryStr = filterQuery.values.reduce(
+      (prev: string, curr: any, index: number) => {
+        return prev.replace('$' + index, `'${curr}'`);
+      },
+      ''
+    );
+    console.log(filterQuery, filterQueryStr);
     let currentTimestamp = Math.floor(startTimestamp / precision) * precision;
     while (currentTimestamp < endTimestamp) {
       const start = currentTimestamp;
@@ -168,7 +175,7 @@ class PGDatabase extends Database {
         FROM ${this.eventTableName}
         WHERE timestamp_arrival > ${start}
         AND timestamp_arrival <= ${end}
-        ${filterQuery.toString()}`;
+        ${filterQueryStr}`;
 
       const approxQuery = sql`SELECT
         count_estimate(${estimateQuery})::integer as count,

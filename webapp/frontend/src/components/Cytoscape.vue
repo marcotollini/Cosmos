@@ -6,7 +6,7 @@
 import {defineComponent} from 'vue';
 import cytoscape from 'cytoscape';
 import _ from 'lodash';
-import {CytoGraph, CytoEdge} from '../types';
+import {CytoGraph, CytoEdge} from 'cosmos-lib/src/types';
 
 function edgeToCytoscape(edge: CytoEdge, maxWidth: number) {
   return {
