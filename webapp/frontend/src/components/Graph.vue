@@ -38,8 +38,8 @@
 import {defineComponent} from 'vue';
 import axios, {CancelTokenSource} from 'axios';
 import _ from 'lodash';
-import {StatePkt, BMPDump, BMPEvent} from 'cosmos-lib/src/types';
-import {CytoGraph} from '../types';
+import {StatePkt, BMPDump, BMPEvent, CytoGraph} from 'cosmos-lib/src/types';
+import VPNTopologyGenerator from '../graph-generator/VPN-topology';
 
 import LoadStateForm from '@/components/LoadStateForm.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
@@ -49,56 +49,61 @@ import TimeseriesChart from '@/components/TimeseriesChart.vue';
 type BMPFilter = {
   [key in keyof (BMPDump | BMPEvent)]?: any[];
 };
-function stateToGraph(statePkt: StatePkt, type: 'load' | 'filter') {
-  const graph: CytoGraph = {
-    nodes: {},
-    edges: {},
-    type,
-  };
+function stateToGraph(
+  statePkt: StatePkt,
+  community: string,
+  type: 'load' | 'filter'
+) {
+  return VPNTopologyGenerator(statePkt, community, type);
+  // const graph: CytoGraph = {
+  //   nodes: {},
+  //   edges: {},
+  //   type,
+  // };
 
-  for (const event of statePkt.events) {
-    if (
-      !(event.is_in || event.is_out) ||
-      !event.peer_ip ||
-      !event.bgp_nexthop ||
-      !event.ip_prefix
-    )
-      continue;
+  // for (const event of statePkt.events) {
+  //   if (
+  //     !(event.is_in || event.is_out) ||
+  //     !event.peer_ip ||
+  //     !event.bgp_nexthop ||
+  //     !event.ip_prefix
+  //   )
+  //     continue;
 
-    const src = event.peer_ip;
-    const dst = event.bgp_nexthop;
-    if (!graph.nodes[src])
-      graph.nodes[src] = {
-        id: src,
-        label: src,
-        color: 'blue',
-        radius: 10,
-        display: true,
-      };
-    if (!graph.nodes[dst])
-      graph.nodes[dst] = {
-        id: dst,
-        label: dst,
-        color: 'blue',
-        radius: 10,
-        display: true,
-      };
+  //   const src = event.peer_ip;
+  //   const dst = event.bgp_nexthop;
+  //   if (!graph.nodes[src])
+  //     graph.nodes[src] = {
+  //       id: src,
+  //       label: src,
+  //       color: 'blue',
+  //       radius: 10,
+  //       display: true,
+  //     };
+  //   if (!graph.nodes[dst])
+  //     graph.nodes[dst] = {
+  //       id: dst,
+  //       label: dst,
+  //       color: 'blue',
+  //       radius: 10,
+  //       display: true,
+  //     };
 
-    const edgeKey = `${src}-${dst}`;
-    if (!graph.edges[edgeKey]) {
-      graph.edges[edgeKey] = {
-        id: edgeKey,
-        src,
-        dst,
-        color: 'green',
-        width: 0,
-      };
-    }
+  //   const edgeKey = `${src}-${dst}`;
+  //   if (!graph.edges[edgeKey]) {
+  //     graph.edges[edgeKey] = {
+  //       id: edgeKey,
+  //       src,
+  //       dst,
+  //       color: 'green',
+  //       width: 0,
+  //     };
+  //   }
 
-    graph.edges[edgeKey].width += 1;
-  }
+  //   graph.edges[edgeKey].width += 1;
+  // }
 
-  return graph;
+  // return graph;
 }
 
 function datetimeToString(datetime: Date) {
@@ -129,7 +134,7 @@ export default defineComponent({
       // nodes and edges
       graph: {} as CytoGraph,
       // the state loaded from load-state-form
-      stateLoaded: undefined as {vpn: number; datetime: Date} | undefined,
+      stateLoaded: undefined as {vpn: string; datetime: Date} | undefined,
       // the list of filters loaded {dimension: [values selected]}
       filtersLoaded: undefined as BMPFilter | undefined,
       axiosToken: undefined as
@@ -183,7 +188,13 @@ export default defineComponent({
         return true;
       });
 
-      this.graph = stateToGraph(this.filteredState, 'filter');
+      if (this.stateLoaded === undefined) return;
+
+      this.graph = stateToGraph(
+        this.filteredState,
+        this.stateLoaded.vpn,
+        'filter'
+      );
 
       this.$router.push(
         btoa(
@@ -244,7 +255,9 @@ export default defineComponent({
       const statePkt: StatePkt = response.data;
       this.currentState = statePkt;
 
-      this.graph = stateToGraph(statePkt, 'load');
+      if (this.stateLoaded === undefined) return;
+
+      this.graph = stateToGraph(statePkt, this.stateLoaded.vpn, 'load');
 
       loadingNotification.close();
       this.$notify({
