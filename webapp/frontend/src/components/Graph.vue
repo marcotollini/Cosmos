@@ -40,6 +40,7 @@ import axios, {CancelTokenSource} from 'axios';
 import _ from 'lodash';
 import {StatePkt, BMPDump, BMPEvent, CytoGraph} from 'cosmos-lib/src/types';
 import VPNTopologyGenerator from '../graph-generator/VPN-topology';
+import VPNRoutingTopologyGenerator from '../graph-generator/VPN-routing-topology';
 
 import LoadStateForm from '@/components/LoadStateForm.vue';
 import FilterRouteMonitor from '@/components/FilterRouteMonitor.vue';
@@ -54,6 +55,7 @@ function stateToGraph(
   vpn: string,
   type: 'load' | 'filter'
 ) {
+  // return VPNRoutingTopologyGenerator(statePkt, vpn, type);
   return VPNTopologyGenerator(statePkt, vpn, type);
 }
 
@@ -196,10 +198,13 @@ export default defineComponent({
       const timestamp = Math.floor(datetime.getTime() / 1000);
       const axiosToken = axios.CancelToken.source();
       this.axiosToken = {token: axiosToken, notification: loadingNotification};
+      const start = new Date().getTime();
       const response = await axios.get(
         'http://10.212.226.67:3000/api/bmp/state',
         {params: {vpn, timestamp}, cancelToken: axiosToken.token}
       );
+      const end = new Date().getTime();
+      console.log('loading graph took', (end - start) / 1000);
 
       this.axiosToken = undefined;
 

@@ -33,6 +33,7 @@ class PGDatabase extends Database {
   keyDistinctEvent = [
     'bmp_router',
     'rd',
+    'peer_ip',
     'ip_prefix',
     'is_loc',
     'is_in',
@@ -200,6 +201,8 @@ class PGDatabase extends Database {
   }
 
   async getBMPState(vpn: string, timestamp: number): Promise<StatePkt> {
+    const startloading = new Date().getTime();
+
     const tempTable = 'distdump';
     const tempTableSql = sql`
       CREATE TEMPORARY TABLE ${sql.identifier([tempTable])} ON COMMIT DROP AS
@@ -259,6 +262,7 @@ class PGDatabase extends Database {
         })
     );
 
+    const startelaborating = new Date().getTime();
     const dumpRows = (dumpQuery.rows as unknown) as BMPDump[];
     const upgradeRows = (upgradeQuery.rows as unknown) as BMPEvent[];
 
@@ -274,6 +278,8 @@ class PGDatabase extends Database {
       type: 'state',
       events: eventsDistict,
     };
+    const end = new Date().getTime();
+    console.log('loading graph took', (end - startloading) / 1000);
 
     return statePkt;
   }

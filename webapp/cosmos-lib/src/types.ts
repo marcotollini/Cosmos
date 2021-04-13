@@ -79,6 +79,7 @@ interface VirtualRouterDump extends VirtualRouter {
 interface StatePkt {
   timestamp: number;
   events: (BMPDump | BMPEvent)[];
+  peering?: (BMPDump | BMPEvent)[];
   type: 'state' | 'upgrade';
 }
 

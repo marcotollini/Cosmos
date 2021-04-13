@@ -9,7 +9,9 @@ function generate(statePkt: StatePkt, vpn: string, type: 'load' | 'filter') {
   };
 
   const uniqueRouterRd = uniqWith(
-    statePkt.events.map(x => pick(x, ['bmp_router', 'rd'])),
+    statePkt.events
+      .filter(x => x.is_out === true)
+      .map(x => pick(x, ['bmp_router', 'rd'])),
     isEqual
   );
 
@@ -18,6 +20,8 @@ function generate(statePkt: StatePkt, vpn: string, type: 'load' | 'filter') {
     if (!bmpRouterRdMap[r.bmp_router]) bmpRouterRdMap[r.bmp_router] = [];
     bmpRouterRdMap[r.bmp_router].push(r.rd);
   }
+
+  // console.log(uniqueRouterRd);
 
   const vpnNode = {
     id: vpn,

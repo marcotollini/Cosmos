@@ -135,7 +135,7 @@ export default defineComponent({
       });
 
       if (Object.keys(activeFilters).length === 0) return;
-      console.log(activeFilters);
+      // console.log(activeFilters);
 
       const stateTimestamp = new Date(
         stateLoaded.datetime.getTime() - 1 * 24 * 60 * 60 * 1000
