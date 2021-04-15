@@ -4,10 +4,10 @@
 			"path": "backend"
 		},
 		{
-			"path": "frontend"
+			"path": "cosmos-lib"
 		},
 		{
-			"path": "cosmos-lib"
+			"path": "frontend"
 		}
 	],
 	"settings": {}

@@ -90,6 +90,7 @@ services:
     volumes:
       - timescale_data:/var/lib/postgresql/data
       - ./timescale/script:/docker-entrypoint-initdb.d/
+      - ./timescale/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     command: -cmax_locks_per_transaction=400
 
   adminer:
