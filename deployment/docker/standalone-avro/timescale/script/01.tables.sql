@@ -130,8 +130,12 @@ CREATE TABLE "public"."dump" (
     "bmp_term_info_string" text
 ) WITH (oids = false);
 
-
+-- https://www.postgresql.org/docs/current/btree-gin.html
+-- https://stackoverflow.com/questions/9025515/how-do-i-import-modules-or-install-extensions-in-postgresql-9-1
+CREATE EXTENSION btree_gin;
 CREATE INDEX dump_comms_idx ON "dump" USING gin(comms jsonb_path_ops);
-CREATE INDEX event_comms_idx ON "event" USING gin(comms jsonb_path_ops);
 CREATE INDEX dump_bmp_msg_type_idx ON "dump"("bmp_msg_type");
+
+
+CREATE INDEX event_timestamp_arrival_bmp_msg_typ_comms_idx ON "event" USING gin(timestamp_arrival, bmp_msg_type, comms jsonb_path_ops);
 CREATE INDEX event_bmp_msg_type_idx ON "event"("bmp_msg_type");
