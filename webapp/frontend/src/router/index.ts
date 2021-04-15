@@ -1,12 +1,18 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
-import Home from '../views/Home.vue';
+import VPNTopology from '@/views/VPNTopology.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/:pathMatch(.*)*',
-    name: 'Home',
-    component: Home,
+    path: '/',
+    name: 'default',
+    component: VPNTopology,
   },
+  {
+    path: '/vpn-topology',
+    name: 'vpn-topology',
+    component: VPNTopology,
+  },
+
   // {
   //   path: '/about',
   //   name: 'About',

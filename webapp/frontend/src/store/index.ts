@@ -1,27 +1,24 @@
 import {createStore} from 'vuex';
 
+// TODO: move to cosmos-lib
+// import {visualizationType} from 'cosmos-lib';
+type visualizationType =
+  | 'VPNTopology'
+  | 'VPNRoutingTopology'
+  | 'PeeringTopology';
+
 export default createStore({
   state: {
     selectedTimestamp: new Date() as Date | undefined,
-    selectedVPN: undefined as string | undefined,
-    VPNList: [] as string[],
-    filterFields: [] as string[],
+    selectedVisualization: undefined as visualizationType | undefined,
   },
   mutations: {
     selectedTimestamp(state, timestamp: Date | undefined) {
-      console.log(timestamp);
       state.selectedTimestamp = timestamp;
     },
-    selectedVPN(state, VPN: string) {
-      state.selectedVPN = VPN;
-    },
-    VPNList(state, VPNs: string[]) {
-      state.VPNList = VPNs;
-    },
-    filterFields(state, fields: string[]) {
-      state.filterFields = fields;
+    selectedVisualization(state, visualization: visualizationType | undefined) {
+      state.selectedVisualization = visualization;
     },
   },
   actions: {},
-  modules: {},
 });
