@@ -10,11 +10,15 @@ type visualizationType =
 export default createStore({
   state: {
     selectedTimestamp: new Date() as Date | undefined,
+    selectedVPN: undefined as string | undefined,
     selectedVisualization: undefined as visualizationType | undefined,
   },
   mutations: {
     selectedTimestamp(state, timestamp: Date | undefined) {
       state.selectedTimestamp = timestamp;
+    },
+    selectedVPN(state, vpn: string | undefined) {
+      state.selectedVPN = vpn;
     },
     selectedVisualization(state, visualization: visualizationType | undefined) {
       state.selectedVisualization = visualization;

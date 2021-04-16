@@ -39,14 +39,14 @@ export default defineComponent({
           name: 'VPN Topology',
           route: 'vpn-topology',
         },
-        {
-          name: 'VPN Routing Topology',
-          route: 'vpn-routing-topology',
-        },
-        {
-          name: 'Peering Topology',
-          route: 'peering-topology',
-        },
+        // {
+        //   name: 'VPN Routing Topology',
+        //   route: 'vpn-routing-topology',
+        // },
+        // {
+        //   name: 'Peering Topology',
+        //   route: 'peering-topology',
+        // },
       ],
     };
   },

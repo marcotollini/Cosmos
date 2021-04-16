@@ -2,6 +2,7 @@
   <side-bottom-four-slots>
     <template v-slot:side-top>
       <timestamp></timestamp>
+      <VPN-list></VPN-list>
       <visualization></visualization>
     </template>
     <template v-slot:side-bottom>Side bottom</template>
@@ -14,6 +15,7 @@
 import {defineComponent} from 'vue';
 import SideBottomFourSlots from '@/views/Structure/SideBottomFourSlots.vue';
 import Timestamp from '@/components/Selection/Timestamp.vue';
+import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
 
 export default defineComponent({
@@ -21,6 +23,7 @@ export default defineComponent({
   components: {
     SideBottomFourSlots,
     Timestamp,
+    VPNList,
     Visualization,
   },
   mounted() {

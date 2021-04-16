@@ -9,8 +9,6 @@ type visualizationType =
   | 'PeeringTopology';
 
 function changeRouteVisualization(this: ComponentCustomProperties) {
-  if (this.$store === undefined)
-    return console.log('Store not defined. .use(Cosmos) should be after state');
   this.$store.watch(
     (state: any) => state.selectedVisualization,
     (newValue: visualizationType, oldValue: visualizationType) => {
@@ -19,9 +17,23 @@ function changeRouteVisualization(this: ComponentCustomProperties) {
   );
 }
 
+function watchers(this: ComponentCustomProperties) {
+  if (this.$store === undefined)
+    return console.log('Store not defined. .use(Cosmos) should be after state');
+
+  changeRouteVisualization.bind(this)();
+}
+
+function initialization(this: ComponentCustomProperties) {
+  if (this.$store === undefined)
+    return console.log('Store not defined. .use(Cosmos) should be after state');
+}
+
 export default {
   install: (app: App) => {
-    app.config.globalProperties.$changeRouteVisualization = changeRouteVisualization;
-    app.config.globalProperties.$changeRouteVisualization();
+    app.config.globalProperties.$watchers = watchers;
+    app.config.globalProperties.$watchers();
+    app.config.globalProperties.$initialization = initialization;
+    app.config.globalProperties.$initialization();
   },
 };
