@@ -6,6 +6,11 @@ import {
 
 import Query from '../Query';
 
+type queryReturnType = {
+  key: string;
+  values: returnType;
+}[];
+
 type returnType = (string | number | boolean)[];
 
 class FilterFieldValues extends Query {
@@ -31,10 +36,7 @@ class FilterFieldValues extends Query {
   }
 
   async execute(): Promise<returnType> {
-    const rows = (await this.executeQuery()) as {
-      key: string;
-      values: returnType;
-    }[];
+    const rows = (await this.executeQuery()) as queryReturnType;
 
     if (rows.length === 0) return [];
     const firstRow = rows[0];
@@ -44,4 +46,4 @@ class FilterFieldValues extends Query {
 }
 
 export default FilterFieldValues;
-export {returnType};
+export {returnType, queryReturnType};

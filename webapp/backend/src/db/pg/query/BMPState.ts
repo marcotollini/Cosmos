@@ -2,6 +2,9 @@ import {sql} from 'slonik';
 
 import Query from '../Query';
 
+type queryReturnType = Record<string, unknown>[];
+type returnType = queryReturnType;
+
 class BMPState extends Query {
   timestamp: Date;
   vpn: string;
@@ -142,9 +145,9 @@ class BMPState extends Query {
     `;
   }
 
-  async execute(): Promise<Record<string, unknown>[]> {
+  async execute(): Promise<returnType> {
     console.log(this.raw());
-    const rows = (await this.executeQuery()) as Record<string, unknown>[];
+    const rows = (await this.executeQuery()) as queryReturnType;
 
     return rows;
   }
@@ -159,3 +162,4 @@ class BMPState extends Query {
 }
 
 export default BMPState;
+export {returnType, queryReturnType};

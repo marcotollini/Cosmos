@@ -6,6 +6,12 @@ import {
 
 import Query from '../Query';
 
+type queryReturnType = {
+  key: string;
+}[];
+
+type returnType = string[];
+
 class FilterFieldsList extends Query {
   bmpstate: TaggedTemplateLiteralInvocationType<QueryResultRowType>;
   constructor(
@@ -32,8 +38,8 @@ class FilterFieldsList extends Query {
     `;
   }
 
-  async execute(): Promise<string[]> {
-    const rows = (await this.executeQuery()) as {key: string}[];
+  async execute(): Promise<returnType> {
+    const rows = (await this.executeQuery()) as queryReturnType;
 
     const fieldList = rows.map(x => x.key);
     return fieldList;
@@ -41,3 +47,4 @@ class FilterFieldsList extends Query {
 }
 
 export default FilterFieldsList;
+export {returnType, queryReturnType};

@@ -2,6 +2,9 @@ import {sql} from 'slonik';
 
 import Query from '../Query';
 
+type queryReturnType = {community: string}[];
+type returnType = string[];
+
 class VPNList extends Query {
   timestamp: Date;
   constructor(timestamp: Date) {
@@ -22,8 +25,8 @@ class VPNList extends Query {
     `;
   }
 
-  async execute(): Promise<string[]> {
-    const rows = (await this.executeQuery()) as {community: string}[];
+  async execute(): Promise<returnType> {
+    const rows = (await this.executeQuery()) as queryReturnType;
 
     const distinctVpn = rows.map(x => x.community);
     return distinctVpn;
@@ -31,3 +34,4 @@ class VPNList extends Query {
 }
 
 export default VPNList;
+export {returnType, queryReturnType};
