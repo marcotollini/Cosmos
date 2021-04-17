@@ -8,6 +8,10 @@ class DatabaseInterface {
   VPNList(timestamp: Date): QueryInterface {
     throw new TypeError('Please implement abstract method.');
   }
+
+  BMPState(timestamp: Date, vpn: string): QueryInterface {
+    throw new TypeError('Please implement abstract method.');
+  }
 }
 
 export default DatabaseInterface;

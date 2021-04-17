@@ -18,6 +18,15 @@ router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
 
   const vpn = reqQuery.vpn;
   const timestamp = new Date(reqQuery.timestamp);
+
+  const query = Database.BMPState(timestamp, vpn);
+
+  ctx.req.on('close', query.cancel);
+
+  const result = (await query.execute()) as Record<string, unknown>[];
+
+  ctx.req.removeListener('close', query.cancel);
+  ctx.body = result;
 });
 
 export default router;
