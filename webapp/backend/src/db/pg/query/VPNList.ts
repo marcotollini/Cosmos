@@ -37,12 +37,11 @@ class VPNList extends Query {
       this.pid = null;
       return distinctVpn;
     } catch (e) {
-      if (e instanceof StatementCancelledError) {
-        // query has been cancelled
-        console.log('Query VPNList cancelled');
-      }
-
       this.pid = null;
+      // if (e instanceof StatementCancelledError) {
+      //   // query has been cancelled
+      //   console.log('Query VPNList cancelled');
+      // }
       throw e;
     }
   }

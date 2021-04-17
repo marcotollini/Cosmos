@@ -8,6 +8,14 @@ async function sleep(timeout: number) {
   });
 }
 
+function generateClientId() {
+  return Array.from(Array(32), () =>
+    Math.floor(Math.random() * 36).toString(36)
+  ).join('');
+}
+
+const idClient = generateClientId();
+
 export default {
   install: (app: App) => {
     const instance = axios.create({
@@ -25,22 +33,16 @@ export default {
 
     instance.interceptors.request.use(
       async config => {
+        if (config.params === undefined) config.params = {};
+        config.params.idClient = idClient;
+
         if (config.headers && config.headers['REQUEST_ID']) {
           const idRequest = config.headers['REQUEST_ID'];
           delete config.headers['REQUEST_ID'];
 
-          if (config.headers['CANCEL'] === 'true') {
-            if (tokenStore[idRequest]) {
-              tokenStore[idRequest].cancel();
-            }
-
-            const axiosToken = axios.CancelToken.source();
-            tokenStore[idRequest] = axiosToken;
-            config.cancelToken = axiosToken.token;
-          }
-
           if (config.headers['THROTTLE'] !== undefined) {
             const throttleTime = parseInt(config.headers['THROTTLE']);
+            delete config.headers['THROTTLE'];
 
             if (executionStore[idRequest]) {
               const uid = uniqueId();
@@ -64,8 +66,18 @@ export default {
               next: undefined,
             };
           }
+
+          if (config.headers['CANCEL'] === 'true') {
+            delete config.headers['CANCEL'];
+            if (tokenStore[idRequest]) {
+              tokenStore[idRequest].cancel();
+            }
+
+            const axiosToken = axios.CancelToken.source();
+            tokenStore[idRequest] = axiosToken;
+            config.cancelToken = axiosToken.token;
+          }
         }
-        console.log(config.params);
 
         return config;
       },

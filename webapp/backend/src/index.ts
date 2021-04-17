@@ -17,6 +17,19 @@ const app = new Koa();
 app.use(morgan('dev'));
 app.use(bodyParser());
 app.use(cors());
+
+// Save idclient into the state, if present
+// A client will always use this id for all the requests
+// As long as the page is not reloaded
+app.use(async (ctx, next) => {
+  const reqQuery = ctx.request.query;
+  if (reqQuery.idClient && typeof reqQuery.idClient === 'string') {
+    ctx.state.idClient = reqQuery.idClient;
+    delete reqQuery.idClient;
+  }
+  await next();
+});
+
 app.use(bmpRouter.routes());
 app.use(vpnRouter.routes());
 

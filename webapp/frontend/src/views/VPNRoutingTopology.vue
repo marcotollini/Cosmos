@@ -19,7 +19,7 @@ import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
 
 export default defineComponent({
-  name: 'VPNTopology',
+  name: 'VPNRoutingTopology',
   components: {
     SideBottomFourSlots,
     Timestamp,
@@ -27,7 +27,7 @@ export default defineComponent({
     Visualization,
   },
   mounted() {
-    this.$store.commit('selectedVisualization', 'vpn-topology');
+    this.$store.commit('selectedVisualization', 'vpn-routing-topology');
   },
 });
 </script>

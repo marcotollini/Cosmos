@@ -13,8 +13,11 @@ router.get('/api/vpn/list', async (ctx: RouterContext, next: Next) => {
   const timestamp = new Date(reqQuery.timestamp);
   const query = Database.VPNList(timestamp);
 
+  ctx.req.on('close', query.cancel);
+
   const result = (await query.execute()) as string[];
 
+  ctx.req.removeListener('close', query.cancel);
   ctx.body = result;
 });
 

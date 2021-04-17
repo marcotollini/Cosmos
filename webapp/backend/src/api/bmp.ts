@@ -5,20 +5,19 @@ import Database from '../db/getDatabase';
 import Router = require('@koa/router');
 const router = new Router();
 
-router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {});
+router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
+  const reqQuery = ctx.request.query;
+  if (
+    !reqQuery.vpn ||
+    typeof reqQuery.vpn !== 'string' ||
+    !reqQuery.timestamp ||
+    typeof reqQuery.timestamp !== 'string'
+  ) {
+    return ctx.throw(500);
+  }
 
-function test() {
-  console.log('closed');
-}
-
-router.get('/api/bmp/test', async (ctx: RouterContext, next: Next) => {
-  ctx.req.on('close', test);
-  await new Promise((resolve, reject) => {
-    setTimeout(resolve, 6000);
-  });
-
-  ctx.req.removeListener('close', test);
-  ctx.body = 'ciao';
+  const vpn = reqQuery.vpn;
+  const timestamp = new Date(reqQuery.timestamp);
 });
 
 export default router;

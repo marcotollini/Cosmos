@@ -27,20 +27,6 @@ export default defineComponent({
     return {
       VPNList: [] as string[],
       isloading: false,
-      visualizations: [
-        {
-          name: 'VPN Topology',
-          route: 'vpn-topology',
-        },
-        // {
-        //   name: 'VPN Routing Topology',
-        //   route: 'vpn-routing-topology',
-        // },
-        // {
-        //   name: 'Peering Topology',
-        //   route: 'peering-topology',
-        // },
-      ],
     };
   },
   computed: {

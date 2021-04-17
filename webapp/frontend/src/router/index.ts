@@ -12,6 +12,14 @@ const routes: Array<RouteRecordRaw> = [
     name: 'vpn-topology',
     component: VPNTopology,
   },
+  {
+    path: '/vpn-routing-topology',
+    name: 'vpn-routing-topology',
+    component: () =>
+      import(
+        /* webpackChunkName: "VPNRoutingTopology" */ '../views/VPNRoutingTopology.vue'
+      ),
+  },
 
   // {
   //   path: '/about',

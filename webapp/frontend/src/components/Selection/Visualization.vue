@@ -39,10 +39,10 @@ export default defineComponent({
           name: 'VPN Topology',
           route: 'vpn-topology',
         },
-        // {
-        //   name: 'VPN Routing Topology',
-        //   route: 'vpn-routing-topology',
-        // },
+        {
+          name: 'VPN Routing Topology',
+          route: 'vpn-routing-topology',
+        },
         // {
         //   name: 'Peering Topology',
         //   route: 'peering-topology',
@@ -66,7 +66,7 @@ export default defineComponent({
 <style scoped>
 h1 {
   margin: 0;
-  padding: 20px 0;
+  padding: 10px 0;
   text-align: center;
   font-size: 1.3em;
 }
