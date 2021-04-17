@@ -29,4 +29,86 @@ router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
   ctx.body = result;
 });
 
+router.get(
+  '/api/bmp/filter/field/list',
+  async (ctx: RouterContext, next: Next) => {
+    const reqQuery = ctx.request.query;
+    if (
+      !reqQuery.vpn ||
+      typeof reqQuery.vpn !== 'string' ||
+      !reqQuery.timestamp ||
+      typeof reqQuery.timestamp !== 'string'
+    ) {
+      return ctx.throw(500);
+    }
+    const vpn = reqQuery.vpn;
+    const timestamp = new Date(reqQuery.timestamp);
+
+    const query = Database.BMPStateFilterFieldsList(timestamp, vpn);
+
+    ctx.req.on('close', query.cancel);
+
+    const result = (await query.execute()) as string[];
+
+    ctx.req.removeListener('close', query.cancel);
+    ctx.body = result;
+  }
+);
+
+router.get(
+  '/api/bmp/filter/field/values/:fieldName',
+  async (ctx: RouterContext, next: Next) => {
+    const reqQuery = ctx.request.query;
+    if (
+      !reqQuery.vpn ||
+      typeof reqQuery.vpn !== 'string' ||
+      !reqQuery.timestamp ||
+      typeof reqQuery.timestamp !== 'string'
+    ) {
+      return ctx.throw(500);
+    }
+    const vpn = reqQuery.vpn;
+    const timestamp = new Date(reqQuery.timestamp);
+
+    const query = Database.BMPStateFilterFieldValues(
+      timestamp,
+      vpn,
+      ctx.params.fieldName
+    );
+
+    ctx.req.on('close', query.cancel);
+
+    const result = (await query.execute()) as string[];
+
+    ctx.req.removeListener('close', query.cancel);
+    ctx.body = result;
+  }
+);
+
+router.get(
+  '/api/bmp/visualization/vpn/topology',
+  async (ctx: RouterContext, next: Next) => {
+    const reqQuery = ctx.request.query;
+    if (
+      !reqQuery.vpn ||
+      typeof reqQuery.vpn !== 'string' ||
+      !reqQuery.timestamp ||
+      typeof reqQuery.timestamp !== 'string'
+    ) {
+      return ctx.throw(500);
+    }
+    const vpn = reqQuery.vpn;
+    const timestamp = new Date(reqQuery.timestamp);
+
+    const query = Database.BMPStateVisualizationVPNTopology(timestamp, vpn);
+
+    ctx.req.on('close', query.cancel);
+
+    const result = (await query.execute()) as string[];
+
+    ctx.req.removeListener('close', query.cancel);
+    ctx.body = result;
+  }
+);
+
 export default router;

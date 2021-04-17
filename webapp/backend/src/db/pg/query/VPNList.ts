@@ -1,4 +1,4 @@
-import {sql, StatementCancelledError} from 'slonik';
+import {sql} from 'slonik';
 
 import Query from '../Query';
 

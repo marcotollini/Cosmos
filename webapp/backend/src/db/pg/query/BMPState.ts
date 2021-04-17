@@ -1,4 +1,4 @@
-import {sql, StatementCancelledError, ListSqlTokenType} from 'slonik';
+import {sql} from 'slonik';
 
 import Query from '../Query';
 
@@ -84,17 +84,17 @@ class BMPState extends Query {
     );
 
     const sharedColumnsEventSql = sql.join(
-      this.distinctEventKey.map(x => sql.identifier(['et', x])),
+      this.sharedColumns.map(x => sql.identifier(['et', x])),
       sql`, `
     );
 
     const sharedColumnsDumpSql = sql.join(
-      this.distinctEventKey.map(x => sql.identifier(['dp', x])),
+      this.sharedColumns.map(x => sql.identifier(['dp', x])),
       sql`, `
     );
 
     const sharedColumnsUnionSql = sql.join(
-      this.distinctEventKey.map(x => sql.identifier(['unionstate', x])),
+      this.sharedColumns.map(x => sql.identifier(['unionstate', x])),
       sql`, `
     );
 

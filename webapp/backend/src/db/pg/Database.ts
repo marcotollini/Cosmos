@@ -1,6 +1,9 @@
 import DatabaseInterface from '../DatabaseInterface';
 import VPNList from './query/VPNList';
 import BMPState from './query/BMPState';
+import FilterFieldsList from './query/FilterFieldsList';
+import FilterFieldValues from './query/FilterFieldValues';
+import VisualizationVPNTopology from './query/VisualizationVPNTopology';
 
 class PGDatabase extends DatabaseInterface {
   constructor() {
@@ -12,8 +15,29 @@ class PGDatabase extends DatabaseInterface {
   }
 
   BMPState(timestamp: Date, vpn: string): BMPState {
-    console.log('stat', BMPState);
     return new BMPState(timestamp, vpn);
+  }
+
+  BMPStateFilterFieldsList(timestamp: Date, vpn: string): FilterFieldsList {
+    const bmpState = new BMPState(timestamp, vpn);
+    return new FilterFieldsList(bmpState.raw());
+  }
+
+  BMPStateFilterFieldValues(
+    timestamp: Date,
+    vpn: string,
+    fieldName: string
+  ): FilterFieldValues {
+    const bmpState = new BMPState(timestamp, vpn);
+    return new FilterFieldValues(bmpState.raw(), fieldName);
+  }
+
+  BMPStateVisualizationVPNTopology(
+    timestamp: Date,
+    vpn: string
+  ): VisualizationVPNTopology {
+    const bmpState = new BMPState(timestamp, vpn);
+    return new VisualizationVPNTopology(bmpState.raw());
   }
 }
 

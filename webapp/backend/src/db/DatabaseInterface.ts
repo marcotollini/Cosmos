@@ -12,6 +12,25 @@ class DatabaseInterface {
   BMPState(timestamp: Date, vpn: string): QueryInterface {
     throw new TypeError('Please implement abstract method.');
   }
+
+  BMPStateFilterFieldsList(timestamp: Date, vpn: string): QueryInterface {
+    throw new TypeError('Please implement abstract method.');
+  }
+
+  BMPStateFilterFieldValues(
+    timestamp: Date,
+    vpn: string,
+    fieldName: string
+  ): QueryInterface {
+    throw new TypeError('Please implement abstract method.');
+  }
+
+  BMPStateVisualizationVPNTopology(
+    timestamp: Date,
+    vpn: string
+  ): QueryInterface {
+    throw new TypeError('Please implement abstract method.');
+  }
 }
 
 export default DatabaseInterface;
