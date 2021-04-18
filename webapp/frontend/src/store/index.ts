@@ -27,7 +27,6 @@ export default createStore({
     },
     activeFilters(state, filters: Record<string, unknown[]>) {
       const unemptyFilters = pickBy(filters, x => x.length !== 0);
-      if (isEmpty(unemptyFilters)) return;
       state.activeFilters = unemptyFilters;
     },
   },

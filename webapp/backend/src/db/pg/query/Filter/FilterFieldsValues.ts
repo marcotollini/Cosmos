@@ -8,7 +8,7 @@ import {
 
 type queryReturnType = {
   key: string;
-  values: returnType;
+  values: (string | number | boolean | null)[];
 }[];
 
 class FilterFieldValues extends Query implements FilterFieldsValuesInterface {
@@ -37,11 +37,7 @@ class FilterFieldValues extends Query implements FilterFieldsValuesInterface {
 
   async execute(): Promise<returnType> {
     const rows = (await this.executeQuery()) as queryReturnType;
-
-    if (rows.length === 0) return [];
-    const firstRow = rows[0];
-    const values = firstRow.values;
-    return values;
+    return rows;
   }
 }
 

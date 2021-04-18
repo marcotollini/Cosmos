@@ -1,13 +1,15 @@
 import DatabaseInterface from '../DatabaseInterface';
+
 import VPNList from './query/VPNList';
 import BMPState from './query/BMPState';
 import FilterFieldsList from './query/Filter/FilterFieldsList';
-import FilterFieldValues from './query/FilterFieldValues';
+import FilterFieldValues from './query/Filter/FilterFieldValues';
+import FilterFieldsValues from './query/Filter/FilterFieldsValues';
 import VisualizationVPNTopology from './query/Visualization/VisualizationVPNTopology';
 
-class PGDatabase extends DatabaseInterface {
+class PGDatabase implements DatabaseInterface {
   constructor() {
-    super();
+    console.log('New Postgres DB created');
   }
 
   VPNList(timestamp: Date): VPNList {
@@ -18,12 +20,7 @@ class PGDatabase extends DatabaseInterface {
     return new BMPState(timestamp, vpn);
   }
 
-  BMPStateFilterFieldsList(timestamp: Date, vpn: string): FilterFieldsList {
-    const bmpState = new BMPState(timestamp, vpn);
-    return new FilterFieldsList(bmpState.raw());
-  }
-
-  BMPStateFilterFieldValues(
+  FilterFieldValues(
     timestamp: Date,
     vpn: string,
     fieldName: string
@@ -32,7 +29,17 @@ class PGDatabase extends DatabaseInterface {
     return new FilterFieldValues(bmpState.raw(), fieldName);
   }
 
-  BMPStateVisualizationVPNTopology(
+  FilterFieldsValues(timestamp: Date, vpn: string): FilterFieldsValues {
+    const bmpState = new BMPState(timestamp, vpn);
+    return new FilterFieldsValues(bmpState.raw());
+  }
+
+  FilterFieldsList(timestamp: Date, vpn: string): FilterFieldsList {
+    const bmpState = new BMPState(timestamp, vpn);
+    return new FilterFieldsList(bmpState.raw());
+  }
+
+  VisualizationVPNTopology(
     timestamp: Date,
     vpn: string
   ): VisualizationVPNTopology {

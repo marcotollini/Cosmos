@@ -1,6 +1,9 @@
 import QueryInterface from '../../QueryInterface';
 
-type returnType = (string | number | boolean | null)[];
+type returnType = {
+  key: string;
+  values: (string | number | boolean | null)[];
+}[];
 
 interface FilterFieldsValues extends QueryInterface {
   bmpstate: any;

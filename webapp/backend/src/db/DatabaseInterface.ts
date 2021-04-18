@@ -1,36 +1,29 @@
-import QueryInterface from './QueryInterface';
+import VPNListInterface from './query-interface/VPNList';
+import BMPStateInterface from './query-interface/BMPState';
+import FilterFieldsListInterface from './query-interface/Filter/FilterFieldsList';
+import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValues';
+import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
+import VisualizationVPNTopologyInterface from './query-interface/Visualization/VisualizationVPNTopology';
 
-class DatabaseInterface {
-  constructor() {
-    console.log('New database instance created');
-  }
+interface DatabaseInterface {
+  VPNList(timestamp: Date): VPNListInterface;
 
-  VPNList(timestamp: Date): QueryInterface {
-    throw new TypeError('Please implement abstract method.');
-  }
+  BMPState(timestamp: Date, vpn: string): BMPStateInterface;
 
-  BMPState(timestamp: Date, vpn: string): QueryInterface {
-    throw new TypeError('Please implement abstract method.');
-  }
+  FilterFieldsList(timestamp: Date, vpn: string): FilterFieldsListInterface;
 
-  BMPStateFilterFieldsList(timestamp: Date, vpn: string): QueryInterface {
-    throw new TypeError('Please implement abstract method.');
-  }
-
-  BMPStateFilterFieldValues(
+  FilterFieldValues(
     timestamp: Date,
     vpn: string,
     fieldName: string
-  ): QueryInterface {
-    throw new TypeError('Please implement abstract method.');
-  }
+  ): FilterFieldValuesInterface;
 
-  BMPStateVisualizationVPNTopology(
+  FilterFieldsValues(timestamp: Date, vpn: string): FilterFieldsValuesInterface;
+
+  VisualizationVPNTopology(
     timestamp: Date,
     vpn: string
-  ): QueryInterface {
-    throw new TypeError('Please implement abstract method.');
-  }
+  ): VisualizationVPNTopologyInterface;
 }
 
 export default DatabaseInterface;

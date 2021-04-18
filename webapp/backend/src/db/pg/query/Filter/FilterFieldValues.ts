@@ -6,7 +6,10 @@ import {
   returnType,
 } from '../../../query-interface/Filter/FilterFieldValues';
 
-type queryReturnType = returnType;
+type queryReturnType = {
+  key: string;
+  values: (string | number | boolean | null)[];
+}[];
 
 class FilterFieldsValues extends Query implements FilterFieldValuesInterface {
   bmpstate: slonikSql;
@@ -29,7 +32,11 @@ class FilterFieldsValues extends Query implements FilterFieldValuesInterface {
 
   async execute(): Promise<returnType> {
     const rows = (await this.executeQuery()) as queryReturnType;
-    return rows;
+
+    if (rows.length === 0) return [];
+    const firstRow = rows[0];
+    const values = firstRow.values;
+    return values;
   }
 }
 

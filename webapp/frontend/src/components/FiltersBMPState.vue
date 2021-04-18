@@ -2,12 +2,16 @@
   <el-form ref="form" label-width="120px">
     <el-collapse>
       <el-collapse-item
-        v-for="filterName of fieldList"
+        v-for="filterName of Object.keys(fieldValuesList)"
         :key="filterName"
         :name="filterName"
       >
         <template #title>
-          {{ filterName }}<i class="header-icon el-icon-s-operation ml-10"></i>
+          {{ filterName
+          }}<i
+            v-if="activeFilters[filterName]"
+            class="header-icon el-icon-s-operation ml-10"
+          ></i>
         </template>
         <div class="text-center">
           <el-select
@@ -20,12 +24,10 @@
             placeholder="Select"
             :name="filterName"
             :loading="fieldLoading[filterName]"
-            @change="activeFiltersChange"
-            @focus="focusFiltersChange"
-            @blur="blurFiltersChange"
+            @change="activeFiltersChange(filterName)"
           >
             <el-option
-              v-for="val of fieldValueList[filterName]"
+              v-for="val of fieldValuesList[filterName]"
               :key="val"
               :label="val"
               :value="val"
@@ -45,8 +47,9 @@ export default defineComponent({
   name: 'FiltersBMPState',
   data() {
     return {
-      fieldList: ['BMP', 'Router'] as string[],
-      fieldValueList: {} as Record<string, []>,
+      /* List of fields, and the possible values */
+      fieldValuesList: {} as Record<string, unknown[]>,
+      /* List of fields, and a true if the possible values are loading, otherwie undefined (or false) */
       fieldLoading: {} as Record<string, boolean>,
     };
   },
@@ -70,47 +73,86 @@ export default defineComponent({
   },
   watch: {
     selectedTimestamp() {
-      this.loadFieldList();
+      this.fieldValuesList = {};
+      this.loadFieldsValues();
     },
 
     selectedVPN() {
-      this.loadFieldList();
+      this.fieldValuesList = {};
+      this.loadFieldsValues();
     },
   },
   methods: {
-    activeFiltersChange() {
+    /**
+     * Called when a user changes an input field
+     * focusFieldName is the field name that triggered the event
+     * This function triggers the re-loading of all the filters
+     * and their values
+     */
+    async activeFiltersChange(focusFieldName?: string) {
       // notify chanege
       const temp = this.activeFilters;
       this.activeFilters = temp;
+
+      this.loadFieldsValues(focusFieldName);
     },
 
-    async loadFieldList() {
+    /**
+     * Called when we want to redownload the possible values in the filter
+     * focusFieldName will not be reset nor set loading, all the others will
+     */
+    async loadFieldsValues(focusFieldName?: string) {
       const timestamp = this.selectedTimestamp;
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
+
+      for (const fieldName in this.fieldValuesList) {
+        if (focusFieldName === fieldName) continue;
+        this.fieldValuesList[fieldName] = [];
+        this.fieldLoading[fieldName] = true;
+      }
+
       try {
-        const result = await this.$http.get('/api/bmp/filter/field/list', {
+        const result = await this.$http.get('/api/bmp/filter/fields/values', {
           params: {timestamp, vpn},
           headers: {
-            REQUEST_ID: 'field_list',
+            REQUEST_ID: 'field_values',
             THROTTLE: '1000',
             CANCEL: 'true',
           },
         });
 
-        const fieldList = result.data as string[];
-        fieldList.sort();
-        this.fieldList = fieldList;
+        const fieldsValues = result.data as {
+          key: string;
+          values: (string | number | boolean | null)[];
+        }[];
+
+        const fieldsValuesObj = {} as Record<string, unknown[]>;
+        for (const val of fieldsValues) {
+          fieldsValuesObj[val.key] = val.values;
+        }
+
+        this.fieldValuesList = fieldsValuesObj;
+        this.fieldLoading = {};
       } catch (e) {
         if (e.__CANCEL__) {
           console.log('Request cancelled');
         } else if (e.name === 'REQABORTTHROTTLE') {
           console.log('request aborted due to throttle policy');
         } else {
-          // console.error(e.stack, e);
+          console.error(e.stack, e);
         }
+      } finally {
+        this.fieldLoading = {};
       }
     },
+  },
+  mounted() {
+    /**
+     * Used to trigger the clean-up of the fieldValuesList (see store.mutations.activeFilters)
+     * It also loads the filters and the values
+     */
+    this.activeFiltersChange();
   },
 });
 </script>

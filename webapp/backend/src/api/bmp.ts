@@ -1,113 +1,55 @@
 import {RouterContext} from '@koa/router';
 import {Next} from 'koa';
+import {isString, partialRight} from 'lodash';
 
 import Database from '../db/getDatabase';
 import Router = require('@koa/router');
 const router = new Router();
 
-router.get('/api/bmp/state', async (ctx: RouterContext, next: Next) => {
+async function bmp_process(ctx: RouterContext, fn: Function) {
   const reqQuery = ctx.request.query;
-  if (
-    !reqQuery.vpn ||
-    typeof reqQuery.vpn !== 'string' ||
-    !reqQuery.timestamp ||
-    typeof reqQuery.timestamp !== 'string'
-  ) {
-    return ctx.throw(500);
+  if (!isString(reqQuery.vpn) || !isString(reqQuery.timestamp)) {
+    ctx.throw(500);
   }
 
   const vpn = reqQuery.vpn;
   const timestamp = new Date(reqQuery.timestamp);
 
-  const query = Database.BMPState(timestamp, vpn);
+  const query = fn(timestamp, vpn);
 
   ctx.req.on('close', query.cancel);
 
-  const result = (await query.execute()) as Record<string, unknown>[];
+  const result = await query.execute();
 
   ctx.req.removeListener('close', query.cancel);
-  ctx.body = result;
+
+  return result;
+}
+
+router.get('/api/bmp/state', async (ctx: RouterContext) => {
+  ctx.body = await bmp_process(ctx, Database.BMPState);
+});
+
+router.get('/api/bmp/filter/fields/list', async (ctx: RouterContext) => {
+  ctx.body = await bmp_process(ctx, Database.FilterFieldsList);
+});
+
+router.get('/api/bmp/filter/fields/values', async (ctx: RouterContext) => {
+  ctx.body = await bmp_process(ctx, Database.FilterFieldsValues);
 });
 
 router.get(
-  '/api/bmp/filter/field/list',
-  async (ctx: RouterContext, next: Next) => {
-    const reqQuery = ctx.request.query;
-    if (
-      !reqQuery.vpn ||
-      typeof reqQuery.vpn !== 'string' ||
-      !reqQuery.timestamp ||
-      typeof reqQuery.timestamp !== 'string'
-    ) {
-      return ctx.throw(500);
-    }
-    const vpn = reqQuery.vpn;
-    const timestamp = new Date(reqQuery.timestamp);
-
-    const query = Database.BMPStateFilterFieldsList(timestamp, vpn);
-
-    ctx.req.on('close', query.cancel);
-
-    const result = (await query.execute()) as string[];
-
-    ctx.req.removeListener('close', query.cancel);
-    ctx.body = result;
-  }
-);
-
-router.get(
   '/api/bmp/filter/field/values/:fieldName',
-  async (ctx: RouterContext, next: Next) => {
-    const reqQuery = ctx.request.query;
-    if (
-      !reqQuery.vpn ||
-      typeof reqQuery.vpn !== 'string' ||
-      !reqQuery.timestamp ||
-      typeof reqQuery.timestamp !== 'string'
-    ) {
-      return ctx.throw(500);
-    }
-    const vpn = reqQuery.vpn;
-    const timestamp = new Date(reqQuery.timestamp);
-
-    const query = Database.BMPStateFilterFieldValues(
-      timestamp,
-      vpn,
-      ctx.params.fieldName
-    );
-
-    ctx.req.on('close', query.cancel);
-
-    const result = (await query.execute()) as string[];
-
-    ctx.req.removeListener('close', query.cancel);
-    ctx.body = result;
+  async (ctx: RouterContext) => {
+    const fn = partialRight(Database.FilterFieldValues, ctx.params.fieldName);
+    ctx.body = await bmp_process(ctx, fn);
   }
 );
 
 router.get(
   '/api/bmp/visualization/vpn/topology',
-  async (ctx: RouterContext, next: Next) => {
-    const reqQuery = ctx.request.query;
-    if (
-      !reqQuery.vpn ||
-      typeof reqQuery.vpn !== 'string' ||
-      !reqQuery.timestamp ||
-      typeof reqQuery.timestamp !== 'string'
-    ) {
-      return ctx.throw(500);
-    }
-    const vpn = reqQuery.vpn;
-    const timestamp = new Date(reqQuery.timestamp);
-
-    const query = Database.BMPStateVisualizationVPNTopology(timestamp, vpn);
-
-    ctx.req.on('close', query.cancel);
-
-    const result = (await query.execute()) as string[];
-
-    ctx.req.removeListener('close', query.cancel);
-    ctx.body = result;
+  async (ctx: RouterContext) => {
+    ctx.body = await bmp_process(ctx, Database.VisualizationVPNTopology);
   }
 );
 
