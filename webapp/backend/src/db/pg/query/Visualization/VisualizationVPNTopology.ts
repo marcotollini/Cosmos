@@ -1,23 +1,21 @@
-import {
-  sql,
-  TaggedTemplateLiteralInvocationType,
-  QueryResultRowType,
-} from 'slonik';
+import {sql} from 'slonik';
 
-import Query from '../Query';
+import {default as Query, slonikSql} from '../../Query';
+import {
+  default as VisualizationVPNTopologyInterface,
+  returnType,
+} from '../../../query-interface/Visualization/VisualizationVPNTopology';
 
 type queryReturnType = {
   bmp_router: string;
   rd: string;
 }[];
 
-type returnType = queryReturnType;
-
-class VisualizationVPNTopology extends Query {
-  bmpstate: TaggedTemplateLiteralInvocationType<QueryResultRowType>;
-  constructor(
-    bmpstate: TaggedTemplateLiteralInvocationType<QueryResultRowType>
-  ) {
+class VisualizationVPNTopology
+  extends Query
+  implements VisualizationVPNTopologyInterface {
+  bmpstate: slonikSql;
+  constructor(bmpstate: slonikSql) {
     super();
     this.bmpstate = bmpstate;
   }

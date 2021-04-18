@@ -1,21 +1,9 @@
-import {TaggedTemplateLiteralInvocationType, QueryResultRowType} from 'slonik';
-
-class QueryInterface {
+interface QueryInterface {
   timeBetweenDumps: number;
-  constructor() {
-    this.timeBetweenDumps = 45 * 60;
-  }
 
-  raw(): TaggedTemplateLiteralInvocationType<QueryResultRowType> {
-    throw new TypeError('Please implement abstract method.');
-  }
+  raw(): any;
+  execute(): Promise<unknown>;
 
-  async execute(): Promise<unknown> {
-    throw new TypeError('Please implement abstract method.');
-  }
-
-  async cancel(): Promise<boolean> {
-    throw new TypeError('Please implement abstract method.');
-  }
+  cancel(): Promise<boolean>;
 }
 export default QueryInterface;

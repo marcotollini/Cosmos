@@ -1,4 +1,3 @@
-import QueryInterface from '../QueryInterface';
 import create_slonik from './slonik';
 
 import {
@@ -6,18 +5,25 @@ import {
   DatabasePoolConnectionType,
   sql,
   QueryResultRowType,
+  TaggedTemplateLiteralInvocationType,
 } from 'slonik';
+
+type slonikSql = TaggedTemplateLiteralInvocationType<QueryResultRowType>;
 
 const pool = create_slonik();
 
-class Query extends QueryInterface {
+abstract class Query {
   pool: DatabasePoolType;
   pid: null | number;
+  timeBetweenDumps: number;
+
   constructor() {
-    super();
     this.pool = pool;
     this.pid = null;
+    this.timeBetweenDumps = 45 * 60;
   }
+
+  abstract raw(): slonikSql;
 
   async getPid(connection: DatabasePoolConnectionType) {
     return (await connection.oneFirst(sql`SELECT pg_backend_pid()`)) as number;
@@ -55,3 +61,4 @@ class Query extends QueryInterface {
 }
 
 export default Query;
+export {slonikSql};

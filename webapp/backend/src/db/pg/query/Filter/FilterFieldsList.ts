@@ -1,22 +1,18 @@
-import {
-  sql,
-  TaggedTemplateLiteralInvocationType,
-  QueryResultRowType,
-} from 'slonik';
+import {sql} from 'slonik';
 
-import Query from '../Query';
+import {default as Query, slonikSql} from '../../Query';
+import {
+  default as FilterFieldsListInterface,
+  returnType,
+} from '../../../query-interface/Filter/FilterFieldsList';
 
 type queryReturnType = {
   key: string;
 }[];
 
-type returnType = string[];
-
-class FilterFieldsList extends Query {
-  bmpstate: TaggedTemplateLiteralInvocationType<QueryResultRowType>;
-  constructor(
-    bmpstate: TaggedTemplateLiteralInvocationType<QueryResultRowType>
-  ) {
+class FilterFieldsList extends Query implements FilterFieldsListInterface {
+  bmpstate: slonikSql;
+  constructor(bmpstate: slonikSql) {
     super();
     this.bmpstate = bmpstate;
   }

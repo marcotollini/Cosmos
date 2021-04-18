@@ -1,11 +1,14 @@
 import {sql} from 'slonik';
 
-import Query from '../Query';
+import {default as Query, slonikSql} from '../Query';
+import {
+  default as VPNListInterface,
+  returnType,
+} from '../../query-interface/VPNList';
 
 type queryReturnType = {community: string}[];
-type returnType = string[];
 
-class VPNList extends Query {
+class VPNList extends Query implements VPNListInterface {
   timestamp: Date;
   constructor(timestamp: Date) {
     super();

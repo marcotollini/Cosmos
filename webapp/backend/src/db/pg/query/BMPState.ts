@@ -1,11 +1,14 @@
 import {sql} from 'slonik';
 
-import Query from '../Query';
+import {default as Query, slonikSql} from '../Query';
+import {
+  default as BMPStateInterface,
+  returnType,
+} from '../../query-interface/BMPState';
 
 type queryReturnType = Record<string, unknown>[];
-type returnType = queryReturnType;
 
-class BMPState extends Query {
+class BMPState extends Query implements BMPStateInterface {
   timestamp: Date;
   vpn: string;
   timestampUnix: number;

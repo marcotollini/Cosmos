@@ -4,10 +4,11 @@
       <timestamp></timestamp>
       <VPN-list></VPN-list>
       <visualization></visualization>
+      <filters-BMP-state></filters-BMP-state>
     </template>
     <template v-slot:side-bottom>Side bottom</template>
     <template v-slot:main>main</template>
-    <template v-slot:footer>footer</template>>
+    <template v-slot:footer>footer</template>
   </side-bottom-four-slots>
 </template>
 
@@ -17,6 +18,7 @@ import SideBottomFourSlots from '@/views/Structure/SideBottomFourSlots.vue';
 import Timestamp from '@/components/Selection/Timestamp.vue';
 import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
+import FiltersBMPState from '@/components/FiltersBMPState.vue';
 
 export default defineComponent({
   name: 'VPNTopology',
@@ -25,6 +27,7 @@ export default defineComponent({
     Timestamp,
     VPNList,
     Visualization,
+    FiltersBMPState,
   },
   mounted() {
     this.$store.commit('selectedVisualization', 'vpn-topology');

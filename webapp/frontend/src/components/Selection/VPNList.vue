@@ -50,7 +50,7 @@ export default defineComponent({
   methods: {
     async loadVPNList() {
       this.isloading = true;
-      const timestamp = this.$store.state.selectedTimestamp;
+      const timestamp = this.selectedTimestamp;
       if (timestamp === undefined) return;
       try {
         const result = await this.$http.get('/api/vpn/list', {
@@ -71,7 +71,7 @@ export default defineComponent({
         } else if (e.name === 'REQABORTTHROTTLE') {
           console.log('request aborted due to throttle policy');
         } else {
-          console.error(e.stack, e);
+          // console.error(e.stack, e);
         }
       }
     },
