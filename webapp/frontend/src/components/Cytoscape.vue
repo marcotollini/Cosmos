@@ -7,11 +7,10 @@ import {defineComponent} from 'vue';
 import cytoscape, {NodeSingular} from 'cytoscape';
 
 import {
-  CytoNode,
-  CytoEdge,
   CytoGraph,
   CytoGraphDefaults,
   CytoEdgeDefaults,
+  CytoNodeDefaults,
 } from '@/types';
 import {cloneDeep, defaults, partition} from 'lodash';
 
@@ -105,7 +104,7 @@ export default defineComponent({
       });
       /* end string to colors */
 
-      /* visibility set */
+      /* visibility set for nodes */
       addNodes.forEach(x => {
         const node = copyGraphDefaults.nodes[x];
         if (node.children)
@@ -114,14 +113,7 @@ export default defineComponent({
             childNode.visible = false;
           });
       });
-
-      [...addEdges, ...updateEdges].forEach(x => {
-        const edge = copyGraphDefaults.edges[x];
-        edge.visible =
-          copyGraphDefaults.nodes[edge.src].visible &&
-          copyGraphDefaults.nodes[edge.dst].visible;
-      });
-      /* end visibility set */
+      /* end visibility set for nodes */
 
       /* update */
       updateNodes.forEach(x => {
@@ -139,7 +131,21 @@ export default defineComponent({
       });
       this.cytoGraph = copyGraphDefaults;
       /* end update */
-      console.log(this.cytoGraph);
+
+      /* visibility for edges */
+      /**
+       * needs to be after update as on on the updated nodes we do not apply the defauls
+       * and so visibility might not be set yet. After update it is guaranteed
+       */
+      [...addEdges, ...updateEdges].forEach(x => {
+        const edge = copyGraphDefaults.edges[x];
+        edge.visible =
+          copyGraphDefaults.nodes[edge.src].visible &&
+          copyGraphDefaults.nodes[edge.dst].visible;
+      });
+      /* end visibility for edges */
+
+      console.log(copyGraphDefaults);
 
       cy.startBatch();
 
@@ -200,24 +206,47 @@ export default defineComponent({
       });
       /* end update */
 
-      const widthPadding = 100;
-      const heightPadding = 50;
-      const layout = this.cy.elements().layout({
-        name: 'cose',
-        randomize: true,
-        fit: false,
-        animate: false,
-        boundingBox: {
-          x1: widthPadding,
-          y1: heightPadding,
-          w: cy.width() - widthPadding * 2,
-          h: cy.height() - heightPadding * 2,
-        },
-        padding: 300,
-      });
+      if (
+        cy.nodes().filter(x => x.position().x === 0 && x.position().y === 0)
+          .length > 0
+      ) {
+        const numberNodes = cy.nodes().length as number;
+        const width = (2000 / 100) * numberNodes;
+        const height = (1000 / 100) * numberNodes;
 
-      layout.run();
+        const x1 = (cy.width() - width) / 2;
+        const y1 = (cy.height() - height) / 2;
+
+        const layout = this.cy.elements().layout({
+          name: 'cose',
+          randomize: false,
+          fit: false,
+          animate: false,
+          boundingBox: {
+            x1,
+            y1,
+            w: width,
+            h: height,
+          },
+          padding: 300,
+        });
+
+        layout.run();
+      }
       cy.endBatch();
+    },
+    nodeTap(node: NodeSingular) {
+      const data = node.data() as CytoNodeDefaults;
+      if (data.children.length === 0) return;
+
+      const children = data.children;
+      const visibility = !this.cytoGraph.nodes[children[0]].visible;
+
+      for (const child of data.children) {
+        this.cytoGraph.nodes[child].visible = visibility;
+      }
+
+      this.draw();
     },
   },
   mounted() {
@@ -267,10 +296,10 @@ export default defineComponent({
       maxZoom: 10,
     });
 
-    // const nodeTap = this.nodeTap;
-    // this.cy.on('tap', 'node', function (this: NodeSingular) {
-    //   nodeTap(this);
-    // });
+    const nodeTap = this.nodeTap;
+    this.cy.on('tap', 'node', function (this: NodeSingular) {
+      nodeTap(this);
+    });
   },
 });
 </script>
