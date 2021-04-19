@@ -7,15 +7,20 @@ import Router = require('@koa/router');
 const router = new Router();
 
 async function bmp_process(ctx: RouterContext, constructor: Function) {
-  const reqQuery = ctx.request.query;
-  if (!isString(reqQuery.vpn) || !isString(reqQuery.timestamp)) {
-    ctx.throw(500);
+  const reqBody = ctx.request.body;
+  if (
+    !reqBody.data ||
+    !isString(reqBody.data.vpn) ||
+    !isString(reqBody.data.timestamp)
+  ) {
+    ctx.throw('Missing vpn of timestamp', 500);
   }
 
-  const vpn = reqQuery.vpn;
-  const timestamp = new Date(reqQuery.timestamp);
+  const vpn = reqBody.data.vpn;
+  const timestamp = new Date(reqBody.data.timestamp);
+  const filters = reqBody.data.filters;
 
-  const query = constructor(timestamp, vpn);
+  const query = constructor(timestamp, vpn, filters);
 
   ctx.req.on('close', query.cancel.bind(query));
 
@@ -26,19 +31,20 @@ async function bmp_process(ctx: RouterContext, constructor: Function) {
   return result;
 }
 
-router.get('/api/bmp/state', async (ctx: RouterContext) => {
+router.post('/api/bmp/state', async (ctx: RouterContext) => {
   ctx.body = await bmp_process(ctx, Database.BMPState);
 });
 
-router.get('/api/bmp/filter/fields/list', async (ctx: RouterContext) => {
+router.post('/api/bmp/filter/fields/list', async (ctx: RouterContext) => {
   ctx.body = await bmp_process(ctx, Database.FilterFieldsList);
 });
 
-router.get('/api/bmp/filter/fields/values', async (ctx: RouterContext) => {
+router.post('/api/bmp/filter/fields/values', async (ctx: RouterContext) => {
+  console.log(ctx.request.body);
   ctx.body = await bmp_process(ctx, Database.FilterFieldsValues);
 });
 
-router.get(
+router.post(
   '/api/bmp/filter/field/values/:fieldName',
   async (ctx: RouterContext) => {
     const fn = partialRight(Database.FilterFieldValues, ctx.params.fieldName);
@@ -46,7 +52,7 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   '/api/bmp/visualization/vpn/topology',
   async (ctx: RouterContext) => {
     ctx.body = await bmp_process(ctx, Database.VisualizationVPNTopology);

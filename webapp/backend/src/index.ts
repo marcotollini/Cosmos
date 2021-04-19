@@ -23,9 +23,13 @@ app.use(cors());
 // As long as the page is not reloaded
 app.use(async (ctx, next) => {
   const reqQuery = ctx.request.query;
+  const reqBody = ctx.request.body;
   if (reqQuery.idClient && typeof reqQuery.idClient === 'string') {
     ctx.state.idClient = reqQuery.idClient;
     delete reqQuery.idClient;
+  } else if (reqBody.idClient && typeof reqBody.idClient === 'string') {
+    ctx.state.idClient = reqQuery.idClient;
+    delete reqBody.idClient;
   }
   await next();
 });

@@ -1,5 +1,9 @@
 import VPNListInterface from './query-interface/VPNList';
 import BMPStateInterface from './query-interface/BMPState';
+import {
+  default as FilterBMPStateInterface,
+  filtersType,
+} from './query-interface/Filter/FilterBMPState';
 import FilterFieldsListInterface from './query-interface/Filter/FilterFieldsList';
 import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValues';
 import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
@@ -15,14 +19,20 @@ interface DatabaseInterface {
   FilterFieldValues(
     timestamp: Date,
     vpn: string,
+    filters: filtersType,
     fieldName: string
   ): FilterFieldValuesInterface;
 
-  FilterFieldsValues(timestamp: Date, vpn: string): FilterFieldsValuesInterface;
+  FilterFieldsValues(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): FilterFieldsValuesInterface;
 
   VisualizationVPNTopology(
     timestamp: Date,
-    vpn: string
+    vpn: string,
+    filters: filtersType
   ): VisualizationVPNTopologyInterface;
 }
 

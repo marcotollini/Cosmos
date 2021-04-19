@@ -2,6 +2,10 @@ import DatabaseInterface from '../DatabaseInterface';
 
 import VPNList from './query/VPNList';
 import BMPState from './query/BMPState';
+import {
+  default as FilterBMPState,
+  filtersType,
+} from './query/Filter/FilterBMPState';
 import FilterFieldsList from './query/Filter/FilterFieldsList';
 import FilterFieldValues from './query/Filter/FilterFieldValues';
 import FilterFieldsValues from './query/Filter/FilterFieldsValues';
@@ -23,15 +27,23 @@ class PGDatabase implements DatabaseInterface {
   FilterFieldValues(
     timestamp: Date,
     vpn: string,
+    filters: filtersType,
     fieldName: string
   ): FilterFieldValues {
     const bmpState = new BMPState(timestamp, vpn);
-    return new FilterFieldValues(bmpState.raw(), fieldName);
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    return new FilterFieldValues(filteredBmpState.raw(), fieldName);
   }
 
-  FilterFieldsValues(timestamp: Date, vpn: string): FilterFieldsValues {
+  FilterFieldsValues(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): FilterFieldsValues {
     const bmpState = new BMPState(timestamp, vpn);
-    return new FilterFieldsValues(bmpState.raw());
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    console.log(filteredBmpState.raw());
+    return new FilterFieldsValues(filteredBmpState.raw());
   }
 
   FilterFieldsList(timestamp: Date, vpn: string): FilterFieldsList {
@@ -41,10 +53,12 @@ class PGDatabase implements DatabaseInterface {
 
   VisualizationVPNTopology(
     timestamp: Date,
-    vpn: string
+    vpn: string,
+    filters: filtersType
   ): VisualizationVPNTopology {
     const bmpState = new BMPState(timestamp, vpn);
-    return new VisualizationVPNTopology(bmpState.raw());
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    return new VisualizationVPNTopology(filteredBmpState.raw());
   }
 }
 

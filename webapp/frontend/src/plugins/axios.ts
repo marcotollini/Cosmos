@@ -33,8 +33,13 @@ export default {
 
     instance.interceptors.request.use(
       async config => {
-        if (config.params === undefined) config.params = {};
-        config.params.idClient = idClient;
+        if (config.method === 'get' || config.method === 'GET') {
+          if (config.params === undefined) config.params = {};
+          config.params.idClient = idClient;
+        } else {
+          if (config.data === undefined) config.data = {};
+          config.data.idClient = idClient;
+        }
 
         if (config.headers && config.headers['REQUEST_ID']) {
           const idRequest = config.headers['REQUEST_ID'];
@@ -78,7 +83,6 @@ export default {
             config.cancelToken = axiosToken.token;
           }
         }
-
         return config;
       },
       error => {

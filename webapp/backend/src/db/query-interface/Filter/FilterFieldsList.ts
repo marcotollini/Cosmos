@@ -2,9 +2,9 @@ import QueryInterface from '../../QueryInterface';
 
 type returnType = string[];
 
-interface FilterFieldsList extends QueryInterface {
+interface FilterBMPState extends QueryInterface {
   bmpstate: any;
   execute(): Promise<returnType>;
 }
-export default FilterFieldsList;
+export default FilterBMPState;
 export {returnType};

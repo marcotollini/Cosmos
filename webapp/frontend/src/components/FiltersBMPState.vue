@@ -99,7 +99,6 @@ export default defineComponent({
 
     activeFilters: {
       get() {
-        console.log('get');
         return this.$store.state.activeFilters;
       },
       set(newValue) {
@@ -150,8 +149,8 @@ export default defineComponent({
       }
 
       try {
-        const result = await this.$http.get('/api/bmp/filter/fields/values', {
-          params: {timestamp, vpn},
+        const result = await this.$http.post('/api/bmp/filter/fields/values', {
+          data: {timestamp, vpn, filters: this.activeFilters},
           headers: {
             REQUEST_ID: 'field_values',
             THROTTLE: '1000',
@@ -189,6 +188,11 @@ export default defineComponent({
 
           fieldsValuesObj[val.key] = uniqVals;
         }
+
+        if (focusFieldName)
+          fieldsValuesObj[focusFieldName] = this.fieldValuesList[
+            focusFieldName
+          ];
 
         this.fieldValuesList = fieldsValuesObj;
         this.fieldLoading = {};
