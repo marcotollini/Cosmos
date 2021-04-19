@@ -42,6 +42,7 @@
 
 <script lang="ts">
 import {
+  cloneDeep,
   flattenDeep,
   isArray,
   isBoolean,
@@ -149,8 +150,20 @@ export default defineComponent({
       }
 
       try {
+        const activeFilters = cloneDeep(this.activeFilters);
+        for (const fieldName in activeFilters) {
+          activeFilters[fieldName] = activeFilters[fieldName].map(
+            (x: string) => {
+              if (x === 'null') return null;
+              else if (x === 'true') return true;
+              else if (x === 'false') return false;
+              return x;
+            }
+          );
+        }
+
         const result = await this.$http.post('/api/bmp/filter/fields/values', {
-          data: {timestamp, vpn, filters: this.activeFilters},
+          data: {timestamp, vpn, filters: activeFilters},
           headers: {
             REQUEST_ID: 'field_values',
             THROTTLE: '1000',

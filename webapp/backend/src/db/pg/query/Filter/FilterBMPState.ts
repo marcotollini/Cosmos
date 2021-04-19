@@ -29,10 +29,31 @@ class FilterBMPState extends Query implements FilterBMPStateInterface {
 
     const filtersSql = Object.keys(this.filters).map(fieldName => {
       const values = this.filters[fieldName];
-      return sql`${sql.identifier([fieldName])} IN (${sql.join(
-        values,
-        sql`, `
-      )})`;
+      const hasNull = values.indexOf(null);
+
+      if (hasNull !== -1) {
+        values.splice(hasNull, 1);
+      }
+      const inQuery =
+        values.length > 0
+          ? sql`${sql.identifier([
+              'bmpstatetofilter',
+              fieldName,
+            ])} IN (${sql.join(values, sql`, `)})`
+          : sql``;
+
+      const nullQuery = sql`${sql.identifier([
+        'bmpstatetofilter',
+        fieldName,
+      ])} IS NULL`;
+
+      if (values.length > 0 && hasNull !== -1) {
+        return sql`(${inQuery} OR ${nullQuery})`;
+      } else if (hasNull === -1) {
+        return inQuery;
+      } else {
+        return nullQuery;
+      }
     });
 
     return sql`
