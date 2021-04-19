@@ -9,9 +9,6 @@
               <slot name="side-top"></slot>
             </div>
           </el-main>
-          <el-footer class="side-bottom" :height="footerHeight">
-            <slot name="side-bottom"></slot>
-          </el-footer>
         </el-container>
       </el-aside>
       <el-container>
@@ -37,7 +34,7 @@ import {defineComponent} from 'vue';
 import Logo from '@/views/Structure/Logo.vue';
 
 export default defineComponent({
-  name: 'SideBottomThreeSlots',
+  name: 'SideBottomFourSlots',
   components: {
     Logo,
   },

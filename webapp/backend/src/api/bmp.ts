@@ -6,7 +6,7 @@ import Database from '../db/getDatabase';
 import Router = require('@koa/router');
 const router = new Router();
 
-async function bmp_process(ctx: RouterContext, fn: Function) {
+async function bmp_process(ctx: RouterContext, constructor: Function) {
   const reqQuery = ctx.request.query;
   if (!isString(reqQuery.vpn) || !isString(reqQuery.timestamp)) {
     ctx.throw(500);
@@ -15,9 +15,9 @@ async function bmp_process(ctx: RouterContext, fn: Function) {
   const vpn = reqQuery.vpn;
   const timestamp = new Date(reqQuery.timestamp);
 
-  const query = fn(timestamp, vpn);
+  const query = constructor(timestamp, vpn);
 
-  ctx.req.on('close', query.cancel);
+  ctx.req.on('close', query.cancel.bind(query));
 
   const result = await query.execute();
 

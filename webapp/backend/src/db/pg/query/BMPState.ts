@@ -149,18 +149,8 @@ class BMPState extends Query implements BMPStateInterface {
   }
 
   async execute(): Promise<returnType> {
-    console.log(this.raw());
     const rows = (await this.executeQuery()) as queryReturnType;
-
     return rows;
-  }
-
-  async cancel() {
-    if (this.pid !== null) {
-      await this.cancelPid(this.pid);
-      return true;
-    }
-    return false;
   }
 }
 

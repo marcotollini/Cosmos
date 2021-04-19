@@ -71,7 +71,7 @@ export default defineComponent({
         } else if (e.name === 'REQABORTTHROTTLE') {
           console.log('request aborted due to throttle policy');
         } else {
-          // console.error(e.stack, e);
+          console.error(e.stack, e);
         }
       }
     },

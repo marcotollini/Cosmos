@@ -41,7 +41,42 @@
 </template>
 
 <script lang="ts">
+import {
+  flattenDeep,
+  isArray,
+  isBoolean,
+  isNumber,
+  isString,
+  sortedUniq,
+} from 'lodash';
 import {defineComponent} from 'vue';
+
+function sortDifferentTypes(
+  a: string | number | boolean,
+  b: string | number | boolean
+) {
+  // boolean
+  if (isBoolean(a) && isBoolean(b)) {
+    return a ? 1 : -1;
+  } else if (isBoolean(a) && isString(b)) {
+    return -1;
+  } else if (isString(a) && isBoolean(b)) {
+    return 1;
+    // string
+  } else if (isString(a) && isString(b)) {
+    return a.localeCompare(b);
+    // number
+  } else if (isNumber(a) && isNumber(b)) {
+    return a - b;
+  } else if (isNumber(a) && isString(b)) {
+    return -1;
+  } else if (isString(a) && isNumber(b)) {
+    return 1;
+  } else {
+    console.log('cannot compare', a, b);
+    return 1;
+  }
+}
 
 export default defineComponent({
   name: 'FiltersBMPState',
@@ -64,6 +99,7 @@ export default defineComponent({
 
     activeFilters: {
       get() {
+        console.log('get');
         return this.$store.state.activeFilters;
       },
       set(newValue) {
@@ -94,7 +130,7 @@ export default defineComponent({
       const temp = this.activeFilters;
       this.activeFilters = temp;
 
-      this.loadFieldsValues(focusFieldName);
+      await this.loadFieldsValues(focusFieldName);
     },
 
     /**
@@ -102,6 +138,7 @@ export default defineComponent({
      * focusFieldName will not be reset nor set loading, all the others will
      */
     async loadFieldsValues(focusFieldName?: string) {
+      console.log('loadFieldsValues called');
       const timestamp = this.selectedTimestamp;
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
@@ -129,7 +166,28 @@ export default defineComponent({
 
         const fieldsValuesObj = {} as Record<string, unknown[]>;
         for (const val of fieldsValues) {
-          fieldsValuesObj[val.key] = val.values;
+          let rawValues = val.values;
+
+          // flatten
+          if (rawValues.some(x => isArray(x))) {
+            rawValues = flattenDeep(rawValues);
+          }
+
+          // convert null to string to avoid errors and better display
+          const avoidNull = rawValues.map(x => {
+            if (x === null) return 'null';
+            else if (x === true) return 'true';
+            else if (x === false) return 'false';
+            return x;
+          });
+
+          // sort
+          avoidNull.sort(sortDifferentTypes);
+
+          // remove duplicates
+          const uniqVals = sortedUniq(avoidNull);
+
+          fieldsValuesObj[val.key] = uniqVals;
         }
 
         this.fieldValuesList = fieldsValuesObj;
