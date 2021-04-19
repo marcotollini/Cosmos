@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
-import VPNTopology from '@/views/VPNTopology.vue';
+import VPNTopology from '@/components/Visualization/VPNTopology.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -17,19 +17,17 @@ const routes: Array<RouteRecordRaw> = [
     name: 'vpn-routing-topology',
     component: () =>
       import(
-        /* webpackChunkName: "VPNRoutingTopology" */ '../views/VPNRoutingTopology.vue'
+        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/VPNRoutingTopology.vue'
       ),
   },
-
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () =>
-  //     import(/* webpackChunkName: "about" */ '../views/About.vue'),
-  // },
+  {
+    path: '/peering-topology',
+    name: 'peering-topology',
+    component: () =>
+      import(
+        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/PeeringTopology.vue'
+      ),
+  },
 ];
 
 const router = createRouter({

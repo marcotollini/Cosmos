@@ -6,7 +6,9 @@
       <visualization></visualization>
       <filters-BMP-state></filters-BMP-state>
     </template>
-    <template v-slot:main>main</template>
+    <template v-slot:main>
+      <router-view></router-view>
+    </template>
     <template v-slot:footer>footer</template>
   </side-bottom-three-slots>
 </template>
@@ -20,16 +22,13 @@ import Visualization from '@/components/Selection/Visualization.vue';
 import FiltersBMPState from '@/components/FiltersBMPState.vue';
 
 export default defineComponent({
-  name: 'VPNRoutingTopology',
+  name: 'Main',
   components: {
     SideBottomThreeSlots,
     Timestamp,
     VPNList,
     Visualization,
     FiltersBMPState,
-  },
-  mounted() {
-    this.$store.commit('selectedVisualization', 'vpn-routing-topology');
   },
 });
 </script>
