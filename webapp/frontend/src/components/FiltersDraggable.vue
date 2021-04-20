@@ -1,7 +1,18 @@
 <template>
-  <draggable tag="div" v-model="fields" item-key="id">
+  <draggable
+    tag="div"
+    v-model="fields"
+    item-key="id"
+    :group="{name: 'people', pull: 'clone', put: false}"
+  >
     <template #item="{element}">
       <el-tag>{{ element.id }}</el-tag>
+    </template>
+  </draggable>
+
+  <draggable tag="div" v-model="fields2" item-key="id" group="people">
+    <template #item="{element}">
+      {{ element.id }}
     </template>
   </draggable>
 
@@ -44,6 +55,7 @@ export default defineComponent({
         },
         {id: 'comms'},
       ],
+      fields2: [],
     };
   },
 });
