@@ -10,6 +10,7 @@ import FilterFieldsList from './query/Filter/FilterFieldsList';
 import FilterFieldValues from './query/Filter/FilterFieldValues';
 import FilterFieldsValues from './query/Filter/FilterFieldsValues';
 import VisualizationVPNTopology from './query/Visualization/VisualizationVPNTopology';
+import VisualizationList from './query/Visualization/VisualizationList';
 
 class PGDatabase implements DatabaseInterface {
   constructor() {
@@ -59,6 +60,16 @@ class PGDatabase implements DatabaseInterface {
     const bmpState = new BMPState(timestamp, vpn);
     const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
     return new VisualizationVPNTopology(filteredBmpState.raw());
+  }
+
+  VisualizationList(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationList {
+    const bmpState = new BMPState(timestamp, vpn);
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    return new VisualizationList(filteredBmpState.raw());
   }
 }
 

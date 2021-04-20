@@ -5,6 +5,7 @@ import FilterFieldsListInterface from './query-interface/Filter/FilterFieldsList
 import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValues';
 import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
 import VisualizationVPNTopologyInterface from './query-interface/Visualization/VisualizationVPNTopology';
+import VisualizationListInterface from './query-interface/Visualization/VisualizationList';
 
 interface DatabaseInterface {
   VPNList(timestamp: Date): VPNListInterface;
@@ -31,6 +32,12 @@ interface DatabaseInterface {
     vpn: string,
     filters: filtersType
   ): VisualizationVPNTopologyInterface;
+
+  VisualizationList(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationListInterface;
 }
 
 export default DatabaseInterface;

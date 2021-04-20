@@ -28,6 +28,14 @@ const routes: Array<RouteRecordRaw> = [
         /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/PeeringTopology.vue'
       ),
   },
+  {
+    path: '/list',
+    name: 'list',
+    component: () =>
+      import(
+        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/List.vue'
+      ),
+  },
 ];
 
 const router = createRouter({

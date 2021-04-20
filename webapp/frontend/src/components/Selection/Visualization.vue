@@ -47,6 +47,10 @@ export default defineComponent({
           name: 'Peering Topology',
           route: 'peering-topology',
         },
+        {
+          name: 'List',
+          route: 'list',
+        },
       ],
     };
   },

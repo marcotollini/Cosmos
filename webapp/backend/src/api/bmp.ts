@@ -59,4 +59,8 @@ router.post(
   }
 );
 
+router.post('/api/bmp/visualization/list', async (ctx: RouterContext) => {
+  ctx.body = await bmp_process(ctx, Database.VisualizationList);
+});
+
 export default router;
