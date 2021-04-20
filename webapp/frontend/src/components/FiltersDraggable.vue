@@ -1,7 +1,6 @@
 <template>
   <draggable
     tag="div"
-    class="a"
     v-model="fields"
     :group="{name: 'people', pull: 'clone', put: false}"
   >
@@ -9,46 +8,92 @@
       <el-tag type="info" effect="dark">{{ element }}</el-tag>
     </template>
   </draggable>
-
-  <draggable tag="div" v-model="fields2" group="people">
-    <template #item="{element}">
-      <el-tag effect="dark" closable>{{ element }}</el-tag>
-    </template>
-  </draggable>
-
-  <!-- <el-popover placement="bottom" :width="200" trigger="click">
-    <template #reference>
-      <el-button round size="mini">Round</el-button>
-    </template>
-    <el-select
-      clearable
-      filterable
-      allow-create
-      multiple
-      size="mini"
-      placeholder="Select"
-    >
-      <el-option label="val1" value="val1"></el-option>
-      <el-option label="val2" value="val2"></el-option>
-      <el-option label="val3" value="val3"></el-option>
-    </el-select>
-  </el-popover> -->
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, DefineComponent} from 'vue';
 import draggable from 'vuedraggable';
+
+/* TERRIBLE FIX WAITING FOR BETTER FIX */
+/* From el-main type */
+const Draggable = draggable as DefineComponent<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {},
+  import('vue').ComponentOptionsMixin,
+  import('vue').ComponentOptionsMixin,
+  import('vue').EmitsOptions,
+  string,
+  import('vue').VNodeProps &
+    import('vue').AllowedComponentProps &
+    import('vue').ComponentCustomProps,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Readonly<{} & {}>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  {}
+>;
 
 export default defineComponent({
   name: 'FiltersDraggable',
   components: {
-    draggable,
+    Draggable,
   },
   data() {
     return {
-      fields: ['bmpRouter', 'ipPrefix', 'comms'],
-      fields2: [],
+      fields: [] as string[],
     };
+  },
+  computed: {
+    selectedTimestamp() {
+      return this.$store.state.selectedTimestamp;
+    },
+
+    selectedVPN() {
+      return this.$store.state.selectedVPN;
+    },
+
+    activeFilters() {
+      return this.$store.state.activeFilters;
+    },
+  },
+  watch: {
+    selectedTimestamp() {
+      this.loadFieldsList();
+    },
+
+    selectedVPN() {
+      this.loadFieldsList();
+    },
+  },
+  methods: {
+    async loadFieldsList() {
+      const timestamp = this.selectedTimestamp;
+      const vpn = this.selectedVPN;
+      if (timestamp === undefined || vpn === undefined) return;
+
+      const result = await this.$http.post('/api/bmp/filter/fields/list', {
+        data: {timestamp, vpn, filters: this.activeFilters},
+        headers: {
+          REQUEST_ID: 'field_values',
+          THROTTLE: '1000',
+          CANCEL: 'true',
+        },
+      });
+
+      const data = result.data as string[];
+      this.fields = data;
+    },
+  },
+
+  mounted() {
+    this.loadFieldsList();
   },
 });
 </script>
@@ -56,8 +101,5 @@ export default defineComponent({
 <style scoped>
 .el-tag {
   margin: 5px;
-}
-.a {
-  width: 100%;
 }
 </style>
