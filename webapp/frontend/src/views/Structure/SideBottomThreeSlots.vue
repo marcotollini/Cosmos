@@ -40,7 +40,7 @@ export default defineComponent({
   },
   props: {
     footerHeight: {
-      default: '200px',
+      default: '20vh',
       type: String,
     },
     sideWidth: {
