@@ -50,7 +50,9 @@ import {
   isString,
   sortedUniq,
 } from 'lodash';
+
 import {defineComponent} from 'vue';
+import draggable from 'vuedraggable';
 
 function sortDifferentTypes(
   a: string | number | boolean,
