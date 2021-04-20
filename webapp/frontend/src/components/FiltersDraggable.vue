@@ -1,18 +1,18 @@
 <template>
   <draggable
     tag="div"
+    class="a"
     v-model="fields"
-    item-key="id"
     :group="{name: 'people', pull: 'clone', put: false}"
   >
     <template #item="{element}">
-      <el-tag>{{ element.id }}</el-tag>
+      <el-tag type="info" effect="dark">{{ element }}</el-tag>
     </template>
   </draggable>
 
-  <draggable tag="div" v-model="fields2" item-key="id" group="people">
+  <draggable tag="div" v-model="fields2" group="people">
     <template #item="{element}">
-      {{ element.id }}
+      <el-tag effect="dark" closable>{{ element }}</el-tag>
     </template>
   </draggable>
 
@@ -46,24 +46,18 @@ export default defineComponent({
   },
   data() {
     return {
-      fields: [
-        {
-          id: 'bmpRouter',
-        },
-        {
-          id: 'ipPrefix',
-        },
-        {id: 'comms'},
-      ],
+      fields: ['bmpRouter', 'ipPrefix', 'comms'],
       fields2: [],
     };
   },
 });
 </script>
 
-<style>
-.el-collapse-item__header {
-  padding-left: 10px;
-  height: 30px !important;
+<style scoped>
+.el-tag {
+  margin: 5px;
+}
+.a {
+  width: 100%;
 }
 </style>

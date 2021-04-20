@@ -98,15 +98,11 @@ footer {
 }
 
 .main {
-  background-color: #e1f5fe;
+  background-color: #fafafa;
 }
 
 .side-top {
-  background-color: #e0f2f1;
-}
-
-.side-bottom {
-  background-color: #f9fbe7;
+  background-color: #fafafa;
 }
 
 .footer {

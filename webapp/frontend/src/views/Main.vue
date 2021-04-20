@@ -1,10 +1,25 @@
 <template>
   <side-bottom-three-slots>
     <template v-slot:side-top>
-      <timestamp></timestamp>
-      <VPN-list></VPN-list>
-      <visualization></visualization>
-      <filters-draggable></filters-draggable>
+      <el-row>
+        <el-col :span="24" class="text-center">
+          <timestamp></timestamp>
+        </el-col>
+        <el-col :span="24" class="text-center">
+          <VPN-list></VPN-list>
+        </el-col>
+        <el-col :span="24" class="text-center">
+          <visualization></visualization>
+        </el-col>
+      </el-row>
+      <el-divider>Active Filters</el-divider>
+      <el-col :span="24" class="text-center"> </el-col>
+
+      <el-divider>All Filters</el-divider>
+      <el-col :span="24" class="text-center">
+        <filters-draggable></filters-draggable>
+      </el-col>
+
       <filters-BMP-state></filters-BMP-state>
     </template>
     <template v-slot:main>
@@ -39,5 +54,9 @@ export default defineComponent({
 <style>
 .form-medium {
   width: 95% !important;
+}
+
+.el-divider__text {
+  background-color: #fafafa !important;
 }
 </style>

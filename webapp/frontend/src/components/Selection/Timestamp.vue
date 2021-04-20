@@ -1,15 +1,11 @@
 <template>
-  <el-row>
-    <el-col :span="24" class="text-center">
-      <el-date-picker
-        v-model="selectedTimestamp"
-        type="datetime"
-        placeholder="Select date and time"
-        :shortcuts="timeShortcuts"
-        class="form-medium"
-      />
-    </el-col>
-  </el-row>
+  <el-date-picker
+    v-model="selectedTimestamp"
+    type="datetime"
+    placeholder="Select date and time"
+    :shortcuts="timeShortcuts"
+    class="form-medium"
+  />
 </template>
 
 <script lang="ts">
