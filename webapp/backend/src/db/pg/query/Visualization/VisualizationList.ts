@@ -25,6 +25,7 @@ class VisualizationList extends Query implements VisualizationListInterface {
     return sql`
       SELECT DISTINCT bmp_router, rd, ip_prefix, bgp_nexthop, comms
       FROM (${this.bmpstate}) as bmpstate
+      LIMIT 100
     `;
   }
 

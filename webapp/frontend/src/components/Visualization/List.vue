@@ -1,6 +1,7 @@
 <template>
   <el-table
-    :data="tableData"
+    :data="data"
+    v-loading="loading"
     size="mini"
     stripe
     height="100%"
@@ -24,21 +25,16 @@
 </template>
 
 <script lang="ts">
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isArray, isString} from 'lodash';
 import {defineComponent} from 'vue';
 
 export default defineComponent({
   name: 'VPNRoutingTopology',
   data() {
     return {
-      tableData: [] as {
-        bmp_router: string;
-        rd: string;
-        ip_prefix: string;
-        bmp_nexthop: string;
-        comms: string | string[];
-      }[],
+      data: [] as Record<string, unknown>[],
       props: [] as string[],
+      loading: false as boolean,
     };
   },
   computed: {
@@ -79,35 +75,42 @@ export default defineComponent({
         });
       }
 
-      this.props = [];
-      this.tableData = [];
+      this.loading = true;
 
-      const result = await this.$http.post('/api/bmp/visualization/list', {
-        data: {timestamp, vpn, filters: activeFilters},
-        headers: {
-          REQUEST_ID: 'field_values',
-          THROTTLE: '1000',
-          CANCEL: 'true',
-        },
-      });
-      const data = result.data as {
-        bmp_router: string;
-        rd: string;
-        ip_prefix: string;
-        bmp_nexthop: string;
-        comms: string | string[];
-      }[];
+      try {
+        const result = await this.$http.post('/api/bmp/visualization/list', {
+          data: {timestamp, vpn, filters: activeFilters},
+          headers: {
+            REQUEST_ID: 'field_values',
+            THROTTLE: '1000',
+            CANCEL: 'true',
+          },
+        });
+        const data = result.data as Record<string, unknown>[];
 
-      if (data.length === 0) return;
-
-      this.props = Object.keys(data[0]);
-      const dataString = data.map(x => {
-        if (Array.isArray(x.comms)) {
-          x.comms = x.comms.join(', ');
+        if (data.length === 0) {
+          this.props = [];
+          this.data = [];
+          return;
         }
-        return x;
-      });
-      this.tableData = dataString;
+
+        this.props = Object.keys(data[0]);
+
+        for (const elem of data) {
+          for (const prop in elem) {
+            const property = elem[prop];
+            if (isArray(property)) {
+              elem[prop] = property.join(', ');
+            } else if (!isString(property)) {
+              elem[prop] = `${property}`;
+            }
+          }
+        }
+
+        this.data = data;
+      } finally {
+        this.loading = false;
+      }
     },
   },
   mounted() {
