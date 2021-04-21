@@ -3,49 +3,51 @@
     placement="right"
     :width="250"
     class="filter-popover"
-    trigger="manual"
+    trigger="click"
     v-model:visible="popoverOpen"
   >
     <template #reference>
       <el-badge :value="selectedValues.length" class="item">
-        <el-tag effect="dark" closable @click="tagClick" @close="tagDelete">
+        <el-tag effect="dark" closable @close="tagDelete">
           <slot></slot>
         </el-tag>
       </el-badge>
     </template>
-    <el-tabs v-model="tabActive">
-      <el-tab-pane label="Filter" name="filter">
-        <el-input
-          placeholder="Search"
-          v-model="searchValue"
-          clearable
-          size="mini"
-        >
-        </el-input>
-        <div class="buttons-selection">
-          <el-button size="mini" @click="selectVisible"
-            >select visible</el-button
+    <div ref="tabs">
+      <el-tabs v-model="tabActive">
+        <el-tab-pane label="Filter" name="filter">
+          <el-input
+            placeholder="Search"
+            v-model="searchValue"
+            clearable
+            size="mini"
           >
-          <el-button size="mini" @click="deselectVisible"
-            >deselect visible</el-button
-          >
-        </div>
-        <ul>
+          </el-input>
+          <div class="buttons-selection">
+            <el-button size="mini" @click="selectVisible"
+              >select visible</el-button
+            >
+            <el-button size="mini" @click="deselectVisible"
+              >deselect visible</el-button
+            >
+          </div>
+          <ul>
+            <el-checkbox-group v-model="selectedValues">
+              <li v-for="value in filteredShowValues" :key="value">
+                <el-checkbox :label="value">{{ value }}</el-checkbox>
+              </li>
+            </el-checkbox-group>
+          </ul>
+        </el-tab-pane>
+        <el-tab-pane label="Active Filters" name="active">
           <el-checkbox-group v-model="selectedValues">
-            <li v-for="value in filteredShowValues" :key="value">
+            <li v-for="value in selectedValues" :key="value">
               <el-checkbox :label="value">{{ value }}</el-checkbox>
             </li>
           </el-checkbox-group>
-        </ul>
-      </el-tab-pane>
-      <el-tab-pane label="Active Filters" name="active">
-        <el-checkbox-group v-model="selectedValues">
-          <li v-for="value in selectedValues" :key="value">
-            <el-checkbox :label="value">{{ value }}</el-checkbox>
-          </li>
-        </el-checkbox-group>
-      </el-tab-pane>
-    </el-tabs>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
   </el-popover>
 </template>
 
@@ -69,7 +71,7 @@ export default defineComponent({
       type: Boolean,
     },
     loading: {
-      default: true,
+      default: false,
       type: Boolean,
     },
   },
@@ -80,6 +82,7 @@ export default defineComponent({
       tabActive: 'filter' as string,
       searchValue: '' as string,
       selectedValues: [] as string[],
+      loadingObject: undefined as any,
     };
   },
   computed: {
@@ -126,11 +129,11 @@ export default defineComponent({
     selectedValues() {
       this.$emit('update:selected', this.selectedValues);
     },
+    loading() {
+      this.toggleLoading();
+    },
   },
   methods: {
-    tagClick() {
-      this.popoverOpen = !this.popoverOpen;
-    },
     tagDelete() {
       this.$emit('delete');
     },
@@ -146,16 +149,29 @@ export default defineComponent({
       );
     },
     showLoading() {
-      // const loading = this.$loading({
-      //   lock: true,
-      //   text: 'Loading',
-      //   spinner: 'el-icon-loading',
-      //   background: 'rgba(0, 0, 0, 0.7)',
-      // });
+      const elem = this.$refs.tabs;
+      this.loadingObject = this.$loading({
+        target: elem,
+        lock: true,
+      });
+    },
+    hideLoading() {
+      if (this.loadingObject !== undefined) {
+        this.loadingObject.close();
+        this.loadingObject = undefined;
+      }
+    },
+    toggleLoading() {
+      if (this.loading && this.loadingObject === undefined) {
+        this.showLoading();
+      } else if (!this.loading && this.loadingObject !== undefined) {
+        this.hideLoading();
+      }
     },
   },
   mounted() {
     this.popoverOpen = this.open;
+    this.toggleLoading();
   },
 });
 </script>
