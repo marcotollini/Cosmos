@@ -4,8 +4,7 @@
     v-model="fields"
     :item-key="() => element"
     group="filter"
-    @add="addHandler"
-    @remove="removeHandler"
+    @add="fieldAdd"
   >
     <template #item="{element}">
       <cs-tag-filtrable
@@ -120,6 +119,14 @@ export default defineComponent({
           }
         );
         this.values[id] = result.data;
+      } catch (e) {
+        if (e.__CANCEL__) {
+          console.log('Request cancelled');
+        } else if (e.name === 'REQABORTTHROTTLE') {
+          console.log('request aborted due to throttle policy');
+        } else {
+          console.error(e.stack, e);
+        }
       } finally {
         this.loading[id] = false;
       }
@@ -141,11 +148,8 @@ export default defineComponent({
 
       this.fields = this.fields.filter(x => x !== id);
     },
-    addHandler(...args: any) {
-      console.log('add', args);
-    },
-    removeHandler(...args: any) {
-      console.log('remove', args);
+    fieldAdd() {
+      this.fields = [...new Set(this.fields)];
     },
   },
 });

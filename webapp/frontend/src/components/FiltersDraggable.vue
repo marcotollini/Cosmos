@@ -1,7 +1,15 @@
 <template>
+  <el-input
+    placeholder="Search"
+    class="form-medium"
+    v-model="searchValue"
+    clearable
+    size="small"
+  >
+  </el-input>
   <draggable
     tag="div"
-    v-model="fields"
+    v-model="filteredFields"
     :item-key="() => element"
     :group="{name: 'filter', pull: 'clone', put: false}"
   >
@@ -49,6 +57,7 @@ export default defineComponent({
   data() {
     return {
       fields: [] as string[],
+      searchValue: '' as string,
     };
   },
   computed: {
@@ -62,6 +71,12 @@ export default defineComponent({
 
     activeFilters() {
       return this.$store.state.activeFilters;
+    },
+    filteredFields(): string[] {
+      const fields = this.fields as string[];
+      if (this.searchValue === '') return fields;
+      const searchValue = this.searchValue.toLowerCase();
+      return fields.filter(x => x.toLowerCase().indexOf(searchValue) !== -1);
     },
   },
   watch: {
