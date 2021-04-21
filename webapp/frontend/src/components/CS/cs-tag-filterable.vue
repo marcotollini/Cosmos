@@ -12,9 +12,9 @@
         </el-tag>
       </el-badge>
     </template>
-    <div ref="tabs">
-      <el-tabs v-model="tabActive">
-        <el-tab-pane label="Filter" name="filter">
+    <el-tabs v-model="tabActive">
+      <el-tab-pane label="Filter" name="filter">
+        <div ref="tabs">
           <el-input
             placeholder="Search"
             v-model="searchValue"
@@ -37,16 +37,19 @@
               </li>
             </el-checkbox-group>
           </ul>
-        </el-tab-pane>
-        <el-tab-pane label="Active Filters" name="active">
-          <el-checkbox-group v-model="selectedValues">
-            <li v-for="value in selectedValues" :key="value">
-              <el-checkbox :label="value">{{ value }}</el-checkbox>
-            </li>
-          </el-checkbox-group>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
+        </div>
+      </el-tab-pane>
+      <el-tab-pane
+        :label="`Active Filters (${selectedValues.length})`"
+        name="active"
+      >
+        <el-checkbox-group v-model="selectedValues">
+          <li v-for="value in selectedValues" :key="value">
+            <el-checkbox :label="value">{{ value }}</el-checkbox>
+          </li>
+        </el-checkbox-group>
+      </el-tab-pane>
+    </el-tabs>
   </el-popover>
 </template>
 

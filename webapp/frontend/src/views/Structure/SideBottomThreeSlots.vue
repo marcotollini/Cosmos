@@ -89,7 +89,7 @@ footer {
 }
 
 .el-aside {
-  min-width: 250px;
+  min-width: 260px;
   max-width: 400px;
 }
 
