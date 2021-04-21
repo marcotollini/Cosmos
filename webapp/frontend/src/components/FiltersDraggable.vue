@@ -2,6 +2,7 @@
   <draggable
     tag="div"
     v-model="fields"
+    :item-key="() => element"
     :group="{name: 'filter', pull: 'clone', put: false}"
   >
     <template #item="{element}">

@@ -16,7 +16,7 @@
       <el-row>
         <el-col :span="24" class="text-center">
           Place your filters here
-          <filters-placable></filters-placable>
+          <filters-active></filters-active>
         </el-col>
       </el-row>
       <el-row>
@@ -40,7 +40,7 @@ import Timestamp from '@/components/Selection/Timestamp.vue';
 import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
 import FiltersDraggable from '@/components/FiltersDraggable.vue';
-import FiltersPlacable from '@/components/FiltersPlacable.vue';
+import FiltersActive from '@/components/FiltersActive.vue';
 
 export default defineComponent({
   name: 'Main',
@@ -50,7 +50,7 @@ export default defineComponent({
     VPNList,
     Visualization,
     FiltersDraggable,
-    FiltersPlacable,
+    FiltersActive,
   },
 });
 </script>

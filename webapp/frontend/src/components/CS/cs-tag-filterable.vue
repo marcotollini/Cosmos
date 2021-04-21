@@ -2,7 +2,6 @@
   <el-popover
     placement="right"
     :width="250"
-    class="filter-popover"
     trigger="click"
     v-model:visible="popoverOpen"
   >
@@ -31,7 +30,7 @@
               >deselect visible</el-button
             >
           </div>
-          <ul>
+          <ul class="filter-popover">
             <el-checkbox-group v-model="selectedValues">
               <li v-for="value in filteredShowValues" :key="value">
                 <el-checkbox :label="value">{{ value }}</el-checkbox>
@@ -58,6 +57,8 @@ import {defineComponent} from 'vue';
 export default defineComponent({
   name: 'FiltersPlacable',
   props: {
+    // to avoid warning from draggable. Useless to us
+    'data-draggable': {},
     values: {
       default: () => [],
       type: Array,
@@ -75,7 +76,7 @@ export default defineComponent({
       type: Boolean,
     },
   },
-  emits: ['open', 'delete', 'update:selected'],
+  emits: ['open', 'close', 'delete', 'update:selected'],
   data() {
     return {
       popoverOpen: false as boolean,
@@ -87,14 +88,17 @@ export default defineComponent({
   },
   computed: {
     valuesSet() {
-      const values = this.values as string[];
-      return new Set(values);
+      const values = this.values as string[] | undefined;
+      if (values !== undefined) {
+        return new Set(values);
+      }
+      return new Set();
     },
     userDefinedValues(): string[] {
       return this.selectedValues.filter((x: string) => !this.valuesSet.has(x));
     },
     showValues(): string[] {
-      const values = this.values as string[];
+      const values = this.values === undefined ? [] : (this.values as string[]);
       if (
         this.searchValue !== '' &&
         this.userDefinedValues.indexOf(this.searchValue) === -1 &&
@@ -120,11 +124,14 @@ export default defineComponent({
       this.popoverOpen = this.open;
     },
     popoverOpen() {
-      this.$emit('open', this.popoverOpen);
+      if (this.popoverOpen) {
+        this.$emit('open');
+      } else {
+        this.$emit('close');
+      }
     },
     selected() {
-      const selected = this.selected as string[];
-      this.selectedValues = selected;
+      this.syncSelected();
     },
     selectedValues() {
       this.$emit('update:selected', this.selectedValues);
@@ -136,6 +143,14 @@ export default defineComponent({
   methods: {
     tagDelete() {
       this.$emit('delete');
+    },
+    syncSelected() {
+      const selected = this.selected as string[] | undefined;
+      if (selected !== undefined) {
+        this.selectedValues = selected;
+      } else {
+        this.selectedValues = [];
+      }
     },
     selectVisible() {
       this.selectedValues = uniq([
@@ -172,6 +187,7 @@ export default defineComponent({
   mounted() {
     this.popoverOpen = this.open;
     this.toggleLoading();
+    this.syncSelected();
   },
 });
 </script>
@@ -192,13 +208,13 @@ ul {
 
 .filter-popover {
   max-height: 300px;
-  overflow-x: scroll;
+  overflow-y: auto;
 }
 </style>
 
 <style>
 .el-badge__content.is-fixed {
-  top: 5px;
-  right: 15px;
+  top: 5px !important;
+  right: 15px !important;
 }
 </style>

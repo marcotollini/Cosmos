@@ -1,4 +1,3 @@
-import {isEmpty, pickBy} from 'lodash';
 import {createStore} from 'vuex';
 
 // TODO: move to cosmos-lib
@@ -26,8 +25,7 @@ export default createStore({
       state.selectedVisualization = visualization;
     },
     activeFilters(state, filters: Record<string, unknown[]>) {
-      const unemptyFilters = pickBy(filters, x => x.length !== 0);
-      state.activeFilters = unemptyFilters;
+      state.activeFilters = filters;
     },
   },
   actions: {},
