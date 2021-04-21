@@ -16,11 +16,6 @@
       sortable
     >
     </el-table-column>
-    <!-- <el-table-column prop="address" label="Address" sortable>
-      <template #header>
-        <el-input v-model="search" size="mini" placeholder="Type to search" />
-      </template>
-    </el-table-column> -->
   </el-table>
 </template>
 

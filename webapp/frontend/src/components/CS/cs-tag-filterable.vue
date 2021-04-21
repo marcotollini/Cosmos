@@ -1,0 +1,188 @@
+<template>
+  <el-popover
+    placement="right"
+    :width="250"
+    class="filter-popover"
+    trigger="manual"
+    v-model:visible="popoverOpen"
+  >
+    <template #reference>
+      <el-badge :value="selectedValues.length" class="item">
+        <el-tag effect="dark" closable @click="tagClick" @close="tagDelete">
+          <slot></slot>
+        </el-tag>
+      </el-badge>
+    </template>
+    <el-tabs v-model="tabActive">
+      <el-tab-pane label="Filter" name="filter">
+        <el-input
+          placeholder="Search"
+          v-model="searchValue"
+          clearable
+          size="mini"
+        >
+        </el-input>
+        <div class="buttons-selection">
+          <el-button size="mini" @click="selectVisible"
+            >select visible</el-button
+          >
+          <el-button size="mini" @click="deselectVisible"
+            >deselect visible</el-button
+          >
+        </div>
+        <ul>
+          <el-checkbox-group v-model="selectedValues">
+            <li v-for="value in filteredShowValues" :key="value">
+              <el-checkbox :label="value">{{ value }}</el-checkbox>
+            </li>
+          </el-checkbox-group>
+        </ul>
+      </el-tab-pane>
+      <el-tab-pane label="Active Filters" name="active">
+        <el-checkbox-group v-model="selectedValues">
+          <li v-for="value in selectedValues" :key="value">
+            <el-checkbox :label="value">{{ value }}</el-checkbox>
+          </li>
+        </el-checkbox-group>
+      </el-tab-pane>
+    </el-tabs>
+  </el-popover>
+</template>
+
+<script lang="ts">
+import {uniq} from 'lodash';
+import {defineComponent} from 'vue';
+
+export default defineComponent({
+  name: 'FiltersPlacable',
+  props: {
+    values: {
+      default: () => [],
+      type: Array,
+    },
+    selected: {
+      default: () => [],
+      type: Array,
+    },
+    open: {
+      default: true,
+      type: Boolean,
+    },
+    loading: {
+      default: true,
+      type: Boolean,
+    },
+  },
+  emits: ['open', 'delete', 'update:selected'],
+  data() {
+    return {
+      popoverOpen: false as boolean,
+      tabActive: 'filter' as string,
+      searchValue: '' as string,
+      selectedValues: [] as string[],
+    };
+  },
+  computed: {
+    valuesSet() {
+      const values = this.values as string[];
+      return new Set(values);
+    },
+    userDefinedValues(): string[] {
+      return this.selectedValues.filter((x: string) => !this.valuesSet.has(x));
+    },
+    showValues(): string[] {
+      const values = this.values as string[];
+      if (
+        this.searchValue !== '' &&
+        this.userDefinedValues.indexOf(this.searchValue) === -1 &&
+        values.indexOf(this.searchValue) === -1
+      ) {
+        return [this.searchValue, ...this.userDefinedValues, ...values];
+      }
+      return [...this.userDefinedValues, ...values];
+    },
+
+    filteredShowValues(): string[] {
+      if (this.searchValue !== '') {
+        const searchValue = this.searchValue.toLowerCase();
+        return this.showValues.filter(
+          x => x.toLowerCase().indexOf(searchValue) !== -1
+        );
+      }
+      return this.showValues;
+    },
+  },
+  watch: {
+    open() {
+      this.popoverOpen = this.open;
+    },
+    popoverOpen() {
+      this.$emit('open', this.popoverOpen);
+    },
+    selected() {
+      const selected = this.selected as string[];
+      this.selectedValues = selected;
+    },
+    selectedValues() {
+      this.$emit('update:selected', this.selectedValues);
+    },
+  },
+  methods: {
+    tagClick() {
+      this.popoverOpen = !this.popoverOpen;
+    },
+    tagDelete() {
+      this.$emit('delete');
+    },
+    selectVisible() {
+      this.selectedValues = uniq([
+        ...this.selectedValues,
+        ...this.filteredShowValues,
+      ]);
+    },
+    deselectVisible() {
+      this.selectedValues = this.selectedValues.filter(
+        x => this.filteredShowValues.indexOf(x) === -1
+      );
+    },
+    showLoading() {
+      // const loading = this.$loading({
+      //   lock: true,
+      //   text: 'Loading',
+      //   spinner: 'el-icon-loading',
+      //   background: 'rgba(0, 0, 0, 0.7)',
+      // });
+    },
+  },
+  mounted() {
+    this.popoverOpen = this.open;
+  },
+});
+</script>
+
+<style scoped>
+.el-tag {
+  margin: 5px;
+}
+
+ul {
+  padding-left: 10px;
+}
+
+.buttons-selection {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.filter-popover {
+  max-height: 300px;
+  overflow-x: scroll;
+}
+</style>
+
+<style>
+.el-badge__content.is-fixed {
+  top: 5px;
+  right: 15px;
+}
+</style>

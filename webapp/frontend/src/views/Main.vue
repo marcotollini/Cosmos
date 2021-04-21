@@ -13,14 +13,18 @@
         </el-col>
       </el-row>
       <el-divider>Active Filters</el-divider>
-      <el-col :span="24" class="text-center"> </el-col>
-
-      <el-divider>All Filters</el-divider>
-      <el-col :span="24" class="text-center">
-        <filters-draggable></filters-draggable>
-      </el-col>
-
-      <filters-BMP-state></filters-BMP-state>
+      <el-row>
+        <el-col :span="24" class="text-center">
+          Place your filters here
+          <filters-placable></filters-placable>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-divider>All Filters</el-divider>
+        <el-col :span="24" class="text-center">
+          <filters-draggable></filters-draggable>
+        </el-col>
+      </el-row>
     </template>
     <template v-slot:main>
       <router-view></router-view>
@@ -35,8 +39,8 @@ import SideBottomThreeSlots from '@/views/Structure/SideBottomThreeSlots.vue';
 import Timestamp from '@/components/Selection/Timestamp.vue';
 import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
-import FiltersBMPState from '@/components/FiltersBMPState.vue';
 import FiltersDraggable from '@/components/FiltersDraggable.vue';
+import FiltersPlacable from '@/components/FiltersPlacable.vue';
 
 export default defineComponent({
   name: 'Main',
@@ -45,8 +49,8 @@ export default defineComponent({
     Timestamp,
     VPNList,
     Visualization,
-    FiltersBMPState,
     FiltersDraggable,
+    FiltersPlacable,
   },
 });
 </script>
