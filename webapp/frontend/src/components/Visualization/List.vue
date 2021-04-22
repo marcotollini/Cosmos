@@ -1,13 +1,14 @@
 <template>
   <el-row class="full-height">
     <el-col :span="24">
-      <filters-show :selected="showCols"></filters-show>
+      <filters-show v-model:selected="showCols"></filters-show>
     </el-col>
     <el-col :span="24">
       <el-table
         :data="data"
         v-loading="loading"
         size="mini"
+        height="100%"
         stripe
         highlight-current-row
         fit
@@ -64,6 +65,9 @@ export default defineComponent({
     activeFilters() {
       this.loadVisualization();
     },
+    showCols() {
+      this.loadVisualization();
+    },
   },
   methods: {
     async loadVisualization() {
@@ -85,7 +89,7 @@ export default defineComponent({
 
       try {
         const result = await this.$http.post('/api/bmp/visualization/list', {
-          data: {timestamp, vpn, filters: activeFilters},
+          data: {timestamp, vpn, filters: activeFilters, show: this.showCols},
           headers: {
             REQUEST_ID: 'field_values',
             THROTTLE: '1000',

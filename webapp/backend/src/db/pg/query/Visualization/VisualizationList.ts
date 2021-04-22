@@ -6,26 +6,25 @@ import {
   returnType,
 } from '../../../query-interface/Visualization/VisualizationList';
 
-type queryReturnType = {
-  bmp_router: string;
-  rd: string;
-  ip_prefix: string;
-  bmp_nexthop: string;
-  comms: string[];
-}[];
+type queryReturnType = Record<string, unknown>[];
 
 class VisualizationList extends Query implements VisualizationListInterface {
   bmpstate: slonikSql;
-  constructor(bmpstate: slonikSql) {
+  show: string[];
+  constructor(bmpstate: slonikSql, show: string[]) {
     super();
     this.bmpstate = bmpstate;
+    this.show = show;
   }
 
   raw() {
     return sql`
-      SELECT DISTINCT bmp_router, rd, ip_prefix, bgp_nexthop, comms
+      SELECT DISTINCT ${sql.join(
+        this.show.map(x => sql.identifier([x])),
+        sql`, `
+      )}
       FROM (${this.bmpstate}) as bmpstate
-      LIMIT 100
+      LIMIT 101
     `;
   }
 

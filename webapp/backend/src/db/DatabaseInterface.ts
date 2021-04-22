@@ -36,7 +36,8 @@ interface DatabaseInterface {
   VisualizationList(
     timestamp: Date,
     vpn: string,
-    filters: filtersType
+    filters: filtersType,
+    show: string[]
   ): VisualizationListInterface;
 }
 

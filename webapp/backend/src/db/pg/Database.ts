@@ -65,11 +65,12 @@ class PGDatabase implements DatabaseInterface {
   VisualizationList(
     timestamp: Date,
     vpn: string,
-    filters: filtersType
+    filters: filtersType,
+    show: string[]
   ): VisualizationList {
     const bmpState = new BMPState(timestamp, vpn);
     const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
-    return new VisualizationList(filteredBmpState.raw());
+    return new VisualizationList(filteredBmpState.raw(), show);
   }
 }
 

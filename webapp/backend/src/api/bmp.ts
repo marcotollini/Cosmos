@@ -40,7 +40,6 @@ router.post('/api/bmp/filter/fields/list', async (ctx: RouterContext) => {
 });
 
 router.post('/api/bmp/filter/fields/values', async (ctx: RouterContext) => {
-  console.log(ctx.request.body);
   ctx.body = await bmp_process(ctx, Database.FilterFieldsValues);
 });
 
@@ -60,7 +59,16 @@ router.post(
 );
 
 router.post('/api/bmp/visualization/list', async (ctx: RouterContext) => {
-  ctx.body = await bmp_process(ctx, Database.VisualizationList);
+  const reqBody = ctx.request.body;
+  const show = reqBody.data.show;
+
+  if (!Array.isArray(show) || show.length === 0) {
+    ctx.throw('Show columns empty');
+  }
+
+  const fn = partialRight(Database.VisualizationList, show);
+
+  ctx.body = await bmp_process(ctx, fn);
 });
 
 export default router;
