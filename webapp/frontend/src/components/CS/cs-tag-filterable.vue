@@ -32,7 +32,7 @@
           </div>
           <ul class="filter-popover">
             <el-checkbox-group v-model="selectedValues">
-              <li v-for="value in filteredShowValues" :key="value">
+              <li v-for="value in filteredShowValuesLimited" :key="value">
                 <el-checkbox :label="value">{{ value }}</el-checkbox>
               </li>
             </el-checkbox-group>
@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import {uniq} from 'lodash';
+import {take, uniq} from 'lodash';
 import {defineComponent} from 'vue';
 
 export default defineComponent({
@@ -120,6 +120,9 @@ export default defineComponent({
         );
       }
       return this.showValues;
+    },
+    filteredShowValuesLimited(): string[] {
+      return take(this.filteredShowValues, 100);
     },
   },
   watch: {
