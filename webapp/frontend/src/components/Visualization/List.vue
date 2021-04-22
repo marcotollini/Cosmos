@@ -1,34 +1,45 @@
 <template>
-  <el-table
-    :data="data"
-    v-loading="loading"
-    size="mini"
-    stripe
-    height="100%"
-    highlight-current-row
-    fit
-  >
-    <el-table-column
-      v-for="prop in props"
-      :key="prop"
-      :prop="prop"
-      :label="prop"
-      sortable
-    >
-    </el-table-column>
-  </el-table>
+  <el-row class="full-height">
+    <el-col :span="24">
+      <filters-show :selected="showCols"></filters-show>
+    </el-col>
+    <el-col :span="24">
+      <el-table
+        :data="data"
+        v-loading="loading"
+        size="mini"
+        stripe
+        highlight-current-row
+        fit
+      >
+        <el-table-column
+          v-for="prop in props"
+          :key="prop"
+          :prop="prop"
+          :label="prop"
+          sortable
+        >
+        </el-table-column>
+      </el-table>
+    </el-col>
+  </el-row>
 </template>
 
 <script lang="ts">
 import {cloneDeep, isArray, isString} from 'lodash';
 import {defineComponent} from 'vue';
+import FiltersShow from '../FiltersShow.vue';
 
 export default defineComponent({
   name: 'VPNRoutingTopology',
+  components: {
+    FiltersShow,
+  },
   data() {
     return {
       data: [] as Record<string, unknown>[],
       props: [] as string[],
+      showCols: ['bmp_router', 'rd', 'ip_prefix', 'bgp_nexthop', 'comms'],
       loading: false as boolean,
     };
   },
@@ -114,6 +125,12 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.full-height {
+  height: 100%;
+}
+</style>
 
 <style>
 .form-medium {
