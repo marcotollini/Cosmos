@@ -58,7 +58,7 @@ services:
 
 
   nfacctd:
-    image: nfacctd:1.7.6
+    image: pmacct/nfacctd:bleeding-edge
     hostname: nfacctd
     container_name: nfacctd
     network_mode: "host"
@@ -90,7 +90,7 @@ services:
     volumes:
       - timescale_data:/var/lib/postgresql/data
       - ./timescale/script:/docker-entrypoint-initdb.d/
-      - ./timescale/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      # - ./timescale/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     command: -cmax_locks_per_transaction=400
 
   adminer:
