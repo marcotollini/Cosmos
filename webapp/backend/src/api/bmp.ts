@@ -13,7 +13,7 @@ async function bmp_process(ctx: RouterContext, constructor: Function) {
     !isString(reqBody.data.vpn) ||
     !isString(reqBody.data.timestamp)
   ) {
-    ctx.throw('Missing vpn of timestamp', 500);
+    ctx.throw('Missing vpn or timestamp', 500);
   }
 
   const vpn = reqBody.data.vpn;
@@ -33,6 +33,25 @@ async function bmp_process(ctx: RouterContext, constructor: Function) {
 
 router.post('/api/bmp/state', async (ctx: RouterContext) => {
   ctx.body = await bmp_process(ctx, Database.BMPState);
+});
+
+router.get('/api/bmp/peerup', async (ctx: RouterContext) => {
+  const reqQuery = ctx.request.query;
+  if (!isString(reqQuery.timestamp)) {
+    ctx.throw('Missing timestamp', 500);
+  }
+
+  const timestamp = new Date(reqQuery.timestamp);
+
+  const query = Database.PeerUpState(timestamp);
+
+  ctx.req.on('close', query.cancel.bind(query));
+
+  const result = await query.execute();
+
+  ctx.req.removeListener('close', query.cancel);
+
+  ctx.body = result;
 });
 
 router.post('/api/bmp/filter/fields/list', async (ctx: RouterContext) => {

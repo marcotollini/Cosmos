@@ -6,11 +6,14 @@ import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValu
 import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
 import VisualizationVPNTopologyInterface from './query-interface/Visualization/VisualizationVPNTopology';
 import VisualizationListInterface from './query-interface/Visualization/VisualizationList';
+import PeerUpStateInterface from './query-interface/PeerUpState';
 
 interface DatabaseInterface {
   VPNList(timestamp: Date): VPNListInterface;
 
   BMPState(timestamp: Date, vpn: string): BMPStateInterface;
+
+  PeerUpState(timestamp: Date): PeerUpStateInterface;
 
   FilterFieldsList(timestamp: Date, vpn: string): FilterFieldsListInterface;
 

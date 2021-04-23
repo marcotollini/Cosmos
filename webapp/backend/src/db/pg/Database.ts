@@ -2,6 +2,7 @@ import DatabaseInterface from '../DatabaseInterface';
 
 import VPNList from './query/VPNList';
 import BMPState from './query/BMPState';
+import PeerUpState from './query/PeerUpState';
 import {
   default as FilterBMPState,
   filtersType,
@@ -23,6 +24,10 @@ class PGDatabase implements DatabaseInterface {
 
   BMPState(timestamp: Date, vpn: string): BMPState {
     return new BMPState(timestamp, vpn);
+  }
+
+  PeerUpState(timestamp: Date): PeerUpState {
+    return new PeerUpState(timestamp);
   }
 
   FilterFieldValues(
