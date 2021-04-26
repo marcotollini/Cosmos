@@ -1,10 +1,10 @@
 import QueryInterface from '../../QueryInterface';
 
 type returnType = {
-  local_router: string;
+  local_bmp_router: string;
   local_rd: string;
   local_ip: string;
-  peer_router: string;
+  peer_bmp_router: string;
   peer_rd: string;
   peer_ip: string;
 }[];

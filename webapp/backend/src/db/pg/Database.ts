@@ -11,6 +11,8 @@ import FilterFieldsList from './query/Filter/FilterFieldsList';
 import FilterFieldValues from './query/Filter/FilterFieldValues';
 import FilterFieldsValues from './query/Filter/FilterFieldsValues';
 import VisualizationVPNTopology from './query/Visualization/VisualizationVPNTopology';
+import VisualizationVPNRoutingTopology from './query/Visualization/VisualizationVPNRoutingTopology';
+import VisualizationPeeringTopology from './query/Visualization/VisualizationPeeringTopology';
 import VisualizationList from './query/Visualization/VisualizationList';
 
 class PGDatabase implements DatabaseInterface {
@@ -65,6 +67,26 @@ class PGDatabase implements DatabaseInterface {
     const bmpState = new BMPState(timestamp, vpn);
     const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
     return new VisualizationVPNTopology(filteredBmpState.raw());
+  }
+
+  VisualizationVPNRoutingTopology(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationVPNRoutingTopology {
+    const bmpState = new BMPState(timestamp, vpn);
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    return new VisualizationVPNRoutingTopology(filteredBmpState.raw());
+  }
+
+  VisualizationPeeringTopology(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationPeeringTopology {
+    const bmpState = new BMPState(timestamp, vpn);
+    const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
+    return new VisualizationPeeringTopology(filteredBmpState.raw());
   }
 
   VisualizationList(

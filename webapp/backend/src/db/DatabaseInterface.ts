@@ -5,6 +5,8 @@ import FilterFieldsListInterface from './query-interface/Filter/FilterFieldsList
 import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValues';
 import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
 import VisualizationVPNTopologyInterface from './query-interface/Visualization/VisualizationVPNTopology';
+import VisualizationVPNRoutingTopologyInterface from './query-interface/Visualization/VisualizationVPNRoutingTopology';
+import VisualizationPeeringTopologyInterface from './query-interface/Visualization/VisualizationPeeringTopology';
 import VisualizationListInterface from './query-interface/Visualization/VisualizationList';
 import PeerUpStateInterface from './query-interface/PeerUpState';
 
@@ -35,6 +37,18 @@ interface DatabaseInterface {
     vpn: string,
     filters: filtersType
   ): VisualizationVPNTopologyInterface;
+
+  VisualizationVPNRoutingTopology(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationVPNRoutingTopologyInterface;
+
+  VisualizationPeeringTopology(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType
+  ): VisualizationPeeringTopologyInterface;
 
   VisualizationList(
     timestamp: Date,

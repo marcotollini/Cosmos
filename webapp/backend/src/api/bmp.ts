@@ -77,6 +77,20 @@ router.post(
   }
 );
 
+router.post(
+  '/api/bmp/visualization/vpn/routing-topology',
+  async (ctx: RouterContext) => {
+    ctx.body = await bmp_process(ctx, Database.VisualizationVPNRoutingTopology);
+  }
+);
+
+router.post(
+  '/api/bmp/visualization/peering/topology',
+  async (ctx: RouterContext) => {
+    ctx.body = await bmp_process(ctx, Database.VisualizationPeeringTopology);
+  }
+);
+
 router.post('/api/bmp/visualization/list', async (ctx: RouterContext) => {
   const reqBody = ctx.request.body;
   const show = reqBody.data.show;
