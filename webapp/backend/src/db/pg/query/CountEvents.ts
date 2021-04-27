@@ -43,7 +43,8 @@ class CountEvents extends Query implements CountEventsInterface {
     const basic = sql`
       SELECT *
       FROM event
-      WHERE comms @> ${sql.json(this.vpn)}
+      WHERE bmp_msg_type = 'route_monitor'
+      AND comms @> ${sql.json(this.vpn)}
       AND timestamp_arrival > ${minTimestamp}
       AND timestamp_arrival <= ${maxTimestamp}
     `;
@@ -62,6 +63,9 @@ class CountEvents extends Query implements CountEventsInterface {
 
   async execute(): Promise<returnType> {
     const rows = (await this.executeQuery()) as queryReturnType;
+    rows.forEach(x => {
+      x.count = x.count === null ? 0 : x.count;
+    });
     return rows;
   }
 }

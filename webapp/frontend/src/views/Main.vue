@@ -29,7 +29,9 @@
     <template v-slot:main>
       <router-view></router-view>
     </template>
-    <template v-slot:footer>footer</template>
+    <template v-slot:footer>
+      <timeseries :height="140"></timeseries>
+    </template>
   </side-bottom-three-slots>
 </template>
 
@@ -41,6 +43,7 @@ import VPNList from '@/components/Selection/VPNList.vue';
 import Visualization from '@/components/Selection/Visualization.vue';
 import FiltersDraggable from '@/components/FiltersDraggable.vue';
 import FiltersActive from '@/components/FiltersActive.vue';
+import Timeseries from '@/components/Timeseries.vue';
 
 export default defineComponent({
   name: 'Main',
@@ -51,6 +54,7 @@ export default defineComponent({
     Visualization,
     FiltersDraggable,
     FiltersActive,
+    Timeseries,
   },
 });
 </script>

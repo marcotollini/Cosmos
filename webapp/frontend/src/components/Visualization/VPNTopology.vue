@@ -57,15 +57,6 @@ export default defineComponent({
         });
       }
 
-      const re = await this.$http.post('/api/bmp/count', {
-        data: {timestamp, vpn, filters: activeFilters},
-        headers: {
-          REQUEST_ID: 'counter',
-          THROTTLE: '1000',
-          CANCEL: 'true',
-        },
-      });
-      console.log(re);
       const result = await this.$http.post(
         '/api/bmp/visualization/vpn/topology',
         {
