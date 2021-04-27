@@ -32,7 +32,6 @@ function colorMap(color: string, type: 'node' | 'edge') {
   const typeMapping = type === 'node' ? colors.node : colors.edge;
   const typeColor = typeMapping[color] || color;
   const colorHex = colors.colors[typeColor] || colors;
-  console.log(color, colorHex);
   return colorHex;
 }
 

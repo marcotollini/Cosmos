@@ -10,6 +10,7 @@ import {
 import FilterFieldsList from './query/Filter/FilterFieldsList';
 import FilterFieldValues from './query/Filter/FilterFieldValues';
 import FilterFieldsValues from './query/Filter/FilterFieldsValues';
+import CountEvents from './query/CountEvents';
 import VisualizationVPNTopology from './query/Visualization/VisualizationVPNTopology';
 import VisualizationVPNRoutingTopology from './query/Visualization/VisualizationVPNRoutingTopology';
 import VisualizationPeeringTopology from './query/Visualization/VisualizationPeeringTopology';
@@ -57,6 +58,15 @@ class PGDatabase implements DatabaseInterface {
   FilterFieldsList(timestamp: Date, vpn: string): FilterFieldsList {
     const bmpState = new BMPState(timestamp, vpn);
     return new FilterFieldsList(bmpState.raw());
+  }
+
+  CountEvents(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType,
+    approximation: boolean
+  ): CountEvents {
+    return new CountEvents(timestamp, vpn, filters, approximation);
   }
 
   VisualizationVPNTopology(

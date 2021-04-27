@@ -70,6 +70,14 @@ router.post(
   }
 );
 
+router.post('/api/bmp/count', async (ctx: RouterContext) => {
+  const reqBody = ctx.request.body;
+  const approximation =
+    reqBody.data && reqBody.data.approximation === false ? false : true;
+  const fn = partialRight(Database.CountEvents, approximation);
+  ctx.body = await bmp_process(ctx, fn);
+});
+
 router.post(
   '/api/bmp/visualization/vpn/topology',
   async (ctx: RouterContext) => {

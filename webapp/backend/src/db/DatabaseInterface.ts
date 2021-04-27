@@ -4,6 +4,7 @@ import {filtersType} from './query-interface/Filter/FilterBMPState';
 import FilterFieldsListInterface from './query-interface/Filter/FilterFieldsList';
 import FilterFieldValuesInterface from './query-interface/Filter/FilterFieldValues';
 import FilterFieldsValuesInterface from './query-interface/Filter/FilterFieldsValues';
+import CountEventsInterface from './query-interface/CountEvents';
 import VisualizationVPNTopologyInterface from './query-interface/Visualization/VisualizationVPNTopology';
 import VisualizationVPNRoutingTopologyInterface from './query-interface/Visualization/VisualizationVPNRoutingTopology';
 import VisualizationPeeringTopologyInterface from './query-interface/Visualization/VisualizationPeeringTopology';
@@ -31,6 +32,13 @@ interface DatabaseInterface {
     vpn: string,
     filters: filtersType
   ): FilterFieldsValuesInterface;
+
+  CountEvents(
+    timestamp: Date,
+    vpn: string,
+    filters: filtersType,
+    approximation: boolean
+  ): CountEventsInterface;
 
   VisualizationVPNTopology(
     timestamp: Date,
