@@ -106,7 +106,7 @@ footer {
 }
 
 .footer {
-  background-color: #f3e5f5;
+  background-color: #fafafa;
 }
 
 .mac-scroll::-webkit-scrollbar {

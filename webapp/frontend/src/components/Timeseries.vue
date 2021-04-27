@@ -90,7 +90,7 @@ export default defineComponent({
         annotations: {
           xaxis: [
             {
-              x: new Date(new Date().getTime() - 30 * 60 * 1000).getTime(),
+              x: new Date().getTime(),
               borderColor: '#00E396',
               label: {
                 borderColor: '#00E396',
@@ -153,6 +153,9 @@ export default defineComponent({
     },
   },
   methods: {
+    setMarker(time: Date) {
+      this.options.annotations.xaxis[0].x = time.getTime();
+    },
     async loadAll() {
       this.allSeries = [];
       const timestamp = this.selectedTimestamp;
@@ -170,6 +173,7 @@ export default defineComponent({
       const data = result.data as {start_bucket: number; count: number}[];
 
       this.allSeries = data;
+      this.setMarker(timestamp);
     },
     async loadFilters() {
       this.filteredSeries = [];
@@ -193,6 +197,7 @@ export default defineComponent({
       const data = result.data as {start_bucket: number; count: number}[];
 
       this.filteredSeries = data;
+      this.setMarker(timestamp);
     },
   },
   mounted() {
