@@ -118,7 +118,7 @@ export default defineComponent({
         }
         if (data.length === 101) {
           data[100] = {
-            bmp_router: 'Other columns available. Use filters to see them',
+            bmp_router: 'Other rows available. Use filters to see them.',
           };
         }
         this.data = data;
