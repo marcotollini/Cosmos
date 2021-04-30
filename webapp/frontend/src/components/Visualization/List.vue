@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import {cloneDeep, isArray, isString} from 'lodash';
+import {isArray, isEmpty, isString} from 'lodash';
 import {defineComponent} from 'vue';
 import FiltersShow from '../FiltersShow.vue';
 
@@ -54,23 +54,23 @@ export default defineComponent({
     activeFilters() {
       return this.$store.state.activeFilters;
     },
+    customVisualizationQuery() {
+      return this.$store.state.customVisualizationQuery;
+    },
   },
   watch: {
     selectedTimestamp() {
       this.loadVisualization();
-      this.saveQuery();
     },
     selectedVPN() {
       this.loadVisualization();
-      this.saveQuery();
     },
     activeFilters() {
       this.loadVisualization();
-      this.saveQuery();
     },
     showCols() {
       this.loadVisualization();
-      this.saveQuery();
+      this.$store.commit('customVisualizationQuery', this.showCols);
     },
   },
   methods: {
@@ -121,31 +121,16 @@ export default defineComponent({
         this.loading = false;
       }
     },
-    async saveQuery() {
-      const timestamp = this.selectedTimestamp;
-      const vpn = this.selectedVPN;
-      if (timestamp === undefined || vpn === undefined) return;
-
-      const payload = {
-        view: 'list',
-        timestamp,
-        vpn,
-        filters: this.activeFilters,
-        columns: this.showCols,
-      };
-
-      const result = await this.$http.post('/api/query/save', {payload});
-
-      const id = result.data;
-
-      const result2 = await this.$http.get(`/api/query/get/${id}`);
-
-      console.log(id, result2.data);
-    },
   },
   mounted() {
     this.$store.commit('selectedVisualization', 'list');
+    if (!isEmpty(this.customVisualizationQuery)) {
+      this.showCols = this.customVisualizationQuery;
+    }
     this.loadVisualization();
+  },
+  unmounted() {
+    this.$store.commit('customVisualizationQueryDefault');
   },
 });
 </script>

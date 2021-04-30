@@ -1,41 +1,25 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
-import VPNTopology from '@/components/Visualization/VPNTopology.vue';
+import MainVisualization from '@/views/MainVisualization.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
+    path: '/q/:catchAll(.*)',
+    name: 'query',
+    component: MainVisualization,
+  },
+  {
+    path: '/', // logo click working
     name: 'default',
-    component: VPNTopology,
+    component: MainVisualization,
   },
-  {
-    path: '/vpn-topology',
-    name: 'vpn-topology',
-    component: VPNTopology,
-  },
-  {
-    path: '/vpn-routing-topology',
-    name: 'vpn-routing-topology',
-    component: () =>
-      import(
-        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/VPNRoutingTopology.vue'
-      ),
-  },
-  {
-    path: '/peering-topology',
-    name: 'peering-topology',
-    component: () =>
-      import(
-        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/PeeringTopology.vue'
-      ),
-  },
-  {
-    path: '/list',
-    name: 'list',
-    component: () =>
-      import(
-        /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/List.vue'
-      ),
-  },
+  // {
+  //   path: '/vpn-routing-topology',
+  //   name: 'vpn-routing-topology',
+  //   component: () =>
+  //     import(
+  //       /* webpackChunkName: "VPNRoutingTopology" */ '../components/Visualization/VPNRoutingTopology.vue'
+  //     ),
+  // },
 ];
 
 const router = createRouter({

@@ -89,6 +89,10 @@ export default defineComponent({
       },
       deep: true,
     },
+    activeFilters() {
+      this.selected = cloneDeep(this.activeFilters);
+      this.fields = Object.keys(this.activeFilters);
+    },
   },
   methods: {
     async onOpen(id: string) {

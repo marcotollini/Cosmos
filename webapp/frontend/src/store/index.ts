@@ -13,6 +13,9 @@ export default createStore({
     selectedVPN: undefined as string | undefined,
     selectedVisualization: undefined as visualizationType | undefined,
     activeFilters: {} as Record<string, unknown[]>,
+    // used to save the custom values of the components
+    // to be saved in the query
+    customVisualizationQuery: {} as Record<string, unknown[]>,
   },
   mutations: {
     selectedTimestamp(state, timestamp: Date | undefined) {
@@ -26,6 +29,12 @@ export default createStore({
     },
     activeFilters(state, filters: Record<string, unknown[]>) {
       state.activeFilters = filters;
+    },
+    customVisualizationQueryDefault(state) {
+      state.customVisualizationQuery = {};
+    },
+    customVisualizationQuery(state, data: Record<string, unknown[]>) {
+      state.customVisualizationQuery = data;
     },
   },
   actions: {},
