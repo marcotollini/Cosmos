@@ -1,39 +1,47 @@
 <template>
-  <el-table
-    :data="data"
-    v-loading="loading"
-    size="mini"
-    stripe
-    height="100%"
-    highlight-current-row
-    fit
-  >
-    <el-table-column
-      v-for="prop in props"
-      :key="prop"
-      :prop="prop"
-      :label="prop"
-      sortable
-    >
-    </el-table-column>
-    <!-- <el-table-column prop="address" label="Address" sortable>
-      <template #header>
-        <el-input v-model="search" size="mini" placeholder="Type to search" />
-      </template>
-    </el-table-column> -->
-  </el-table>
+  <el-container class="full-height">
+    <el-header height="auto">
+      <filters-show v-model:selected="showCols"></filters-show>
+    </el-header>
+    <el-main id="table-main-el">
+      <el-table
+        :data="data"
+        v-loading="loading"
+        size="mini"
+        height="100%"
+        stripe
+        highlight-current-row
+        fit
+        :span-method="arraySpanMethod"
+      >
+        <el-table-column
+          v-for="prop in props"
+          :key="prop"
+          :prop="prop"
+          :label="prop"
+          sortable
+        >
+        </el-table-column>
+      </el-table>
+    </el-main>
+  </el-container>
 </template>
 
 <script lang="ts">
-import {cloneDeep, isArray, isString} from 'lodash';
+import {isArray, isEmpty, isString} from 'lodash';
 import {defineComponent} from 'vue';
+import FiltersShow from '../FiltersShow.vue';
 
 export default defineComponent({
   name: 'VPNRoutingTopology',
+  components: {
+    FiltersShow,
+  },
   data() {
     return {
       data: [] as Record<string, unknown>[],
       props: [] as string[],
+      showCols: ['bmp_router', 'rd', 'ip_prefix', 'bgp_nexthop', 'comms'],
       loading: false as boolean,
     };
   },
@@ -47,6 +55,9 @@ export default defineComponent({
     activeFilters() {
       return this.$store.state.activeFilters;
     },
+    customVisualizationQuery() {
+      return this.$store.state.customVisualizationQuery;
+    },
   },
   watch: {
     selectedTimestamp() {
@@ -58,6 +69,10 @@ export default defineComponent({
     activeFilters() {
       this.loadVisualization();
     },
+    showCols() {
+      this.loadVisualization();
+      this.$store.commit('customVisualizationQuery', this.showCols);
+    },
   },
   methods: {
     async loadVisualization() {
@@ -65,21 +80,16 @@ export default defineComponent({
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
 
-      const activeFilters = cloneDeep(this.activeFilters);
-      for (const fieldName in activeFilters) {
-        activeFilters[fieldName] = activeFilters[fieldName].map((x: string) => {
-          if (x === 'null') return null;
-          else if (x === 'true') return true;
-          else if (x === 'false') return false;
-          return x;
-        });
-      }
-
       this.loading = true;
 
       try {
         const result = await this.$http.post('/api/bmp/visualization/list', {
-          data: {timestamp, vpn, filters: activeFilters},
+          data: {
+            timestamp,
+            vpn,
+            filters: this.activeFilters,
+            show: this.showCols,
+          },
           headers: {
             REQUEST_ID: 'field_values',
             THROTTLE: '1000',
@@ -106,19 +116,54 @@ export default defineComponent({
             }
           }
         }
-
+        if (data.length === 101) {
+          data[100] = {
+            bmp_router: 'Other rows available. Use filters to see them.',
+          };
+        }
         this.data = data;
       } finally {
         this.loading = false;
       }
     },
+    arraySpanMethod({
+      row,
+      column,
+      rowIndex,
+      columnIndex,
+    }: {
+      row: unknown;
+      column: unknown;
+      rowIndex: number;
+      columnIndex: number;
+    }) {
+      if (rowIndex === 100) {
+        return [1, this.showCols.length];
+      }
+      return [1, 1];
+    },
   },
   mounted() {
     this.$store.commit('selectedVisualization', 'list');
+    if (!isEmpty(this.customVisualizationQuery)) {
+      this.showCols = this.customVisualizationQuery;
+    }
     this.loadVisualization();
+  },
+  unmounted() {
+    this.$store.commit('customVisualizationQueryDefault');
   },
 });
 </script>
+
+<style scoped>
+.full-height {
+  height: 100%;
+}
+#table-main-el {
+  padding: 0;
+}
+</style>
 
 <style>
 .form-medium {

@@ -2,30 +2,29 @@ import {sql} from 'slonik';
 
 import {default as Query, slonikSql} from '../Query';
 import {
-  default as BMPStateInterface,
+  default as PeerUpStateInterface,
   returnType,
-} from '../../query-interface/BMPState';
+} from '../../query-interface/PeerUpState';
 
 type queryReturnType = Record<string, unknown>[];
 
-class BMPState extends Query implements BMPStateInterface {
+class PeerUpState extends Query implements PeerUpStateInterface {
   timestamp: Date;
-  vpn: string;
   timestampUnix: number;
   distinctEventKey: string[];
   sharedColumns: string[];
-  constructor(timestamp: Date, vpn: string) {
+  timeBetweenDumps = 24 * 60 * 60;
+  constructor(timestamp: Date) {
     super();
     this.timestamp = timestamp;
-    this.vpn = vpn;
     this.timestampUnix = Math.round(this.timestamp.getTime() / 1000);
 
     this.distinctEventKey = [
       'bmp_router',
       'rd',
+      'local_ip',
       'peer_ip',
-      'ip_prefix',
-      'bgp_nexthop',
+      'bgp_id',
       'is_loc',
       'is_in',
       'is_out',
@@ -108,8 +107,7 @@ class BMPState extends Query implements BMPStateInterface {
       WITH dumpinteresting AS (
         SELECT *
         FROM ${dumpTable}
-        WHERE bmp_msg_type = 'route_monitor'
-        AND comms @> ${sql.json(this.vpn)}
+        WHERE bmp_msg_type = 'peer_up'
         AND timestamp > ${this.timestampUnix - this.timeBetweenDumps}
         AND timestamp <= ${this.timestampUnix}
       ), rdlist AS (
@@ -130,8 +128,7 @@ class BMPState extends Query implements BMPStateInterface {
         LEFT JOIN rdlist as tmpdp
         ON et.bmp_router = tmpdp.bmp_router
         AND et.rd is not distinct from tmpdp.rd
-        WHERE et.bmp_msg_type = ${'route_monitor'}
-        AND et.comms @> ${sql.json(this.vpn)}
+        WHERE et.bmp_msg_type = 'peer_up'
         AND et.timestamp_arrival > ${this.timestampUnix - this.timeBetweenDumps}
         AND et.timestamp_arrival <= ${this.timestampUnix}
         ORDER BY ${distinctEventKeyEtSql}, et.timestamp_arrival DESC
@@ -154,5 +151,5 @@ class BMPState extends Query implements BMPStateInterface {
   }
 }
 
-export default BMPState;
+export default PeerUpState;
 export {returnType, queryReturnType};

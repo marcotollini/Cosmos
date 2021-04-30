@@ -9,14 +9,26 @@
         "purple": "#a87c9f",
         "pink": "#f1a2a9",
         "brown": "#967662",
-        "grey": "#b8b0ac"
+        "grey": "#b8b0ac",
+        "lightblue": "#aec7e8",
+        "lightorange": "#ffbb78",
+        "lightgreen": "#98df8a",
+        "lightred": "#ff9896",
+        "lightbrown": "#c49c94",
+        "lightpink": "#f7b6d2",
+        "lightgrey": "#c7c7c7"
      },
     "node": {
         "default": "blue",
-        "accent": "green"
+        "accent": "green",
+        "children": "brown",
+        "selected": "pink",
+        "selectedsecondary": "purple"
     },
     "edge": {
         "default": "grey",
-        "accent": "purple"
+        "accent": "purple",
+        "selected": "lightpink",
+        "selectedsecondary": "lightbrown"
     }
 }

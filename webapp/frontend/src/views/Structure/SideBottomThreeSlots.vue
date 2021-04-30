@@ -89,7 +89,7 @@ footer {
 }
 
 .el-aside {
-  min-width: 250px;
+  min-width: 260px;
   max-width: 400px;
 }
 
@@ -98,19 +98,15 @@ footer {
 }
 
 .main {
-  background-color: #e1f5fe;
+  background-color: #fafafa;
 }
 
 .side-top {
-  background-color: #e0f2f1;
-}
-
-.side-bottom {
-  background-color: #f9fbe7;
+  background-color: #fafafa;
 }
 
 .footer {
-  background-color: #f3e5f5;
+  background-color: #fafafa;
 }
 
 .mac-scroll::-webkit-scrollbar {

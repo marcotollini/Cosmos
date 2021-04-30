@@ -7,6 +7,7 @@ import Database from './db/getDatabase';
 
 import bmpRouter from './api/bmp';
 import vpnRouter from './api/vpn';
+import queryRouter from './api/query';
 
 if (Database === undefined) {
   throw 'Database is missing';
@@ -36,5 +37,6 @@ app.use(async (ctx, next) => {
 
 app.use(bmpRouter.routes());
 app.use(vpnRouter.routes());
+app.use(queryRouter.routes());
 
 app.listen(3000);

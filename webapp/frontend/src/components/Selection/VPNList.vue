@@ -1,21 +1,17 @@
 <template>
-  <el-row>
-    <el-col :span="24" class="text-center">
-      <el-select
-        v-model="selectedVPN"
-        filterable
-        clearable
-        allow-create
-        size="medium"
-        placeholder="Select VPN"
-        class="form-medium"
-        :loading="isloading"
-      >
-        <el-option v-for="vpn of VPNList" :key="vpn" :label="vpn" :value="vpn">
-        </el-option>
-      </el-select>
-    </el-col>
-  </el-row>
+  <el-select
+    v-model="selectedVPN"
+    filterable
+    clearable
+    allow-create
+    size="medium"
+    placeholder="Select VPN"
+    class="form-medium"
+    :loading="isloading"
+  >
+    <el-option v-for="vpn of VPNList" :key="vpn" :label="vpn" :value="vpn">
+    </el-option>
+  </el-select>
 </template>
 
 <script lang="ts">

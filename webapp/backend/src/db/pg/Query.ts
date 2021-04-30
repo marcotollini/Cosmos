@@ -20,7 +20,7 @@ abstract class Query {
   constructor() {
     this.pool = pool;
     this.pid = null;
-    this.timeBetweenDumps = 45 * 60;
+    this.timeBetweenDumps = 45 * 60 * 2;
   }
 
   abstract raw(): slonikSql;

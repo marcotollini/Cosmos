@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import cytoscape, {NodeSingular} from 'cytoscape';
+import cytoscape, {EdgeSingular, NodeSingular} from 'cytoscape';
 
 import {
   CytoGraph,
@@ -40,7 +40,7 @@ function edgeToCytoscape(edge: CytoEdgeDefaults) {
     id: edge.id,
     source: edge.src,
     target: edge.dst,
-    width: edge.size,
+    width: edge.width,
     color: edge.color,
   };
 }
@@ -129,6 +129,7 @@ export default defineComponent({
           ...copyGraphDefaults.edges[x],
         };
       });
+      copyGraphDefaults.selected = this.cytoGraph.selected;
       this.cytoGraph = copyGraphDefaults;
       /* end update */
 
@@ -144,8 +145,6 @@ export default defineComponent({
           copyGraphDefaults.nodes[edge.dst].visible;
       });
       /* end visibility for edges */
-
-      console.log(copyGraphDefaults);
 
       cy.startBatch();
 
@@ -197,7 +196,7 @@ export default defineComponent({
       updateEdges.map(x => {
         const update = copyGraphDefaults.edges[x];
         const edge = cy.$id(x);
-        edge.data(update);
+        edge.data(edgeToCytoscape(update));
         if (update.visible && edge.hasClass('hidden')) {
           edge.removeClass('hidden');
         } else if (!update.visible && !edge.hasClass('hidden')) {
@@ -211,8 +210,8 @@ export default defineComponent({
           .length > 0
       ) {
         const numberNodes = cy.nodes().length as number;
-        const width = (2000 / 100) * numberNodes;
-        const height = (1000 / 100) * numberNodes;
+        const width = (2000 / 60) * numberNodes;
+        const height = (1000 / 60) * numberNodes;
 
         const x1 = (cy.width() - width) / 2;
         const y1 = (cy.height() - height) / 2;
@@ -233,19 +232,69 @@ export default defineComponent({
 
         layout.run();
       }
+
+      /* selection color set */
+      if (this.cytoGraph.selected && this.cytoGraph.selected.node) {
+        const node = cy.$id(this.cytoGraph.selected.node);
+        node.data('color', colorMap('selected', 'node'));
+        const neigh = node.outgoers().union(node.incomers());
+        neigh.forEach(ele => {
+          if (ele.isNode()) {
+            ele.data('color', colorMap('selectedsecondary', 'node'));
+          }
+          if (ele.isEdge()) {
+            ele.data('color', colorMap('selectedsecondary', 'edge'));
+            ele.data('width', graphDefaults.edge.width * 4);
+          }
+        });
+      } else if (this.cytoGraph.selected && this.cytoGraph.selected.edge) {
+        const edge = cy.$id(this.cytoGraph.selected.edge);
+        edge.data('color', colorMap('selected', 'node'));
+        edge.data('width', graphDefaults.edge.width * 4);
+        const neigh = edge.connectedNodes();
+        neigh.forEach(node => {
+          node.data('color', colorMap('selectedsecondary', 'node'));
+        });
+      }
       cy.endBatch();
+
+      /* end selection color set */
     },
     nodeTap(node: NodeSingular) {
       const data = node.data() as CytoNodeDefaults;
-      if (data.children.length === 0) return;
+      if (data.children.length !== 0) {
+        const children = data.children;
+        const visibility = !this.cytoGraph.nodes[children[0]].visible;
 
-      const children = data.children;
-      const visibility = !this.cytoGraph.nodes[children[0]].visible;
-
-      for (const child of data.children) {
-        this.cytoGraph.nodes[child].visible = visibility;
+        for (const child of data.children) {
+          this.cytoGraph.nodes[child].visible = visibility;
+        }
+      } else {
+        if (
+          this.cytoGraph.selected &&
+          this.cytoGraph.selected.node === data.id
+        ) {
+          this.cytoGraph.selected = undefined;
+        } else {
+          this.cytoGraph.selected = {
+            node: data.id,
+          };
+        }
       }
 
+      this.draw();
+    },
+
+    edgeTap(edge: EdgeSingular) {
+      const data = edge.data() as CytoNodeDefaults;
+
+      if (this.cytoGraph.selected && this.cytoGraph.selected.edge === data.id) {
+        this.cytoGraph.selected = undefined;
+      } else {
+        this.cytoGraph.selected = {
+          edge: data.id,
+        };
+      }
       this.draw();
     },
   },
@@ -297,8 +346,12 @@ export default defineComponent({
     });
 
     const nodeTap = this.nodeTap;
+    const edgeTap = this.edgeTap;
     this.cy.on('tap', 'node', function (this: NodeSingular) {
       nodeTap(this);
+    });
+    this.cy.on('tap', 'edge', function (this: EdgeSingular) {
+      edgeTap(this);
     });
   },
 });

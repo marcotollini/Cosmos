@@ -12,7 +12,7 @@ interface CytoEdge {
   src: string;
   dst: string;
   color?: string;
-  size?: number;
+  width?: number;
   visible?: boolean;
 }
 
@@ -39,7 +39,7 @@ interface CytoEdgeDefaults {
   src: string;
   dst: string;
   color: string;
-  size: number;
+  width: number;
   visible: boolean;
 }
 
@@ -49,6 +49,10 @@ interface CytoGraphDefaults {
   };
   edges: {
     [key: string]: CytoEdgeDefaults;
+  };
+  selected?: {
+    node?: string;
+    edge?: string;
   };
 }
 

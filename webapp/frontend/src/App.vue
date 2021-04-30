@@ -1,17 +1,6 @@
 <template>
-  <main-view></main-view>
+  <router-view></router-view>
 </template>
-
-<script lang="ts">
-import {defineComponent} from 'vue';
-import MainView from '@/views/Main.vue';
-
-export default defineComponent({
-  components: {
-    MainView,
-  },
-});
-</script>
 
 <style>
 .text-center {

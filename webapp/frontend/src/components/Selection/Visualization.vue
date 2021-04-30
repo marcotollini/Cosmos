@@ -1,23 +1,19 @@
 <template>
-  <el-row>
-    <el-col :span="24" class="text-center">
-      <el-select
-        v-model="selectedVisualization"
-        filterable
-        size="medium"
-        placeholder="Select visualization"
-        class="form-medium"
-      >
-        <el-option
-          v-for="vis of visualizations"
-          :key="vis.route"
-          :label="vis.name"
-          :value="vis.route"
-        >
-        </el-option>
-      </el-select>
-    </el-col>
-  </el-row>
+  <el-select
+    v-model="selectedVisualization"
+    filterable
+    size="medium"
+    placeholder="Select visualization"
+    class="form-medium"
+  >
+    <el-option
+      v-for="vis of visualizations"
+      :key="vis.route"
+      :label="vis.name"
+      :value="vis.route"
+    >
+    </el-option>
+  </el-select>
 </template>
 
 <script lang="ts">
