@@ -139,3 +139,11 @@ CREATE INDEX dump_bmp_msg_type_idx ON "dump"("bmp_msg_type");
 
 CREATE INDEX event_timestamp_arrival_bmp_msg_typ_comms_idx ON "event" USING gin(timestamp_arrival, bmp_msg_type, comms jsonb_path_ops);
 CREATE INDEX event_bmp_msg_type_idx ON "event"("bmp_msg_type");
+
+
+CREATE EXTENSION pgcrypto;
+CREATE TABLE "public"."queries" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "payload" jsonb NOT NULL,
+    "timestamp" timestamptz DEFAULT now()
+) WITH (oids = false);

@@ -58,15 +58,19 @@ export default defineComponent({
   watch: {
     selectedTimestamp() {
       this.loadVisualization();
+      this.saveQuery();
     },
     selectedVPN() {
       this.loadVisualization();
+      this.saveQuery();
     },
     activeFilters() {
       this.loadVisualization();
+      this.saveQuery();
     },
     showCols() {
       this.loadVisualization();
+      this.saveQuery();
     },
   },
   methods: {
@@ -75,21 +79,16 @@ export default defineComponent({
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
 
-      const activeFilters = cloneDeep(this.activeFilters);
-      for (const fieldName in activeFilters) {
-        activeFilters[fieldName] = activeFilters[fieldName].map((x: string) => {
-          if (x === 'null') return null;
-          else if (x === 'true') return true;
-          else if (x === 'false') return false;
-          return x;
-        });
-      }
-
       this.loading = true;
 
       try {
         const result = await this.$http.post('/api/bmp/visualization/list', {
-          data: {timestamp, vpn, filters: activeFilters, show: this.showCols},
+          data: {
+            timestamp,
+            vpn,
+            filters: this.activeFilters,
+            show: this.showCols,
+          },
           headers: {
             REQUEST_ID: 'field_values',
             THROTTLE: '1000',
@@ -121,6 +120,27 @@ export default defineComponent({
       } finally {
         this.loading = false;
       }
+    },
+    async saveQuery() {
+      const timestamp = this.selectedTimestamp;
+      const vpn = this.selectedVPN;
+      if (timestamp === undefined || vpn === undefined) return;
+
+      const payload = {
+        view: 'list',
+        timestamp,
+        vpn,
+        filters: this.activeFilters,
+        columns: this.showCols,
+      };
+
+      const result = await this.$http.post('/api/query/save', {payload});
+
+      const id = result.data;
+
+      const result2 = await this.$http.get(`/api/query/get/${id}`);
+
+      console.log(id, result2.data);
     },
   },
   mounted() {

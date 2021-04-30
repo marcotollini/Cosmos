@@ -15,6 +15,8 @@ import VisualizationVPNTopology from './query/Visualization/VisualizationVPNTopo
 import VisualizationVPNRoutingTopology from './query/Visualization/VisualizationVPNRoutingTopology';
 import VisualizationPeeringTopology from './query/Visualization/VisualizationPeeringTopology';
 import VisualizationList from './query/Visualization/VisualizationList';
+import QuerySave from './query/QuerySave';
+import QueryGet from './query/QueryGet';
 
 class PGDatabase implements DatabaseInterface {
   constructor() {
@@ -108,6 +110,14 @@ class PGDatabase implements DatabaseInterface {
     const bmpState = new BMPState(timestamp, vpn);
     const filteredBmpState = new FilterBMPState(bmpState.raw(), filters);
     return new VisualizationList(filteredBmpState.raw(), show);
+  }
+
+  QuerySave(payload: {[key: string]: any}): QuerySave {
+    return new QuerySave(payload);
+  }
+
+  QueryGet(id: string): QueryGet {
+    return new QueryGet(id);
   }
 }
 

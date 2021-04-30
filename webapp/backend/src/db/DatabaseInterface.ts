@@ -10,6 +10,8 @@ import VisualizationVPNRoutingTopologyInterface from './query-interface/Visualiz
 import VisualizationPeeringTopologyInterface from './query-interface/Visualization/VisualizationPeeringTopology';
 import VisualizationListInterface from './query-interface/Visualization/VisualizationList';
 import PeerUpStateInterface from './query-interface/PeerUpState';
+import QuerySaveInterface from './query-interface/QuerySave';
+import QueryGetInterface from './query-interface/QueryGet';
 
 interface DatabaseInterface {
   VPNList(timestamp: Date): VPNListInterface;
@@ -64,6 +66,10 @@ interface DatabaseInterface {
     filters: filtersType,
     show: string[]
   ): VisualizationListInterface;
+
+  QuerySave(payload: {[key: string]: any}): QuerySaveInterface;
+
+  QueryGet(id: string): QueryGetInterface;
 }
 
 export default DatabaseInterface;
