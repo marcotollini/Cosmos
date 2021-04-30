@@ -1,9 +1,9 @@
 <template>
-  <el-row class="full-height">
-    <el-col :span="24">
+  <el-container class="full-height">
+    <el-header height="auto">
       <filters-show v-model:selected="showCols"></filters-show>
-    </el-col>
-    <el-col :span="24">
+    </el-header>
+    <el-main id="table-main-el">
       <el-table
         :data="data"
         v-loading="loading"
@@ -22,8 +22,8 @@
         >
         </el-table-column>
       </el-table>
-    </el-col>
-  </el-row>
+    </el-main>
+  </el-container>
 </template>
 
 <script lang="ts">
@@ -138,6 +138,9 @@ export default defineComponent({
 <style scoped>
 .full-height {
   height: 100%;
+}
+#table-main-el {
+  padding: 0;
 }
 </style>
 
