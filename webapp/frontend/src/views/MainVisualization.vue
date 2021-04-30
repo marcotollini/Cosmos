@@ -138,11 +138,8 @@ export default defineComponent({
         custom: this.customVisualizationQuery,
       };
 
-      console.log(this.loaded, payload);
-
       if (isEqual(this.loaded, payload)) {
         // no need to save as the query is already the correct one
-        console.log('avoid');
         return;
       }
 

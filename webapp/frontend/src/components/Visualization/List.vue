@@ -12,6 +12,7 @@
         stripe
         highlight-current-row
         fit
+        :span-method="arraySpanMethod"
       >
         <el-table-column
           v-for="prop in props"
@@ -115,11 +116,31 @@ export default defineComponent({
             }
           }
         }
-
+        if (data.length === 101) {
+          data[100] = {
+            bmp_router: 'Other columns available. Use filters to see them',
+          };
+        }
         this.data = data;
       } finally {
         this.loading = false;
       }
+    },
+    arraySpanMethod({
+      row,
+      column,
+      rowIndex,
+      columnIndex,
+    }: {
+      row: unknown;
+      column: unknown;
+      rowIndex: number;
+      columnIndex: number;
+    }) {
+      if (rowIndex === 100) {
+        return [1, this.showCols.length];
+      }
+      return [1, 1];
     },
   },
   mounted() {
