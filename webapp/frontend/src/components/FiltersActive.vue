@@ -50,7 +50,15 @@ const Draggable = draggable as DefineComponent<
   // eslint-disable-next-line @typescript-eslint/ban-types
   {}
 >;
-import {cloneDeep, isEqual, pickBy} from 'lodash';
+import {
+  cloneDeep,
+  flatten,
+  isArray,
+  isEqual,
+  mapValues,
+  pickBy,
+  uniq,
+} from 'lodash';
 
 export default defineComponent({
   name: 'FiltersPlacable',
@@ -83,8 +91,16 @@ export default defineComponent({
     selected: {
       handler() {
         const unemptyFilters = pickBy(this.selected, x => x.length !== 0);
-        if (!isEqual(this.activeFilters, unemptyFilters)) {
-          this.$store.commit('activeFilters', cloneDeep(unemptyFilters));
+        const realVals = mapValues(unemptyFilters, (x: unknown[]) => {
+          return x.map(y => {
+            if (y === 'undefined') return undefined;
+            else if (y === 'null') return null;
+            return y;
+          });
+        });
+
+        if (!isEqual(this.activeFilters, realVals)) {
+          this.$store.commit('activeFilters', realVals);
         }
       },
       deep: true,
@@ -122,7 +138,17 @@ export default defineComponent({
             },
           }
         );
-        this.values[id] = result.data;
+        let hasArray = false;
+        let values = result.data.map((x: unknown) => {
+          if (x === undefined) return 'undefined';
+          else if (x === null) return 'null';
+          if (isArray(x)) hasArray = true;
+          return x;
+        });
+
+        if (hasArray) values = uniq(flatten(values));
+
+        this.values[id] = values;
       } catch (e) {
         if (e.__CANCEL__) {
           console.log('Request cancelled');
