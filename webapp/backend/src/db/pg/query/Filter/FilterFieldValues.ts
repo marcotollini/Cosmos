@@ -7,8 +7,7 @@ import {
 } from '../../../query-interface/Filter/FilterFieldValues';
 
 type queryReturnType = {
-  key: string;
-  values: (string | number | boolean | null)[];
+  values: string | number | boolean | null;
 }[];
 
 class FilterFieldsValues extends Query implements FilterFieldValuesInterface {
@@ -23,20 +22,14 @@ class FilterFieldsValues extends Query implements FilterFieldValuesInterface {
   // https://stackoverflow.com/questions/41130773/how-can-i-get-the-distinct-values-of-all-columns-in-a-single-table-in-postgres
   raw() {
     return sql`
-      SELECT key, json_agg(DISTINCT value) as values
-      FROM (${this.bmpstate}) as bmpstate, jsonb_each(to_jsonb(bmpstate))
-      WHERE key = ${this.fieldName}
-      GROUP BY key
+      SELECT DISTINCT ${sql.identifier([this.fieldName])} AS values
+      FROM (${this.bmpstate}) as state
     `;
   }
 
   async execute(): Promise<returnType> {
     const rows = (await this.executeQuery()) as queryReturnType;
-
-    if (rows.length === 0) return [];
-    const firstRow = rows[0];
-    const values = firstRow.values;
-    return values;
+    return rows.map(x => x.values);
   }
 }
 

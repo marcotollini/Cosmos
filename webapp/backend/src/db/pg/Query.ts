@@ -8,17 +8,26 @@ import {
   TaggedTemplateLiteralInvocationType,
 } from 'slonik';
 
+import {default as get_schemas, schemas} from './schemas';
+
 type slonikSql = TaggedTemplateLiteralInvocationType<QueryResultRowType>;
 
 const pool = create_slonik();
+
+const schema = {} as schemas;
+get_schemas(pool, schema).then(x => {
+  console.log('Schema loaded');
+});
 
 abstract class Query {
   pool: DatabasePoolType;
   pid: null | number;
   timeBetweenDumps: number;
+  schema: schemas;
 
   constructor() {
     this.pool = pool;
+    this.schema = schema;
     this.pid = null;
     this.timeBetweenDumps = 45 * 60 * 2;
   }
