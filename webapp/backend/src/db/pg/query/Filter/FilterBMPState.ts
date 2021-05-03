@@ -1,4 +1,4 @@
-import {sql} from 'slonik';
+import {sql, TypeNameIdentifierType} from 'slonik';
 
 import {default as Query, slonikSql} from '../../Query';
 import {
@@ -21,7 +21,24 @@ class FilterBMPState extends Query implements FilterBMPStateInterface {
     this.filters = filters;
   }
 
-  // https://stackoverflow.com/questions/41130773/how-can-i-get-the-distinct-values-of-all-columns-in-a-single-table-in-postgres
+  anyFilter(fieldName: string, values: (string | number | boolean | null)[]) {
+    if (values.length === 0) return sql``;
+    const schema = this.schema.event[fieldName];
+    const type = schema.udt_name;
+    const identifier = sql`${sql.identifier(['bmpstatetofilter', fieldName])}`;
+
+    if (type === 'jsonb' || type === 'json') {
+      const searches = values.map(x => {
+        return sql`${identifier} @> ${sql.json(x)}`;
+      });
+      return sql`(${sql.join(searches, sql` OR `)})`;
+    }
+
+    return sql`
+      ${identifier} = ANY (${sql.array(values, type as TypeNameIdentifierType)})
+    `;
+  }
+
   raw() {
     if (isEmpty(this.filters)) {
       return this.bmpstate;
@@ -34,13 +51,8 @@ class FilterBMPState extends Query implements FilterBMPStateInterface {
       if (hasNull !== -1) {
         values.splice(hasNull, 1);
       }
-      const inQuery =
-        values.length > 0
-          ? sql`${sql.identifier([
-              'bmpstatetofilter',
-              fieldName,
-            ])} IN (${sql.join(values, sql`, `)})`
-          : sql``;
+
+      const anyQuery = this.anyFilter(fieldName, values);
 
       const nullQuery = sql`${sql.identifier([
         'bmpstatetofilter',
@@ -48,13 +60,15 @@ class FilterBMPState extends Query implements FilterBMPStateInterface {
       ])} IS NULL`;
 
       if (values.length > 0 && hasNull !== -1) {
-        return sql`(${inQuery} OR ${nullQuery})`;
+        return sql`(${anyQuery} OR ${nullQuery})`;
       } else if (hasNull === -1) {
-        return inQuery;
+        return anyQuery;
       } else {
         return nullQuery;
       }
     });
+
+    console.log(sql`${sql.join(filtersSql, sql` AND `)}`);
 
     return sql`
     SELECT *
