@@ -178,7 +178,8 @@ services:
     volumes:
       - ../../../webapp:/usr/app/
     working_dir: /usr/app/backend
-    command: sleep 10000000
+    command: npm run dev
+    # command: sleep 10000000
     environment:
       DBCLIENT: "pg"
       PGURI: "postgresql://l3visualization:password@timescale/l3visualization"
