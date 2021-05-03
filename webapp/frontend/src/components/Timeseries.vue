@@ -11,6 +11,21 @@
 import {isEmpty} from 'lodash';
 import {defineComponent} from 'vue';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+function doubleClick(timer: number, fn: Function) {
+  let timeout = undefined as any;
+  return function click(...args: unknown[]) {
+    if (timeout !== undefined) {
+      timeout = undefined;
+      return fn(...args);
+    }
+
+    timeout = setTimeout(() => {
+      timeout = undefined;
+    }, timer);
+  };
+}
+
 export default defineComponent({
   name: 'TimeseriesChart',
   props: {
@@ -26,6 +41,9 @@ export default defineComponent({
           type: 'line',
           stacked: false,
           foreColor: '#999',
+          events: {
+            markerClick: doubleClick(500, this.markerDoubleClick),
+          },
         },
         colors: ['#FF1654', '#247BA0'],
         stroke: {
@@ -153,6 +171,27 @@ export default defineComponent({
     },
   },
   methods: {
+    markerDoubleClick(
+      event: MouseEvent,
+      chartContext: unknown,
+      {
+        seriesIndex,
+        dataPointIndex,
+        config,
+      }: {seriesIndex: number; dataPointIndex: number; config: unknown}
+    ) {
+      if (dataPointIndex >= this.allSeries.length) {
+        console.log(
+          'Cannot set timestamp from timeline as index > allSeries.length',
+          dataPointIndex,
+          this.allSeries.length
+        );
+        return;
+      }
+      const timestamp = this.allSeries[dataPointIndex].start_bucket;
+      const datetime = new Date(timestamp * 1000);
+      this.$store.commit('selectedTimestamp', datetime);
+    },
     setMarker(time: Date) {
       this.options.annotations.xaxis[0].x = time.getTime();
     },

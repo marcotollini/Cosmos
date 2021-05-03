@@ -27,6 +27,7 @@ CREATE TABLE "public"."event" (
     "is_post" boolean,
     "is_out" boolean,
     "rd" character varying(32),
+    "rd_origin" character varying(32),
     "bgp_id" character varying(32),
     "bmp_peer_up_info_string" text,
     -- init
@@ -89,6 +90,7 @@ CREATE TABLE "public"."dump" (
     "is_post" boolean,
     "is_out" boolean,
     "rd" character varying(32),
+    "rd_origin" character varying(32),
     "bgp_id" character varying(32),
     "bmp_peer_up_info_string" text,
     -- dump
@@ -133,7 +135,7 @@ CREATE TABLE "public"."dump" (
 -- https://www.postgresql.org/docs/current/btree-gin.html
 -- https://stackoverflow.com/questions/9025515/how-do-i-import-modules-or-install-extensions-in-postgresql-9-1
 CREATE EXTENSION btree_gin;
-CREATE INDEX dump_timestamp_bmp_msg_typ_comms_idx ON "event" USING gin("timestamp", bmp_msg_type, comms jsonb_path_ops);
+CREATE INDEX dump_timestamp_bmp_msg_typ_comms_idx ON "dump" USING gin("timestamp", bmp_msg_type, comms jsonb_path_ops);
 CREATE INDEX dump_bmp_msg_type_idx ON "dump"("bmp_msg_type");
 
 
