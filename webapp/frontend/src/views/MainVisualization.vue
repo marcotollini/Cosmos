@@ -25,6 +25,12 @@
           <filters-draggable></filters-draggable>
         </el-col>
       </el-row>
+      <el-row>
+        <el-divider>Playback</el-divider>
+        <el-col :span="24" class="text-center">
+          <playback></playback>
+        </el-col>
+      </el-row>
     </template>
     <template v-slot:main>
       <template v-if="selectedVisualization === 'vpn-topology'">
@@ -55,6 +61,7 @@ import Visualization from '@/components/Selection/Visualization.vue';
 import FiltersDraggable from '@/components/FiltersDraggable.vue';
 import FiltersActive from '@/components/FiltersActive.vue';
 import Timeseries from '@/components/Timeseries.vue';
+import Playback from '@/components/Playback.vue';
 
 import VPNTopology from '@/components/Visualization/VPNTopology.vue';
 import VPNRoutingTopology from '@/components/Visualization/VPNRoutingTopology.vue';
@@ -76,6 +83,7 @@ export default defineComponent({
     VPNRoutingTopology,
     PeeringTopology,
     ListVisualization,
+    Playback,
   },
   data() {
     return {
