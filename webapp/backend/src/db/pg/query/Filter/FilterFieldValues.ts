@@ -21,8 +21,14 @@ class FilterFieldsValues extends Query implements FilterFieldValuesInterface {
 
   // https://stackoverflow.com/questions/41130773/how-can-i-get-the-distinct-values-of-all-columns-in-a-single-table-in-postgres
   raw() {
+    const identifier = sql.identifier([this.fieldName]);
+    const selection =
+      this.schema.event[this.fieldName].data_type !== 'jsonb'
+        ? sql`${identifier}`
+        : sql`jsonb_array_elements(${identifier})`;
+
     return sql`
-      SELECT DISTINCT ${sql.identifier([this.fieldName])} AS values
+      SELECT DISTINCT ${selection} AS values
       FROM (${this.bmpstate}) as state
     `;
   }

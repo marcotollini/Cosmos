@@ -138,15 +138,11 @@ export default defineComponent({
             },
           }
         );
-        let hasArray = false;
-        let values = result.data.map((x: unknown) => {
+        const values = result.data.map((x: unknown) => {
           if (x === undefined) return 'undefined';
           else if (x === null) return 'null';
-          if (isArray(x)) hasArray = true;
           return x;
         });
-
-        if (hasArray) values = uniq(flatten(values));
 
         this.values[id] = values;
       } catch (e) {
