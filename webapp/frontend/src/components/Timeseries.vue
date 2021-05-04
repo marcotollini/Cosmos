@@ -1,10 +1,12 @@
 <template>
-  <apexchart
-    type="line"
-    :height="height"
-    :options="options"
-    :series="series"
-  ></apexchart>
+  <div ref="timeseries" style="width: 100%; height: 100%">
+    <apexchart
+      type="line"
+      :height="height"
+      :options="options"
+      :series="series"
+    ></apexchart>
+  </div>
 </template>
 
 <script lang="ts">
@@ -125,10 +127,14 @@ export default defineComponent({
       allSeries: [] as {start_bucket: number; count: number}[],
       filteredSeries: [] as {start_bucket: number; count: number}[],
       precision: 60,
+      loadingObject: undefined as any,
     };
   },
 
   computed: {
+    showLoading(): boolean {
+      return this.$store.state.showLoading;
+    },
     allSeriesApex(): [Date, number][] {
       return this.allSeries.map(x => [
         new Date(x.start_bucket * 1000),
@@ -195,11 +201,45 @@ export default defineComponent({
     setMarker(time: Date) {
       this.options.annotations.xaxis[0].x = time.getTime();
     },
+    startLoading() {
+      if (this.loadingObject !== undefined) {
+        this.loadingObject.close();
+        this.loadingObject = undefined;
+      }
+
+      if (this.showLoading) {
+        this.loadingObject = this.$loading({
+          target: this.$refs.timeseries,
+          lock: true,
+        });
+      }
+    },
+    stopLoading() {
+      if (this.loadingObject !== undefined) {
+        this.loadingObject.close();
+        this.loadingObject = undefined;
+      }
+    },
     async loadAll() {
-      this.allSeries = [];
       const timestamp = this.selectedTimestamp;
       const vpn = this.selectedVPN;
-      if (timestamp === undefined || vpn === undefined) return;
+      if (timestamp === undefined || vpn === undefined)
+        return (this.allSeries = []);
+
+      if (this.allSeries.length > 0) {
+        const min = this.allSeries[0];
+        const max = this.allSeries[this.allSeries.length - 1];
+        if (
+          timestamp.getTime() / 1000 > max.start_bucket ||
+          timestamp.getTime() / 1000 < min.start_bucket
+        ) {
+          this.allSeries = [];
+        } else {
+          this.setMarker(timestamp);
+        }
+      }
+
+      this.startLoading();
 
       const result = await this.$http.post('/api/bmp/count', {
         data: {timestamp, vpn, filters: {}},
@@ -213,9 +253,9 @@ export default defineComponent({
 
       this.allSeries = data;
       this.setMarker(timestamp);
+      this.stopLoading();
     },
     async loadFilters() {
-      this.filteredSeries = [];
       const timestamp = this.selectedTimestamp;
       const vpn = this.selectedVPN;
       if (
@@ -223,7 +263,21 @@ export default defineComponent({
         vpn === undefined ||
         isEmpty(this.activeFilters)
       )
-        return;
+        return (this.filteredSeries = []);
+
+      if (this.filteredSeries.length > 0) {
+        const min = this.filteredSeries[0];
+        const max = this.filteredSeries[this.filteredSeries.length - 1];
+        if (
+          timestamp.getTime() / 1000 > max.start_bucket ||
+          timestamp.getTime() / 1000 < min.start_bucket
+        ) {
+          this.filteredSeries = [];
+        } else {
+          this.setMarker(timestamp);
+        }
+      }
+      this.startLoading();
 
       const result = await this.$http.post('/api/bmp/count', {
         data: {timestamp, vpn, filters: this.activeFilters},
@@ -237,6 +291,7 @@ export default defineComponent({
 
       this.filteredSeries = data;
       this.setMarker(timestamp);
+      this.stopLoading();
     },
   },
   mounted() {
