@@ -58,6 +58,9 @@ export default defineComponent({
     customVisualizationQuery() {
       return this.$store.state.customVisualizationQuery;
     },
+    showLoading() {
+      return this.$store.state.showLoading;
+    },
   },
   watch: {
     selectedTimestamp() {
@@ -80,7 +83,8 @@ export default defineComponent({
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
 
-      this.loading = true;
+      this.loading = this.showLoading && true;
+      const start = new Date().getTime();
 
       try {
         const result = await this.$http.post('/api/bmp/visualization/list', {
@@ -122,6 +126,10 @@ export default defineComponent({
           };
         }
         this.data = data;
+        const end = new Date().getTime();
+        console.log('List generated in', end - start, 'ms');
+
+        this.$store.commit('timestampLoadedView', timestamp);
       } finally {
         this.loading = false;
       }

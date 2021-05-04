@@ -32,6 +32,9 @@ export default defineComponent({
     activeFilters() {
       return this.$store.state.activeFilters;
     },
+    showLoading() {
+      return this.$store.state.showLoading;
+    },
   },
   watch: {
     selectedTimestamp() {
@@ -55,10 +58,12 @@ export default defineComponent({
         this.loadingObject = undefined;
       }
 
-      this.loadingObject = this.$loading({
-        target: this.$refs.cytoscape,
-        lock: true,
-      });
+      if (this.showLoading) {
+        this.loadingObject = this.$loading({
+          target: this.$refs.cytoscape,
+          lock: true,
+        });
+      }
 
       const result = await this.$http.post(
         '/api/bmp/visualization/vpn/routing-topology',
@@ -124,6 +129,8 @@ export default defineComponent({
         this.loadingObject.close();
         this.loadingObject = undefined;
       }
+
+      this.$store.commit('timestampLoadedView', timestamp);
     },
   },
   mounted() {

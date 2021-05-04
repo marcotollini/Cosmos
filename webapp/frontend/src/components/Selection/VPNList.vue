@@ -37,6 +37,9 @@ export default defineComponent({
     selectedTimestamp() {
       return this.$store.state.selectedTimestamp;
     },
+    showLoading() {
+      return this.$store.state.showLoading;
+    },
   },
   watch: {
     selectedTimestamp() {
@@ -45,7 +48,7 @@ export default defineComponent({
   },
   methods: {
     async loadVPNList() {
-      this.isloading = true;
+      this.isloading = this.showLoading && true;
       const timestamp = this.selectedTimestamp;
       if (timestamp === undefined) return;
       try {

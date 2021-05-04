@@ -1,9 +1,10 @@
 <template>
-  <cytoscape :graph="graph"></cytoscape>
+  <div ref="cytoscape" style="width: 100%; height: 100%">
+    <cytoscape :graph="graph"></cytoscape>
+  </div>
 </template>
 
 <script lang="ts">
-import {cloneDeep} from 'lodash';
 import {defineComponent} from 'vue';
 import Cytoscape from '@/components/Cytoscape.vue';
 
@@ -17,6 +18,7 @@ export default defineComponent({
   data: function () {
     return {
       graph: {} as CytoGraph,
+      loadingObject: undefined as any,
     };
   },
   computed: {
@@ -28,6 +30,9 @@ export default defineComponent({
     },
     activeFilters() {
       return this.$store.state.activeFilters;
+    },
+    showLoading() {
+      return this.$store.state.showLoading;
     },
   },
   watch: {
@@ -46,6 +51,18 @@ export default defineComponent({
       const timestamp = this.selectedTimestamp;
       const vpn = this.selectedVPN;
       if (timestamp === undefined || vpn === undefined) return;
+
+      if (this.loadingObject !== undefined) {
+        this.loadingObject.close();
+        this.loadingObject = undefined;
+      }
+
+      if (this.showLoading) {
+        this.loadingObject = this.$loading({
+          target: this.$refs.cytoscape,
+          lock: true,
+        });
+      }
 
       const result = await this.$http.post(
         '/api/bmp/visualization/peering/topology',
@@ -108,6 +125,13 @@ export default defineComponent({
       this.graph = {nodes: nodesMap, edges: edgesMap} as CytoGraph;
       const end = new Date().getTime();
       console.log('Peering Topology graph generated in', end - start, 'ms');
+
+      if (this.loadingObject !== undefined) {
+        this.loadingObject.close();
+        this.loadingObject = undefined;
+      }
+
+      this.$store.commit('timestampLoadedView', timestamp);
     },
   },
   mounted() {

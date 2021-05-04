@@ -16,6 +16,9 @@ export default createStore({
     // used to save the custom values of the components
     // to be saved in the query
     customVisualizationQuery: {} as Record<string, unknown[]>,
+    playbackMode: false as boolean,
+    showLoading: true as boolean,
+    timestampLoadedView: undefined as Date | undefined,
   },
   mutations: {
     selectedTimestamp(state, timestamp: Date | undefined) {
@@ -35,6 +38,24 @@ export default createStore({
     },
     customVisualizationQuery(state, data: Record<string, unknown[]>) {
       state.customVisualizationQuery = data;
+    },
+    playbackMode(state, isPlayack: boolean) {
+      state.playbackMode = isPlayack;
+    },
+    playbackModeEnable(state) {
+      state.playbackMode = true;
+    },
+    playbackModeDisable(state) {
+      state.playbackMode = false;
+    },
+    playbackModeToggle(state) {
+      state.playbackMode = !state.playbackMode;
+    },
+    showLoading(state, showLoading: boolean) {
+      state.showLoading = showLoading;
+    },
+    timestampLoadedView(state, timestamp: Date | undefined) {
+      state.timestampLoadedView = timestamp;
     },
   },
   actions: {},

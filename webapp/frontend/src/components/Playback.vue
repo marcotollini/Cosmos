@@ -3,7 +3,7 @@
     <el-col class="text-center">
       <el-button
         type="primary"
-        :icon="running ? 'el-icon-video-play' : 'el-icon-video-pause'"
+        :icon="!running ? 'el-icon-video-play' : 'el-icon-video-pause'"
         @click="playpause"
         circle
       ></el-button>
@@ -13,7 +13,7 @@
     <el-col :span="12" class="pr-5">
       <el-input
         placeholder="Speed"
-        prefix-icon="el-icon-d-arrow-right"
+        prefix-icon="el-icon-time"
         v-model="speed"
         type="number"
       >
@@ -28,6 +28,10 @@
       >
       </el-input>
     </el-col>
+    <span v-if="running && loadingTime !== ''" class="mt-5"
+      >Loaded {{ timestampLoadedView.toLocaleString() }} in
+      {{ loadingTime }}s</span
+    >
   </el-row>
 </template>
 
@@ -38,65 +42,122 @@ export default defineComponent({
   name: 'Timestamp',
   data() {
     return {
-      running: true as boolean,
-      speed: undefined as number | undefined | '',
-      resolution: undefined as number | undefined | '',
+      speed: '' as number | '',
+      resolution: '' as number | '',
+      ready: {
+        timestamp: false,
+        wait: false,
+      },
+      timer: undefined as any,
+      startLoading: new Date(),
+      loadingTime: '',
     };
+  },
+  computed: {
+    selectedTimestamp(): Date {
+      return this.$store.state.selectedTimestamp;
+    },
+    running() {
+      return this.$store.state.playbackMode;
+    },
+    timestampLoadedView(): Date {
+      return this.$store.state.timestampLoadedView;
+    },
   },
   watch: {
     speed() {
-      if (this.speed === '') this.speed = undefined;
-      if (this.speed === undefined) return;
-      if (this.speed <= 0) {
-        this.running = false;
-        this.speed = undefined;
+      if (this.speed === '') return;
+      if (this.speed < 1) {
+        this.$store.commit('playbackModeDisable');
+        this.speed = '';
         this.$notify({
           title: 'Speed out of range',
-          message: 'Speed should be > 0',
-          type: 'error',
-        });
-      } else if (this.speed > 2) {
-        this.speed = 2;
-        this.$notify({
-          title: 'Out of range',
-          message: 'Resolution should be < 2',
+          message: 'Speed should be >= 1',
           type: 'error',
         });
       }
     },
     resolution() {
-      if (this.resolution === '') this.resolution = undefined;
-      if (this.resolution === undefined) return;
+      if (this.resolution === '') return;
 
       if (this.resolution <= 0) {
-        this.running = false;
-        this.resolution = undefined;
+        this.$store.commit('playbackModeDisable');
+        this.resolution = '';
         this.$notify({
-          title: 'Resolution o ut of range',
+          title: 'Resolution out of range',
           message: 'Resolution should be > 0',
           type: 'error',
         });
       } else if (this.resolution > 600) {
         this.resolution = 600;
         this.$notify({
-          title: 'Out of range',
+          title: 'Resolution out of range',
           message: 'Resolution should be < 600',
           type: 'error',
         });
       }
     },
+    timestampLoadedView() {
+      if (!this.running) return;
+      this.ready.timestamp = true;
+      const end = new Date();
+      this.loadingTime = (
+        (end.getTime() - this.startLoading.getTime()) /
+        1000
+      ).toString();
+    },
+    ready: {
+      handler() {
+        if (this.ready.timestamp && this.ready.wait) this.tick();
+      },
+      deep: true,
+    },
   },
   methods: {
     playpause() {
-      if (
-        this.speed === undefined ||
-        this.speed <= 0 ||
-        this.resolution === undefined ||
-        this.resolution <= 0
-      ) {
-        this.running = false;
+      if (this.speed === '' || this.resolution === '') {
+        this.$notify({
+          title: 'Value required',
+          message: 'Speed and resolution are required',
+          type: 'error',
+        });
+        this.$store.commit('playbackModeDisable');
+        return;
       }
-      this.running = !this.running;
+      this.$store.commit('playbackModeToggle');
+
+      if (this.running) this.changeRunning();
+      else this.changeNotRunning();
+    },
+    changeRunning() {
+      this.$store.commit('showLoading', false);
+      this.ready.timestamp = true;
+      this.ready.wait = true;
+    },
+    changeNotRunning() {
+      this.$store.commit('showLoading', true);
+      this.ready.timestamp = false;
+      this.ready.wait = false;
+      if (this.timer !== undefined) {
+        clearInterval(this.timer);
+      }
+      this.loadingTime = '';
+    },
+    tick() {
+      this.ready.timestamp = false;
+      this.ready.wait = false;
+
+      if (this.speed === '' || this.resolution === '') return;
+      this.startLoading = new Date();
+
+      const date = new Date(
+        this.selectedTimestamp.getTime() + this.resolution * 1000
+      );
+      this.$store.commit('selectedTimestamp', date);
+
+      this.timer = setTimeout(() => {
+        this.ready.wait = true;
+      }, this.speed * 1000);
     },
   },
 });
