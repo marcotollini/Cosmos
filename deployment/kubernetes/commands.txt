@@ -1,0 +1,19 @@
+kubectl create configmap nfacctd-maps-config --from-file=./maps_ietf/
+
+ /bin/kafka-topics --create --zookeeper z-3.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181 --topic nfacctd_bmp  --partitions 2 --replication-factor 1
+ /bin/kafka-topics --create --zookeeper z-3.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181 --topic nfacctd_bmp_dump  --partitions 2 --replication-factor 1
+ /bin/kafka-topics --create --zookeeper z-3.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181,z-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:2181 --topic nfacctd_ipfix  --partitions 2 --replication-factor 1
+
+
+/bin/kafka-configs --describe --all \
+      --bootstrap-server=b-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092,b-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092 \
+      --topic nfacctd_bmp
+
+/bin/kafka-configs --alter \
+      --add-config retention.ms=172800000 \
+      --bootstrap-server=b-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092,b-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092 \
+      --topic nfacctd_bmp
+
+/bin/kafka-console-consumer \
+      --bootstrap-server b-1.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092,b-2.cosmos-kafka.h4i217.c2.kafka.eu-central-1.amazonaws.com:9092 \
+      --topic nfacctd_bmp

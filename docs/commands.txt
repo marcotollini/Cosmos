@@ -37,3 +37,6 @@ SELECT pg_size_pretty( pg_total_relation_size('event_stats') );
 SELECT h.table_name, c.interval_length FROM _timescaledb_catalog.dimension c
   JOIN _timescaledb_catalog.hypertable h ON h.id = c.hypertable_id;
 
+
+
+ curl -X PUT  -H "Content-Type: application/json" --data '{"compatibility":"NONE"}' http://localhost:8084/config/nfacctd_bmp_dump-bmp-peer_down-value

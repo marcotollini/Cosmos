@@ -1,0 +1,14 @@
+version: '3'
+services:
+  nfacctd:
+    image: pmacct/nfacctd:bleeding-edge
+    hostname: nfacctd
+    container_name: nfacctd
+    network_mode: "host"
+    restart: always
+    ports:
+      - "9991:9991"
+      - "1790:1790"
+    volumes:
+      - "./nfacctd:/etc/pmacct"
+      - "~/logs/nfacctd:/logs"
