@@ -6,8 +6,6 @@ local/
 
 temp/
 
-benchmark/
-
 frontend/node_modules/
 
 frontend/dist/
