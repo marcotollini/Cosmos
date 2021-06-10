@@ -105,6 +105,7 @@ export default defineComponent({
         if (data.length === 0) {
           this.props = [];
           this.data = [];
+          this.$store.commit('timestampLoadedView', timestamp);
           return;
         }
 

@@ -144,6 +144,7 @@ class BMPState extends Query implements BMPStateInterface {
       )
       SELECT DISTINCT ON (${distinctEventKeySql}) ${sharedColumnsUnionSql}
       FROM unionstate
+      WHERE log_type != 'withdraw' OR log_type is NULL
       ORDER BY ${distinctEventKeySql}, timestamp_comparable DESC
     `;
   }
