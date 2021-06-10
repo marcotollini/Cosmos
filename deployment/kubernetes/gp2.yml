@@ -1,0 +1,11 @@
+# https://kubernetes.io/docs/concepts/storage/storage-classes/#aws-ebs
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+volumeBindingMode: Immediate

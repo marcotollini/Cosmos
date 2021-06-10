@@ -19,11 +19,11 @@ spec:
           image: confluentinc/cp-schema-registry:6.0.1
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "0.5"
+              memory: "1024Mi"
+              cpu: "200m"
             limits:
               memory: "1024Mi"
-              cpu: "1"
+              cpu: "400m"
           # command: ["/bin/bash"]
           # args: ["-c", "sleep 1000"]
           ports:

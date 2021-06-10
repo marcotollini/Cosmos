@@ -1,9 +1,9 @@
 version: '3'
 services:
-  nfacctd:
+  nfacctd_aws:
     image: pmacct/nfacctd:bleeding-edge
-    hostname: nfacctd
-    container_name: nfacctd
+    hostname: nfacctd_aws
+    container_name: nfacctd_aws
     network_mode: "host"
     restart: always
     ports:
