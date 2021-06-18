@@ -104,7 +104,7 @@ class BMPState extends Query implements BMPStateInterface {
       sql`, `
     );
 
-    return sql`
+    const query = sql`
       WITH dumpinteresting AS (
         SELECT *
         FROM ${dumpTable}
@@ -141,12 +141,18 @@ class BMPState extends Query implements BMPStateInterface {
         UNION
         SELECT *
         FROM dumpstate
+      ), state AS (
+        SELECT DISTINCT ON (${distinctEventKeySql}) ${sharedColumnsUnionSql}
+        FROM unionstate
+        ORDER BY ${distinctEventKeySql}, timestamp_comparable DESC
       )
-      SELECT DISTINCT ON (${distinctEventKeySql}) ${sharedColumnsUnionSql}
-      FROM unionstate
+      SELECT *
+      FROM state
       WHERE log_type != 'withdraw' OR log_type is NULL
-      ORDER BY ${distinctEventKeySql}, timestamp_comparable DESC
     `;
+
+    console.log(query);
+    return query;
   }
 
   async execute(): Promise<returnType> {
