@@ -1,5 +1,5 @@
 serverFiles:
-  kafka_targets.json:
+  kafka_targets.yml:
     [
       {
         "labels": {
@@ -389,9 +389,6 @@ serverFiles:
             regex: Pending|Succeeded|Failed
             action: drop
       - job_name: msk_kafka
-        static_configs:
-          - targets:
-            - b-2.cosmos-kafka-cluste.o8wgwn.c2.kafka.eu-central-1.amazonaws.com:11001
-            - b-2.cosmos-kafka-cluste.o8wgwn.c2.kafka.eu-central-1.amazonaws.com:11002
-            - b-1.cosmos-kafka-cluste.o8wgwn.c2.kafka.eu-central-1.amazonaws.com:11001
-            - b-1.cosmos-kafka-cluste.o8wgwn.c2.kafka.eu-central-1.amazonaws.com:11002
+        file_sd_configs:
+        - files:
+          - 'kafka_targets.yml'
